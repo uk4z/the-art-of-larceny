@@ -1,0 +1,44 @@
+#background: 
+/levels/backgrounds/test.png
+
+#door: 
+(295,232), false, 70.0, 0.0, AntiTrigo(0.0,1.57), (74,73,69,255)
+(200,232), false, 70.0, 0.0, Trigo(0.0,1.57), (182,149,105,255)
+(515,446), false, 70.0, 0.0, AntiTrigo(1.57,1.57), (74,73,69,255)
+(255,741), false, 70.0, 0.0, Trigo(1.57,1.57), (182,149,105,255)
+(486,916), false, 70.0, 0.0, Trigo(0.0,1.57), (163,163,172,255)
+(979,446), false, 70.0, 0.0, Trigo(1.57,1.57), (100,53,30,255)
+
+#burglar: 
+(1153,35), 0.0, /burglar/burglar_in_motion.png, /burglar/burglar_in_motion_bis.png, /burglar/burglar_static.png
+
+#computer: 
+(7,37), (70,80), /computer/computer_hacked.png, /computer/computer_on.png, /computer/computer_off.png
+
+
+#camera: 
+(434,436), 300.0, Static(2.75)
+
+#guard: 
+[(760,190)-(845,90)-(560,97)-(560,353)-(948,353)-(1020,420)-(1020,640)-(1020,420)-(948,353)-(560,353)-(560,150)-(760,140)], [(760,190) ~ 0.0 ~ 120 --- (845,90) ~ 3.14 ~ 60 --- (1020,640) ~ 0.0 ~ 120], /guard/guard_in_motion.png, /guard/guard_in_motion_bis.png, /guard/guard_static.png
+[(110,188)-(110,260)-(235,260)-(235,483)-(366,568)-(277,601)-(250,670)-(139,744)-(255,626)-(235,260)-(110,260)], [(110,188) ~ 3.14 ~ 120 --- (366,568) ~ 0.78 ~ 180 --- (139,744) ~ 0.0 ~ 120], /guard/guard_in_motion.png, /guard/guard_in_motion_bis.png, /guard/guard_static.png
+
+#button:
+(710,230), (10,25)
+
+#footage: 
+(727,217), (50,10)
+
+#laser:
+
+#exit: 
+(740,910), (20,20)
+
+#item:
+(458,717), (420,640), (140,60), Exchange Rate eur/dol, TV_screen, exchange_rate
+(74,951), (50,910), (60,35), Exchange Rate eur/yen, Note, exchange_rate
+
+#portofolio:
+dol, 0
+yen, 1
+eur, -1
