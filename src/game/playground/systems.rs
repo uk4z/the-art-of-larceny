@@ -3,6 +3,7 @@ use bevy::window::WindowResized;
 
 use super::components::WorldPosition;
 use super::player::components::Player;
+use super::guard::components::Guard;
 use super::scenery::{
     components::Scenery,
     SCENERY_SIZE,
@@ -16,7 +17,7 @@ use super::components::Orientation;
 use super::get_world_origin;
 
 pub fn confine_position(
-    mut positions_q: Query<&mut WorldPosition, With<Player>>,
+    mut positions_q: Query<&mut WorldPosition, (With<Player>, With<Guard>)>,
 ) {
     let height_limit = SCENERY_SIZE.1-CHARACTER_SIZE/2.0; 
     let width_limit = SCENERY_SIZE.0-CHARACTER_SIZE/2.0; 

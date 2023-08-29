@@ -20,7 +20,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn get_player_direction(
+pub fn get_player_direction(
     keyboard_input: Res<Input<KeyCode>>,
 ) -> Vec3 {
     let mut direction = Vec3::ZERO; 

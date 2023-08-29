@@ -134,27 +134,12 @@ pub fn spawn_board (
                             ..default()},
                             AccessibilityNode(NodeBuilder::new(Role::List)),
                         )).with_children(|scroll_list| {
-                            for i in 0..10 {
-                                scroll_list.spawn((
-                                    TextBundle::from_section(
-                                        format!("Item {i}"),
-                                        TextStyle {
-                                            font: asset_server
-                                                .load("FiraMono-Medium.ttf"),
-                                            font_size: 16.0,
-                                            color: Color::WHITE,
-                                        },
-                                    ),
-                                    Label,
-                                    AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                                ));
-                            }
                             scroll_list.spawn((TextBundle {
                                 text: Text::from_section(
                                 "- Find all the items.",
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 16.0,
+                                    font_size: 18.0,
                                     color: Color::WHITE,
                                 }),
                                 style: Style {
@@ -167,10 +152,10 @@ pub fn spawn_board (
                             ));
                             scroll_list.spawn((TextBundle {
                                 text: Text::from_section(
-                                "- Hack the computer.",
+                                "- Unlock the target.",
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 16.0,
+                                    font_size: 18.0,
                                     color: Color::WHITE,
                                 }),
                                 style: Style {
@@ -186,7 +171,7 @@ pub fn spawn_board (
                                 "- Stole a currency.",
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 16.0,
+                                    font_size: 18.0,
                                     color: Color::WHITE,
                                 }),
                                 style: Style {
@@ -202,7 +187,7 @@ pub fn spawn_board (
                                 "- Escape through the extraction point.",
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 16.0,
+                                    font_size: 18.0,
                                     color: Color::WHITE,
                                 }),
                                 style: Style {

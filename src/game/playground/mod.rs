@@ -5,6 +5,7 @@ pub mod systems;
 pub mod components;
 pub mod extraction;
 pub mod item;
+pub mod guard;
 
 use bevy::prelude::*;
 
@@ -14,6 +15,7 @@ use scenery::{SceneryPlugin, SCENERY_SIZE};
 use target::TargetPlugin;
 use extraction::ExtractionPlugin;
 use item::ItemPlugin;
+use guard::GuardPlugin;
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -28,6 +30,7 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(TargetPlugin)
             .add_plugin(ExtractionPlugin)
             .add_plugin(ItemPlugin)
+            .add_plugin(GuardPlugin)
             .add_system(confine_position)
             .add_system(update_scale)
             .add_system(world_to_screen);
