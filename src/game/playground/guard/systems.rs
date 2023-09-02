@@ -24,55 +24,66 @@ pub fn spawn_guard(
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     //spawn FOV
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(100.0, 3))).into(),
-            transform: Transform::from_xyz(500.0, 50.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::PURPLE)), 
-            ..default()
-        },
-        FOVBundle {
-            position: WorldPosition {
-                x: 1376.0,
-                y: 640.0,
+    for _ in 0..4 {
+        commands.spawn((
+            MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(100.0, 3))).into(),
+                transform: Transform::from_xyz(500.0, 50.0, 4.0),
+                material: materials.add(ColorMaterial::from(Color::YELLOW)), 
+                ..default()
             },
-            orientation: Orientation(Quat::IDENTITY),
-        },
-        FOV,
-    ));
+            FOVBundle {
+                position: WorldPosition {
+                    x: 500.0,
+                    y: 50.0,
+                },
+                orientation: Orientation(Quat::IDENTITY),
+            },
+            FOV,
+        ));
+    }
+   
 
     //spawn_guard
-    commands.spawn((
-        SpriteBundle{
-            texture: asset_server.load("guard/static.png"),
-            transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
-        ..default()
-        }, 
-        GuardBundle { 
-            position: WorldPosition {x: 500.0, y: 50.0,},
-            orientation: Orientation(Quat::IDENTITY),
-            pace: PlayerPace::Walk,
-            animation: AnimatedMotion {
-                walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
-                run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+    for i in 0..4 {
+        commands.spawn((
+            SpriteBundle{
+                texture: asset_server.load("guard/static.png"),
+                transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+            ..default()
+            }, 
+            GuardBundle { 
+                position: WorldPosition {x: 500.0+(i as f32)*100.0 , y: 50.0 +(i as f32)*100.0},
+                orientation: Orientation(Quat::IDENTITY),
+                pace: PlayerPace::Walk,
+                animation: AnimatedMotion {
+                    walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                    run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                },
+                reach: ReachDistance(20.0),
+                patrol: Patrol {
+                    positions: vec![WorldPosition {x: 500.0+(i as f32)*100.0, y: 500.0+(i as f32)*100.0},
+                            WorldPosition {x: 400.0+(i as f32)*100.0, y: 500.0+(i as f32)*100.0},
+                            WorldPosition {x: 300.0+(i as f32)*100.0, y: 600.0+(i as f32)*100.0}, 
+                            WorldPosition {x: 300.0+(i as f32)*100.0, y: 700.0+(i as f32)*100.0},
+                            WorldPosition {x: 400.0+(i as f32)*100.0, y: 800.0+(i as f32)*100.0},
+                            WorldPosition {x: 500.0+(i as f32)*100.0, y: 800.0+(i as f32)*100.0},
+                            WorldPosition {x: 600.0+(i as f32)*100.0, y: 700.0+(i as f32)*100.0},
+                            WorldPosition {x: 600.0+(i as f32)*100.0, y: 600.0+(i as f32)*100.0}],
+                    waitings: vec![
+                        Waiting {
+                            position: WorldPosition { x: 340.0, y: 160.0 },
+                            time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                        },
+                    ],
+                    position_index: 0, 
+                    waiting_index: 0,
+                }
             },
-            reach: ReachDistance(20.0),
-            patrol: Patrol {
-                positions: vec![WorldPosition {x: 50.0, y: 50.0},  
-                        WorldPosition {x: 340.0, y: 160.0}, 
-                        WorldPosition {x: 890.0, y: 1000.0}],
-                waitings: vec![
-                    Waiting {
-                        position: WorldPosition { x: 340.0, y: 160.0 },
-                        time: Timer::from_seconds(2.0, TimerMode::Repeating),
-                    },
-                ],
-                position_index: 0, 
-                waiting_index: 0,
-            }
-        },
-        Guard,
-    ));
+            Guard,
+        ));
+    }
+    
 }
 
 pub fn update_fov(
@@ -91,6 +102,8 @@ pub fn update_fov(
         }
     });
 }
+
+
 
 pub fn move_guard(
     time: Res<Time>,

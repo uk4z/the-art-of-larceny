@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::window::WindowResized;
 
 use super::components::WorldPosition;
-use super::player::components::Player;
+use super::player::components::{Player, PlayerPace};
 use super::guard::components::Guard;
 use super::scenery::{
     components::Scenery,
@@ -17,15 +17,16 @@ use super::components::Orientation;
 use super::get_world_origin;
 
 pub fn confine_position(
-    mut positions_q: Query<&mut WorldPosition, (With<Player>, With<Guard>)>,
+    mut positions_q: Query<(&mut WorldPosition, &PlayerPace)>,
 ) {
+    println!("{:?}", positions_q);
     let height_limit = SCENERY_SIZE.1-CHARACTER_SIZE/2.0; 
     let width_limit = SCENERY_SIZE.0-CHARACTER_SIZE/2.0; 
 
     let (x_max, y_max) = (width_limit, height_limit);
     let (x_min, y_min) = (CHARACTER_SIZE/2.0, CHARACTER_SIZE/2.0);
 
-    positions_q.for_each_mut(|mut position| {
+    positions_q.for_each_mut(|(mut position,_)| {
         if position.x > x_max {
             position.x = x_max;
         }
