@@ -1,4 +1,4 @@
-use bevy::prelude::*; 
+use bevy::prelude::*;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::player::components::PlayerPace;
 
@@ -66,8 +66,17 @@ pub struct GuardBundle {
 #[derive(Component, Debug)]
 pub enum GuardState {
     Waiting(usize, usize, usize), 
-    Patrolling(usize, usize),
+    Patrolling,
     Chasing(usize, usize),
     ReturningToPattern(usize, usize, usize),
     Searching((usize, usize), usize, usize),
 }
+
+#[derive(Bundle, Debug)]
+pub struct FOVBundle {
+    pub position: WorldPosition, 
+    pub orientation: Orientation, 
+}
+
+#[derive(Component, Debug)]
+pub struct FOV;

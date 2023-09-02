@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
 use bevy::utils::Duration;
+use bevy::sprite::MaterialMesh2dBundle;
 
-
-use super::components::{GuardBundle, Guard, Waiting, Patrol};
+use std::f32::consts::PI;
+use super::components::{GuardBundle, Guard, Waiting, Patrol, FOV, FOVBundle};
 use super::get_guard_direction;
 use crate::game::playground::player::components::PlayerPace;
 use crate::game::playground::player::DISTANCE_PER_SECOND;
@@ -15,11 +16,32 @@ use crate::game::playground::scenery::get_scenery_scale_from_window;
 pub fn spawn_guard(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
+    //spawn FOV
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(100.0, 3))).into(),
+            transform: Transform::from_xyz(500.0, 50.0, 4.0),
+            material: materials.add(ColorMaterial::from(Color::PURPLE)), 
+            ..default()
+        },
+        FOVBundle {
+            position: WorldPosition {
+                x: 1376.0,
+                y: 640.0,
+            },
+            orientation: Orientation(Quat::IDENTITY),
+        },
+        FOV,
+    ));
+
+    //spawn_guard
     commands.spawn((
         SpriteBundle{
             texture: asset_server.load("guard/static.png"),
@@ -51,6 +73,23 @@ pub fn spawn_guard(
         },
         Guard,
     ));
+}
+
+pub fn update_fov(
+    mut fov_q: Query<(&mut Orientation, &mut WorldPosition), (With<FOV>, Without<Guard>)>, 
+    guard_q: Query<(&Orientation, &WorldPosition), (With<Guard>, Without<FOV>)>, 
+) {
+    let mut guard_items: Vec<(&Orientation, &WorldPosition)> = guard_q.iter().collect();
+
+    fov_q.for_each_mut(|(mut orientation, mut position)| {
+        if let Some((guard_orientation, guard_position)) = guard_items.pop() {
+            orientation.0 = guard_orientation.0; 
+            let origin = Vec3::from(*guard_position);
+            let fov_position = origin + guard_orientation.0.mul_vec3(Vec3::X*100.0);
+            *position = WorldPosition {x: fov_position.x, y:fov_position.y};
+            orientation.0 = Quat::from_rotation_z(PI/2.0).mul_quat(guard_orientation.0);  
+        }
+    });
 }
 
 pub fn move_guard(

@@ -16,7 +16,8 @@ impl Plugin for GuardPlugin {
         app.add_startup_system(spawn_guard)
             .add_system(move_guard)
             .add_system(update_patrols_positions)
-            .add_system(guard_motion_handler);
+            .add_system(guard_motion_handler)
+            .add_system(update_fov);
     }
 }
 
