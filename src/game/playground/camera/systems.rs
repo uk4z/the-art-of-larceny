@@ -20,7 +20,7 @@ pub fn spawn_camera(
 ) {
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(130.0, 3))).into(),
+            mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(140.0, 3))).into(),
             transform: Transform::from_xyz(1500.0, 1000.0, 4.0),
             material: materials.add(ColorMaterial::from(Color::GREEN)), 
             ..default()
@@ -28,9 +28,9 @@ pub fn spawn_camera(
         CameraBundle {
             position: CameraPosition {x: 1500.0, y: 1000.0},
             fov_position: WorldPosition {x:1500.0, y: 1000.0},
-            orientation: Orientation(Quat::from_rotation_arc(Vec3::X, Vec3::X)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+            orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
             pattern: CameraPattern::Static,
-            fov_length: FOVLength(130.0),
+            fov_length: FOVLength(140.0),
         }, 
         Camera
     ));
@@ -46,10 +46,12 @@ pub fn alert_security (
             let target_vector = Vec3::from(*player_pos)-Vec3::new(camera_pos.x, camera_pos.y, 0.0);
             let fov_vector = orientation.0.mul_quat(Quat::from_rotation_z(-ROTATION_CORRECTION)).mul_vec3(Vec3::X*length.0);
             let angle = orientate_angle(target_vector.angle_between(fov_vector));
-            let distance = target_vector.length();
-            if angle < PI/4.0 && length.0 >= distance {
+            let player_distance = target_vector.length();
+            let fov_distance = length.0*(1.0+1.0/2.0); //see length isocel triangle
+            if angle < PI/4.0 && player_distance >= fov_distance {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
+                    println!("intrusion");
                 }
             }
         }
