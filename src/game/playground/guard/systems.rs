@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
 use bevy::utils::Duration;
 use bevy::sprite::MaterialMesh2dBundle;
+use bevy::app::AppExit;
 
 use std::f32::consts::PI;
 use super::components::*;
@@ -14,7 +15,7 @@ use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMo
 use crate::game::playground::scenery::get_scenery_scale_from_window;
 
 
-const FOV_RANGE: f32 = 200.0; 
+const FOV_RANGE: f32 = 220.0; 
 const VISION_LENGTH: f32 = 150.0;
 
 pub fn spawn_guard(
@@ -127,8 +128,20 @@ pub fn disalert_guard (
     }
 }
 
-
-
+pub fn catch_player (
+    player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
+    mut guard_q: Query<(&WorldPosition, &ReachDistance), (With<Guard>, Without<Player>)>,
+    mut exit: EventWriter<AppExit>,
+) {
+    if let Ok((player_position, player_reach)) = player_q.get_single() {
+        guard_q.for_each_mut(|(guard_position, guard_reach)| {
+            let distance = Vec3::from(*player_position).distance(Vec3::from(*guard_position));
+            if distance <= player_reach.0+guard_reach.0 {
+                exit.send(AppExit);
+            }
+        });
+    }
+}
 
 pub fn update_fov(
     mut fov_q: Query<(&mut Orientation, &mut WorldPosition), (With<FOV>, Without<Guard>)>, 

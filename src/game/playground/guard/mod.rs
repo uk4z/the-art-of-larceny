@@ -22,7 +22,8 @@ impl Plugin for GuardPlugin {
             .add_system(update_fov)
             .add_system(alert_guard)
             .add_system(disalert_guard)
-            .add_system(update_chase_stack);
+            .add_system(update_chase_stack)
+            .add_system(catch_player);
     }
 }
 
