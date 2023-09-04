@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
-use crate::game::playground::player::components::PlayerPace;
 
 pub const POSITION_REACH: f32 = 10.0;
 
@@ -71,11 +70,30 @@ pub struct FOV;
 #[derive(Component, Debug)]
 pub struct ChaseStack(pub Vec<(WorldPosition, Orientation)>);
 
+#[derive(Debug, Component)]
+pub enum GuardPace {
+    Walk, 
+    Run, 
+}
+
+impl Into<f32> for GuardPace {
+    fn into(self) -> f32 {
+        match self {
+            GuardPace::Run => {
+                1.2
+            },
+            GuardPace::Walk => {
+                0.5
+            },
+        }
+    }
+}
+
 #[derive(Bundle, Debug)]
 pub struct GuardBundle {
     pub position: WorldPosition,
     pub orientation: Orientation, 
-    pub pace: PlayerPace,
+    pub pace: GuardPace,
     pub animation: AnimatedMotion,
     pub reach: ReachDistance,
     pub patrol: Patrol,

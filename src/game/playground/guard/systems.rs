@@ -6,7 +6,7 @@ use bevy::sprite::MaterialMesh2dBundle;
 use std::f32::consts::PI;
 use super::components::*;
 use super::{patrol_direction, chase_direction, search_direction};
-use crate::game::playground::player::components::{PlayerPace, Player};
+use crate::game::playground::player::components::Player;
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
 use crate::components::Layer;
@@ -59,7 +59,7 @@ pub fn spawn_guard(
             GuardBundle { 
                 position: WorldPosition {x: 500.0+(i as f32)*100.0 , y: 50.0 +(i as f32)*100.0},
                 orientation: Orientation(Quat::IDENTITY),
-                pace: PlayerPace::Walk,
+                pace: GuardPace::Walk,
                 animation: AnimatedMotion {
                     walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
                     run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
@@ -93,7 +93,7 @@ pub fn spawn_guard(
 }
 
 pub fn alert_guard (
-    mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut PlayerPace), With<Guard>>, 
+    mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
     player_q: Query<&WorldPosition, With<Player>>,
 ){
     if let Ok(player_pos) = player_q.get_single() {
@@ -104,25 +104,24 @@ pub fn alert_guard (
             let distance = target_vector.length();
             if *state != GuardState::Chasing && (angle < PI/4.0 && FOV_RANGE >= distance) {
                 *state = GuardState::Chasing;
-                *pace = PlayerPace::Walk;
+                *pace = GuardPace::Run;
             }
         }
     }
 }
 
 pub fn disalert_guard (
-    mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut PlayerPace), With<Guard>>, 
+    mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation), With<Guard>>, 
     player_q: Query<&WorldPosition, With<Player>>,
 ){
     if let Ok(player_pos) = player_q.get_single() {
-        for (mut state, guard_pos, orientation, mut pace) in guards_q.iter_mut() {
+        for (mut state, guard_pos, orientation,) in guards_q.iter_mut() {
             let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
             let fov_vector = orientation.0.mul_vec3(Vec3::X);
             let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
             let distance = target_vector.length();
             if *state == GuardState::Chasing && !(angle < PI/4.0 && FOV_RANGE >= distance) {
                 *state = GuardState::Searching(*player_pos);
-                *pace = PlayerPace::Walk;
             }
         }
     }
@@ -153,7 +152,7 @@ pub fn update_fov(
 pub fn move_guard(
     time: Res<Time>,
     player_q: Query<&WorldPosition, (With<Player>, Without<Guard>)>,
-    mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &PlayerPace, &GuardState), (With<Guard>, Without<Player>)>,
+    mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &GuardPace, &GuardState), (With<Guard>, Without<Player>)>,
 ) { 
     guard_q.for_each_mut(|
         (mut position, mut patrol, mut orientation, 
@@ -182,11 +181,11 @@ pub fn move_guard(
 
         //update position
         let speed = match pace {
-            PlayerPace::Run => {
-                <PlayerPace as Into<f32>>::into(PlayerPace::Run)*DISTANCE_PER_SECOND*time.delta_seconds()
+            GuardPace::Run => {
+                <GuardPace as Into<f32>>::into(GuardPace::Run)*DISTANCE_PER_SECOND*time.delta_seconds()
             },
-            PlayerPace::Walk => {
-                <PlayerPace as Into<f32>>::into(PlayerPace::Walk)*DISTANCE_PER_SECOND*time.delta_seconds()
+            GuardPace::Walk => {
+                <GuardPace as Into<f32>>::into(GuardPace::Walk)*DISTANCE_PER_SECOND*time.delta_seconds()
             },
         };
         let translation: Vec3 = direction*speed;
@@ -225,10 +224,11 @@ pub fn update_patrols_positions(
 }
 
 pub fn update_chase_stack (
-    mut guard_q: Query<(&mut ChaseStack, &mut WorldPosition, &mut GuardState, &mut Orientation), With<Guard>>,
+    mut guard_q: Query<(&mut ChaseStack, &mut WorldPosition, &mut GuardState, &mut Orientation, &mut GuardPace), With<Guard>>,
 ) {
     guard_q.for_each_mut(|(
-        mut stack, mut position, mut state, mut orientation
+        mut stack, mut position, mut state, 
+        mut orientation, mut pace
     )| {
         match *state {
             GuardState::Chasing => {
@@ -245,9 +245,10 @@ pub fn update_chase_stack (
             GuardState::Returning => {
                 if let Some((pos, stack_orientation)) = stack.0.pop() {
                     *position = pos;
-                    orientation.0 =  stack_orientation.0.mul_quat(Quat::from_rotation_z(PI));    
+                    orientation.0 =  stack_orientation.0.mul_quat(Quat::from_rotation_z(PI));  
                 } else {
                     *state = GuardState::Patrolling;
+                    *pace = GuardPace::Walk;
                 };
             },
             _ => {}
@@ -257,7 +258,7 @@ pub fn update_chase_stack (
 }
 
 pub fn guard_motion_handler(
-    mut guard_q: Query<(&mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &PlayerPace, &mut Patrol, &WorldPosition), With<Guard>>,
+    mut guard_q: Query<(&mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &GuardPace, &mut Patrol, &WorldPosition), With<Guard>>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
 ) {
@@ -272,13 +273,13 @@ pub fn guard_motion_handler(
         if !(patrol.is_waiting_position() && patrol.patrol_position_reached(*position)) {
             *texture = asset_server.load("guard/motion.png");
             match pace {
-                PlayerPace::Run => {
+                GuardPace::Run => {
                     animated.run_timer.tick(time.delta());
                     if animated.run_timer.finished() {
                         transform.scale.y = -transform.scale.y;
                     }
                 },
-                PlayerPace::Walk => {
+                GuardPace::Walk => {
                     animated.walk_timer.tick(time.delta());
                     if animated.walk_timer.finished() {
                         transform.scale.y = -transform.scale.y;
