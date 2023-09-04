@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Component, Copy, Clone, Debug)]
+#[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct WorldPosition {
     pub x: f32, 
     pub y: f32, 
@@ -15,7 +15,7 @@ impl From<WorldPosition> for Vec3 {
 #[derive(Component, Debug)]
 pub struct ReachDistance(pub f32);
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Orientation(pub Quat);
 
 #[derive(Component, Debug)]

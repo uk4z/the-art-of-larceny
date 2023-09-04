@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::player::components::PlayerPace;
 
-const POSITION_REACH: f32 = 10.0;
+pub const POSITION_REACH: f32 = 10.0;
 
 #[derive(Component, Debug)]
 pub struct Guard; 
@@ -51,25 +51,12 @@ impl Patrol {
     } 
 }
 
-#[derive(Bundle, Debug)]
-pub struct GuardBundle {
-    pub position: WorldPosition,
-    pub orientation: Orientation, 
-    pub pace: PlayerPace,
-    pub animation: AnimatedMotion,
-    pub reach: ReachDistance,
-    pub patrol: Patrol,
-}
-
-
-
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub enum GuardState {
-    Waiting(usize, usize, usize), 
     Patrolling,
-    Chasing(usize, usize),
-    ReturningToPattern(usize, usize, usize),
-    Searching((usize, usize), usize, usize),
+    Chasing,
+    Returning, 
+    Searching(WorldPosition), 
 }
 
 #[derive(Bundle, Debug)]
@@ -80,3 +67,18 @@ pub struct FOVBundle {
 
 #[derive(Component, Debug)]
 pub struct FOV;
+
+#[derive(Component, Debug)]
+pub struct ChaseStack(pub Vec<(WorldPosition, Orientation)>);
+
+#[derive(Bundle, Debug)]
+pub struct GuardBundle {
+    pub position: WorldPosition,
+    pub orientation: Orientation, 
+    pub pace: PlayerPace,
+    pub animation: AnimatedMotion,
+    pub reach: ReachDistance,
+    pub patrol: Patrol,
+    pub state: GuardState,
+    pub chase_stack: ChaseStack,
+}
