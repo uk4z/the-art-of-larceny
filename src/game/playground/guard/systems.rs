@@ -189,9 +189,7 @@ pub fn move_guard(
                 Vec3::ZERO
             }
         };
-        
-        println!("{:?}", *state);
-
+    
         //update position
         let speed = match pace {
             GuardPace::Run => {

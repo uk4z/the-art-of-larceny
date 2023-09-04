@@ -6,6 +6,10 @@ pub mod components;
 pub mod extraction;
 pub mod item;
 pub mod guard;
+pub mod camera;
+pub mod security;
+
+use std::f32::consts::PI;
 
 use bevy::prelude::*;
 
@@ -16,6 +20,8 @@ use target::TargetPlugin;
 use extraction::ExtractionPlugin;
 use item::ItemPlugin;
 use guard::GuardPlugin;
+use camera::CameraPlugin;
+use security::SecurityPlugin;
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -31,6 +37,8 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(ExtractionPlugin)
             .add_plugin(ItemPlugin)
             .add_plugin(GuardPlugin)
+            .add_plugin(CameraPlugin)
+            .add_plugin(SecurityPlugin)
             .add_system(confine_position)
             .add_system(update_scale)
             .add_system(world_to_screen);
@@ -58,5 +66,15 @@ pub fn is_visible(
         _ => {
             true
         }
+    }
+}
+
+
+pub fn orientate_angle(mut angle: f32) -> f32 {
+    angle = angle%(2.0*PI);
+    if angle <= PI {
+        angle
+    } else  {
+        PI - angle%PI
     }
 }
