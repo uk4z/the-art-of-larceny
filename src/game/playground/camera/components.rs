@@ -5,11 +5,16 @@ use crate::game::playground::components::{WorldPosition, Orientation};
 #[derive(Component, Debug)]
 pub struct Camera; 
 
+#[derive(Component, Debug, Clone, Copy)]
+pub enum Rotate {
+    Trigo, 
+    AntiTrigo,
+}
+
 #[derive(Component, Debug)]
 pub enum CameraPattern {
     Static, 
-    Arc, 
-    Circle
+    Arc((f32,f32, Rotate)), 
 }
 
 #[derive(Component, Debug)]

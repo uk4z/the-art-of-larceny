@@ -8,8 +8,8 @@ pub mod item;
 pub mod guard;
 pub mod camera;
 pub mod security;
+pub mod laser;
 
-use std::f32::consts::PI;
 
 use bevy::prelude::*;
 
@@ -22,6 +22,7 @@ use item::ItemPlugin;
 use guard::GuardPlugin;
 use camera::CameraPlugin;
 use security::SecurityPlugin;
+use laser::LaserPlugin;
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -39,6 +40,7 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(GuardPlugin)
             .add_plugin(CameraPlugin)
             .add_plugin(SecurityPlugin)
+            .add_plugin(LaserPlugin)
             .add_system(confine_position)
             .add_system(update_scale)
             .add_system(world_to_screen);
@@ -70,11 +72,10 @@ pub fn is_visible(
 }
 
 
-pub fn orientate_angle(mut angle: f32) -> f32 {
-    angle = angle%(2.0*PI);
-    if angle <= PI {
+pub fn orientate_angle_with_vector(angle: f32, vector: Vec3) -> f32 {
+    if vector.y >= 0.0 {
         angle
     } else  {
-        PI - angle%PI
+        -angle
     }
 }

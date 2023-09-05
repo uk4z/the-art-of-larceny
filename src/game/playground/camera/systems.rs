@@ -4,7 +4,6 @@ use bevy::sprite::MaterialMesh2dBundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
 use crate::game::playground::player::components::Player;
 use crate::game::playground::security::components::{Intrusion, Security};
-use crate::game::playground::orientate_angle;
 use super::components::Camera;
 
 use super::components::*;
@@ -29,7 +28,7 @@ pub fn spawn_camera(
             position: CameraPosition {x: 1500.0, y: 1000.0},
             fov_position: WorldPosition {x:1500.0, y: 1000.0},
             orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
-            pattern: CameraPattern::Static,
+            pattern: CameraPattern::Arc((PI/2.0, 0.0, Rotate::Trigo)),
             fov_length: FOVLength(140.0),
         }, 
         Camera
@@ -45,10 +44,10 @@ pub fn alert_security (
         for (camera_pos, orientation, length) in cameras_q.iter() {
             let target_vector = Vec3::from(*player_pos)-Vec3::new(camera_pos.x, camera_pos.y, 0.0);
             let fov_vector = orientation.0.mul_quat(Quat::from_rotation_z(-ROTATION_CORRECTION)).mul_vec3(Vec3::X*length.0);
-            let angle = orientate_angle(target_vector.angle_between(fov_vector));
+            let angle = target_vector.angle_between(fov_vector);
             let player_distance = target_vector.length();
             let fov_distance = length.0*(1.0+1.0/2.0); //see length isocel triangle
-            if angle < PI/4.0 && player_distance >= fov_distance {
+            if angle < PI/4.0 && player_distance <= fov_distance {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
                     println!("intrusion");
@@ -65,5 +64,39 @@ pub fn update_fov_position(
         let origin = Vec3::new(camera_pos.x, camera_pos.y, 0.0);
         let fov_position = origin + orientation.0.mul_quat(Quat::from_rotation_z(-ROTATION_CORRECTION)).mul_vec3(Vec3::X*length.0);
         *fov_pos = WorldPosition {x: fov_position.x, y:fov_position.y};
+    });
+}
+
+pub fn rotate_cameras(
+    mut cameras_q: Query<(&mut Orientation, &mut CameraPattern), With<Camera>>
+) {
+    cameras_q.for_each_mut(|(mut orientation, mut pattern)| {
+        match *pattern {
+            CameraPattern::Arc((magnitude, rotate_angle, rotate), ) => {
+                match rotate {
+                    Rotate::Trigo => {
+                        if rotate_angle >= magnitude {
+                            *pattern = CameraPattern::Arc((magnitude, magnitude, Rotate::AntiTrigo));
+                        }
+                        else {
+                            orientation.0 = orientation.0.mul_quat(Quat::from_rotation_z(0.01));
+                            *pattern = CameraPattern::Arc((magnitude, rotate_angle+0.01, Rotate::Trigo)); 
+                        }
+                    },
+                    Rotate::AntiTrigo => {
+                        if rotate_angle <= 0.0 {
+                            *pattern = CameraPattern::Arc((magnitude, 0.0, Rotate::Trigo)); 
+                        }
+                        else {
+                            orientation.0 = orientation.0.mul_quat(Quat::from_rotation_z(-0.01));
+                            *pattern = CameraPattern::Arc((magnitude, rotate_angle-0.01, Rotate::AntiTrigo)); 
+                        }
+                    },
+                }
+            }
+            _ => {
+            
+            }
+        }
     });
 }
