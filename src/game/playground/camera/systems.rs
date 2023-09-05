@@ -50,7 +50,7 @@ pub fn alert_security (
             if angle < PI/4.0 && player_distance <= fov_distance {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
-                    println!("intrusion");
+                    println!("{:?}", player_pos);
                 }
             }
         }
