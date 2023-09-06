@@ -21,7 +21,7 @@ pub fn spawn_camera(
         MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(140.0, 3))).into(),
             transform: Transform::from_xyz(1500.0, 1000.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::GREEN)), 
+            material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
             ..default()
         },
         CameraBundle {

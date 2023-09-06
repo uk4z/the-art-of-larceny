@@ -18,9 +18,15 @@ impl Plugin for BoardPlugin {
             .add_startup_system(spawn_board)
             .add_system(clean_helper)
             .add_system(lock_animation)
+            .add_system(unlock_animation)
             .add_system(unlock_target)
             .add_system(button_system)
             .add_system(show_item_found)
+            .add_system(display_stealth)
+            .add_system(resize_intel_menu)
+            .add_system(handle_intel_visibility)
+            .add_system(display_intel_label)
+            .add_system(switch_section)
             .insert_resource(CurrencyLocked(false));
     }
 }

@@ -16,7 +16,7 @@ pub fn spawn_laser(
         MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::Box::new(200.0, 4.0, 0.0))).into(),
             transform: Transform::from_xyz(800.0, 400.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::GREEN)), 
+            material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
             ..default()
         },
         LaserBundle {

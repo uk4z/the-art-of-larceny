@@ -7,6 +7,7 @@ use super::components::*;
 use super::{get_player_direction, DISTANCE_PER_SECOND};
 
 use crate::components::Layer;
+use crate::game::board::components::IntelMenu;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::scenery::get_scenery_scale_from_window;
 
@@ -43,30 +44,39 @@ pub fn move_player(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut player_q: Query<(&mut WorldPosition, &mut Orientation, &PlayerPace), With<Player>>,
+    intel_q: Query<&Visibility, With<IntelMenu>>, 
 
 ) {
-    if let Ok((mut position, mut orientation, pace)) = player_q.get_single_mut() { 
-        let direction = get_player_direction(keyboard_input);
-
-        //update position
-        let speed = match pace {
-            PlayerPace::Run => {
-                <PlayerPace as Into<f32>>::into(PlayerPace::Run)*DISTANCE_PER_SECOND*time.delta_seconds()
+    if let Ok(visibility) = intel_q.get_single() {
+        match *visibility {
+            Visibility::Hidden => {
+                if let Ok((mut position, mut orientation, pace)) = player_q.get_single_mut() { 
+                    let direction = get_player_direction(keyboard_input);
+            
+                    //update position
+                    let speed = match pace {
+                        PlayerPace::Run => {
+                            <PlayerPace as Into<f32>>::into(PlayerPace::Run)*DISTANCE_PER_SECOND*time.delta_seconds()
+                        },
+                        PlayerPace::Walk => {
+                            <PlayerPace as Into<f32>>::into(PlayerPace::Walk)*DISTANCE_PER_SECOND*time.delta_seconds()
+                        },
+                    };
+                    let translation: Vec3 = direction*speed;
+                    position.x += translation.x; 
+                    position.y += translation.y;
+            
+                    //update orientation
+                    if direction.length() > 0.0 {
+                        orientation.0 = Quat::from_rotation_arc(Vec3::X, direction);
+                    }
+                    
+                };
             },
-            PlayerPace::Walk => {
-                <PlayerPace as Into<f32>>::into(PlayerPace::Walk)*DISTANCE_PER_SECOND*time.delta_seconds()
-            },
-        };
-        let translation: Vec3 = direction*speed;
-        position.x += translation.x; 
-        position.y += translation.y;
-
-        //update orientation
-        if direction.length() > 0.0 {
-            orientation.0 = Quat::from_rotation_arc(Vec3::X, direction);
+            _ => {},
         }
-        
-    };
+    }
+    
 }
 
 
@@ -85,32 +95,42 @@ pub fn set_player_pace(
 }
 
 pub fn motion_handler(
+    intel_q: Query<&Visibility, With<IntelMenu>>, 
     mut player_q: Query<(&mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &PlayerPace), With<Player>>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
     keyboard_input: Res<Input<KeyCode>>
 ) {
-    if let Ok((mut texture, mut animated, mut transform, pace)) 
-            = player_q.get_single_mut() {
-
-        if keyboard_input.any_pressed([KeyCode::Up, KeyCode::Down, KeyCode::Right, KeyCode::Left]) {
-            *texture = asset_server.load("player/motion.png");
-            match pace {
-                PlayerPace::Run => {
-                    animated.run_timer.tick(time.delta());
-                    if animated.run_timer.finished() {
-                        transform.scale.y = -transform.scale.y;
+    if let Ok(visibility) = intel_q.get_single() {
+        match *visibility {
+            Visibility::Hidden => {
+            
+                if let Ok((mut texture, mut animated, mut transform, pace)) 
+                        = player_q.get_single_mut() {
+            
+                    if keyboard_input.any_pressed([KeyCode::Up, KeyCode::Down, KeyCode::Right, KeyCode::Left]) {
+                        *texture = asset_server.load("player/motion.png");
+                        match pace {
+                            PlayerPace::Run => {
+                                animated.run_timer.tick(time.delta());
+                                if animated.run_timer.finished() {
+                                    transform.scale.y = -transform.scale.y;
+                                }
+                            },
+                            PlayerPace::Walk => {
+                                animated.walk_timer.tick(time.delta());
+                                if animated.walk_timer.finished() {
+                                    transform.scale.y = -transform.scale.y;
+                                }
+                            },
+                        }
+                    } else {
+                        *texture = asset_server.load("player/static.png")
                     }
-                },
-                PlayerPace::Walk => {
-                    animated.walk_timer.tick(time.delta());
-                    if animated.walk_timer.finished() {
-                        transform.scale.y = -transform.scale.y;
-                    }
-                },
-            }
-        } else {
-            *texture = asset_server.load("player/static.png")
+                }
+            }, 
+            _ => {}
         }
     }
+    
 }
