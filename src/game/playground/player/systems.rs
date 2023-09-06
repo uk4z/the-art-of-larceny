@@ -3,7 +3,7 @@ use bevy::window::{Window, PrimaryWindow};
 use bevy::utils::Duration;
 
 
-use super::components::{PlayerBundle, Player, PlayerPace};
+use super::components::*;
 use super::{get_player_direction, DISTANCE_PER_SECOND};
 
 use crate::components::Layer;
@@ -33,6 +33,7 @@ pub fn spawn_player(
                 run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
             },
             reach: ReachDistance(20.0),
+            stealth: Stealth::Ghost,
         },
         Player, 
     ));

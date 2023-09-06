@@ -17,6 +17,5 @@ pub struct SecurityBundle {
     pub intrusion: Intrusion,
     pub active: Active,
     pub reach: ReachDistance, 
-
 }
 

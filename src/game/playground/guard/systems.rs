@@ -7,7 +7,7 @@ use bevy::app::AppExit;
 use std::f32::consts::PI;
 use super::components::*;
 use super::{patrol_direction, chase_direction, search_direction};
-use crate::game::playground::player::components::Player;
+use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
 use crate::components::Layer;
@@ -95,9 +95,9 @@ pub fn spawn_guard(
 
 pub fn alert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
-    player_q: Query<&WorldPosition, With<Player>>,
+    mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
 ){
-    if let Ok(player_pos) = player_q.get_single() {
+    if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         for (mut state, guard_pos, orientation, mut pace) in guards_q.iter_mut() {
             let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
             let fov_vector = orientation.0.mul_vec3(Vec3::X);
@@ -106,6 +106,7 @@ pub fn alert_guard (
             if *state != GuardState::Chasing && (angle < PI/4.0 && FOV_RANGE >= distance) {
                 *state = GuardState::Chasing;
                 *pace = GuardPace::Run;
+                *stealth = Stealth::None;
             }
         }
     }

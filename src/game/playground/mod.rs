@@ -9,6 +9,7 @@ pub mod guard;
 pub mod camera;
 pub mod security;
 pub mod laser;
+pub mod footage;
 
 
 use bevy::prelude::*;
@@ -23,6 +24,7 @@ use guard::GuardPlugin;
 use camera::CameraPlugin;
 use security::SecurityPlugin;
 use laser::LaserPlugin;
+use footage::FootagePlugin; 
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -41,6 +43,7 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(CameraPlugin)
             .add_plugin(SecurityPlugin)
             .add_plugin(LaserPlugin)
+            .add_plugin(FootagePlugin)
             .add_system(confine_position)
             .add_system(update_scale)
             .add_system(world_to_screen);

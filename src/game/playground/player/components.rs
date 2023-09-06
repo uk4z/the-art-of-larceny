@@ -24,6 +24,14 @@ impl Into<f32> for PlayerPace {
     }
 }
 
+#[derive(Component, Debug)]
+pub enum Stealth {
+    Ghost, 
+    Engineer, 
+    Begineer,
+    None, 
+}
+
 #[derive(Bundle, Debug)]
 pub struct PlayerBundle {
     pub position: WorldPosition,
@@ -31,4 +39,5 @@ pub struct PlayerBundle {
     pub pace: PlayerPace,
     pub animation: AnimatedMotion,
     pub reach: ReachDistance,
+    pub stealth: Stealth,
 }

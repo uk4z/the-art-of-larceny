@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
 use crate::game::playground::components::{WorldPosition, Orientation};
-use crate::game::playground::player::components::Player;
+use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::security::components::{Intrusion, Security};
 use super::components::Camera;
 
@@ -37,10 +37,10 @@ pub fn spawn_camera(
 
 pub fn alert_security (
     cameras_q: Query<(&CameraPosition, &Orientation, &FOVLength), With<Camera>>, 
-    player_q: Query<&WorldPosition, With<Player>>,
+    mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
     mut security_q: Query<&mut Intrusion, With<Security>>, 
 ){
-    if let Ok(player_pos) = player_q.get_single() {
+    if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         for (camera_pos, orientation, length) in cameras_q.iter() {
             let target_vector = Vec3::from(*player_pos)-Vec3::new(camera_pos.x, camera_pos.y, 0.0);
             let fov_vector = orientation.0.mul_quat(Quat::from_rotation_z(-ROTATION_CORRECTION)).mul_vec3(Vec3::X*length.0);
@@ -50,6 +50,7 @@ pub fn alert_security (
             if angle < PI/4.0 && player_distance <= fov_distance {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
+                    *stealth = Stealth::Begineer;
                     println!("{:?}", player_pos);
                 }
             }

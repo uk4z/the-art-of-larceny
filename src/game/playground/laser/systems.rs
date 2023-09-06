@@ -4,7 +4,7 @@ use bevy::sprite::MaterialMesh2dBundle;
 use super::{components::*, laser_extremum, get_extremum_values};
 use super::components::Direction;
 use crate::game::playground::components::{WorldPosition, Orientation};
-use crate::game::playground::player::components::Player;
+use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::security::components::{Security, Intrusion};
 
 pub fn spawn_laser(
@@ -31,10 +31,10 @@ pub fn spawn_laser(
 
 pub fn alert_security (
     lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength), With<Laser>>, 
-    player_q: Query<&WorldPosition, With<Player>>,
+    mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
     mut security_q: Query<&mut Intrusion, With<Security>>, 
 ){
-    if let Ok(player_pos) = player_q.get_single() {
+    if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         for (laser_pos, orientation, length) in lasers_q.iter() {
             let extremum = laser_extremum(laser_pos, orientation, length);
             
@@ -47,6 +47,7 @@ pub fn alert_security (
             if player_pos.x >= min_x && player_pos.x <= max_x && player_pos.y >= min_y && player_pos.y <= max_y {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
+                    *stealth = Stealth::Begineer;
                     println!("{:?}", player_pos);
                 }
             }
