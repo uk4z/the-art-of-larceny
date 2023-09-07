@@ -347,7 +347,6 @@ pub fn spawn_board (
                                         "Unlock the target.",
                                         "Stole a currency.",
                                         "Escape through the extraction point.",
-                                        "You should stay clear from security."
                                     ];
                                     for i in 0..instructions.len() { 
                                         scroll_list.spawn((
@@ -368,6 +367,24 @@ pub fn spawn_board (
                                             AccessibilityNode(NodeBuilder::new(Role::ListItem))
                                         ));
                                     }
+                                    scroll_list.spawn((
+                                        TextBundle {
+                                            text: Text::from_section(
+                                            "",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 18.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            style: Style {
+                                                flex_grow: 1.0,
+                                                ..default()
+                                            },
+                                            ..default()
+                                        },
+                                        StealthStatus,
+                                        AccessibilityNode(NodeBuilder::new(Role::ListItem))
+                                    ));
                                 });            
                             });
                         });
@@ -398,7 +415,7 @@ pub fn spawn_board (
                                     size: Size::new(Val::Percent(100.0), Val::Percent(90.0)),
                                     ..default()
                                 },
-                                visibility: Visibility::Inherited,
+                                visibility: Visibility::Hidden,
                                 ..default()
                             },
                             ItemContent,
@@ -704,9 +721,16 @@ pub fn show_item_found(
     mut board_item_q: Query<&mut Text, With<ItemBoard>>,
 ) {
     let mut items: Vec<String> = item_q.iter().map(|(name, value, visibility)| {
+        let data = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".to_string();
+        let mut rng = thread_rng();
+        let mut random_text = "".to_string();
+        for _ in 0..4 {
+            let index: usize = rng.gen_range(0..data.len()-1);
+            random_text.push_str(&data[index..index+1]);
+        }
         let item = match visibility {
             Visibility::Hidden => {format!("{}: {}", name.0, value.0)},
-            _ => {format!("{}: Not found", name.0)},
+            _ => {format!("{}: {}", name.0, random_text)},
         };
         return item
     }).collect();
@@ -726,16 +750,16 @@ pub fn display_stealth(
     if let Ok(stealth) = stealth_q.get_single() {
         let value = match *stealth {
             Stealth::Ghost => {
-                "- You should stay clear from security.".to_string()
+                "You should stay clear from security.".to_string()
             },
             Stealth::Engineer => {
-                "- You should avoid guards.".to_string()
+                "You should avoid guards.".to_string()
             }, 
             Stealth::Begineer => {
-                "- You should suppress the footage.".to_string()
+                "You should suppress the footage.".to_string()
             },
             Stealth::None => {
-                "- You should not get caught.".to_string()
+                "You should not get caught.".to_string()
             }
         };
 
