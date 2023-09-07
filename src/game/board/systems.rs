@@ -25,7 +25,7 @@ pub fn spawn_board (
         .spawn((NodeBundle {
             style: Style {
                 display: Display::Flex,
-                position_type: PositionType::Absolute,
+                position_type: PositionType::Relative,
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 justify_content: JustifyContent::Center,
                 ..default()
@@ -132,6 +132,7 @@ pub fn spawn_board (
                         //label
                         NodeBundle {
                             style: Style {
+                                position_type: PositionType::Absolute,
                                 display: Display::Flex,
                                 flex_direction: FlexDirection::Row,
                                 justify_content: JustifyContent::Center,
@@ -158,8 +159,21 @@ pub fn spawn_board (
                 
                     });
 
-                    menu.spawn((
+                    menu.spawn(
                         NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                position_type: PositionType::Absolute,
+                                flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::End,
+                                align_items: AlignItems::Center,
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                ..default()
+                            },
+                            ..default()
+                        },
+                    ).with_children(|node|{
+                        node.spawn((NodeBundle {
                             style: Style {
                                 display: Display::Flex,
                                 flex_direction: FlexDirection::Column,
@@ -170,579 +184,277 @@ pub fn spawn_board (
                             },
                             visibility: Visibility::Hidden,
                             ..default()
+                            },
+                            Vault,
+                        )).with_children(|content|{
+                            content.spawn((
+                                NodeBundle {
+                                    style: Style {
+                                        display: Display::Flex,
+                                        position_type: PositionType::Absolute, 
+                                        flex_direction: FlexDirection::Column,
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+                                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                        ..default()
+                                    },
+                                    visibility: Visibility::Inherited, 
+                                    ..default()
+                                },
+                                Password,
+                            )).with_children(|text_section| {
+                                text_section.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 30.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    PasswordText,
+                                ));
+                            });
+                            
+                            content.spawn((
+                                NodeBundle {
+                                    style: Style {
+                                        display: Display::Flex,
+                                        position_type: PositionType::Absolute,
+                                        flex_direction: FlexDirection::Row,
+                                        justify_content: JustifyContent::SpaceEvenly,
+                                        align_items: AlignItems::Center,
+                                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                        ..default()
+                                    },
+                                    visibility: Visibility::Hidden, 
+                                    ..default()
+                                },
+                                VaultContent, 
+                            )).with_children(|values_section| {
+                                let names = vec!["euros", "dollars", "yens"];
+                                for i in 0..3 {
+                                    let mut rng = thread_rng();
+                                    let amount = rng.gen_range(100..200);
+                                    let name = names[i];
+                                    values_section.spawn((
+                                        //button
+                                        ButtonBundle { 
+                                            style: Style {
+                                                display: Display::Flex,
+                                                flex_direction: FlexDirection::Column,
+                                                size: Size::new(Val::Percent(30.0), Val::Percent(20.0)),
+                                                border: UiRect::all(Val::Px(5.0)),
+                                                // horizontally center child text
+                                                justify_content: JustifyContent::Center,
+                                                // vertically center child text
+                                                align_items: AlignItems::Center,
+                                                ..default()
+                                            },
+                                            background_color: Color::WHITE.into(),
+                                            ..default()
+                                        },
+                                        UnlockedButton, 
+                                        BorderColor(Color::BLACK),
+                                    )).with_children(|button| {
+                                        button.spawn((
+                                            TextBundle::from_section(
+                                                format!("{}", amount),
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 20.0,
+                                                color: Color::BLACK.into()
+                                            }),
+                                            Amount,
+                                        ));
+                                        button.spawn((
+                                            TextBundle::from_section(
+                                                name,
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 20.0,
+                                                color: Color::BLACK.into()
+                                                }),
+                                            Currency,
+                                        ));
+                                    });
+                                }
+                            });
+                        });
+                    });
+                        
+
+                    menu.spawn(
+                        NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                position_type: PositionType::Absolute,
+                                flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::End,
+                                align_items: AlignItems::Center,
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                ..default()
+                            },
+                            visibility: Visibility::Inherited,
+                            ..default()
                         },
-                        Vault,
-                    )).with_children(|content|{
-                        content.spawn((
+                    ).with_children(|node|{
+                        node.spawn((
                             NodeBundle {
                                 style: Style {
                                     display: Display::Flex,
-                                    position_type: PositionType::Absolute,
                                     flex_direction: FlexDirection::Column,
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                    size: Size::new(Val::Percent(100.0), Val::Percent(90.0)),
                                     ..default()
                                 },
-                                visibility: Visibility::Inherited, 
+                                visibility: Visibility::Inherited,
                                 ..default()
                             },
-                            Password,
-                        )).with_children(|text_section| {
-                            text_section.spawn((
-                                TextBundle {
-                                    text: Text::from_section(
-                                        "",
-                                        TextStyle {
-                                            font: asset_server.load("FiraMono-Medium.ttf"),
-                                            font_size: 30.0,
-                                            color: Color::WHITE,
-                                        }),
-                                        ..default()
-                                },
-                                PasswordText,
-                            ));
-                        });
+                            Instruction,
+                        )).with_children(|instruction|{
+
                         
-                        content.spawn((
+                            instruction.spawn(
+                                NodeBundle {
+                                    style: Style {
+                                        flex_grow: 1.0,
+                                        display: Display::Flex,
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center, 
+                                        justify_content: JustifyContent::Center,
+                                        ..default()
+                                    },
+                                    ..default()
+                            }).with_children(|instruction_list| {
+                                instruction_list.spawn((
+                                    NodeBundle {
+                                    style: Style {
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center,    
+                                        size: Size::new(Val::Percent(100.0), Val::Percent(60.0)),
+                                        overflow: Overflow::Hidden,
+                                        ..default()
+                                    },
+                                    ..default()},
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                )).with_children(|scroll_list| {
+                                    let instructions = vec![
+                                        "Find all the items.",
+                                        "Unlock the target.",
+                                        "Stole a currency.",
+                                        "Escape through the extraction point.",
+                                        "You should stay clear from security."
+                                    ];
+                                    for i in 0..instructions.len() { 
+                                        scroll_list.spawn((
+                                            TextBundle {
+                                                text: Text::from_section(
+                                                instructions[i],
+                                                TextStyle {
+                                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                                    font_size: 18.0,
+                                                    color: Color::WHITE,
+                                                }),
+                                                style: Style {
+                                                    flex_grow: 1.0,
+                                                    ..default()
+                                                },
+                                                ..default()
+                                            },
+                                            AccessibilityNode(NodeBuilder::new(Role::ListItem))
+                                        ));
+                                    }
+                                });            
+                            });
+                        });
+                    });
+
+                    menu.spawn(
+                        NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                position_type: PositionType::Absolute,
+                                flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::End,
+                                align_items: AlignItems::Center,
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                ..default()
+                            },
+                            visibility: Visibility::Inherited,
+                            ..default()
+                        },
+                    ).with_children(|node|{
+                        node.spawn((
                             NodeBundle {
                                 style: Style {
                                     display: Display::Flex,
-                                    position_type: PositionType::Absolute,
-                                    flex_direction: FlexDirection::Row,
-                                    justify_content: JustifyContent::SpaceEvenly,
+                                    flex_direction: FlexDirection::Column,
+                                    justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                    size: Size::new(Val::Percent(100.0), Val::Percent(90.0)),
                                     ..default()
                                 },
-                                visibility: Visibility::Hidden, 
+                                visibility: Visibility::Inherited,
                                 ..default()
                             },
-                            VaultContent, 
-                        )).with_children(|values_section| {
-                            let names = vec!["euros", "dollars", "yens"];
-                            for i in 0..3 {
-                                let mut rng = thread_rng();
-                                let amount = rng.gen_range(100..200);
-                                let name = names[i];
-                                values_section.spawn((
-                                    //button
-                                    ButtonBundle { 
-                                        style: Style {
-                                            display: Display::Flex,
-                                            flex_direction: FlexDirection::Column,
-                                            size: Size::new(Val::Percent(30.0), Val::Percent(20.0)),
-                                            border: UiRect::all(Val::Px(5.0)),
-                                            // horizontally center child text
-                                            justify_content: JustifyContent::Center,
-                                            // vertically center child text
-                                            align_items: AlignItems::Center,
-                                            ..default()
-                                        },
-                                        background_color: Color::WHITE.into(),
+                            ItemContent,
+                        )).with_children(|instruction|{
+                            instruction.spawn(
+                                NodeBundle {
+                                    style: Style {
+                                        flex_grow: 1.0,
+                                        display: Display::Flex,
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center, 
+                                        justify_content: JustifyContent::Center,
                                         ..default()
                                     },
-                                    UnlockedButton, 
-                                    BorderColor(Color::BLACK),
-                                )).with_children(|button| {
-                                    button.spawn((
-                                        TextBundle::from_section(
-                                            format!("{}", amount),
-                                        TextStyle {
-                                            font: asset_server.load("FiraMono-Medium.ttf"),
-                                            font_size: 20.0,
-                                            color: Color::BLACK.into()
-                                        }),
-                                        Amount,
-                                    ));
-                                    button.spawn((
-                                        TextBundle::from_section(
-                                            name,
-                                        TextStyle {
-                                            font: asset_server.load("FiraMono-Medium.ttf"),
-                                            font_size: 20.0,
-                                            color: Color::BLACK.into()
-                                            }),
-                                        Currency,
-                                    ));
-                                });
-                            }
+                                    ..default()
+                            }).with_children(|instruction_list| {
+                                instruction_list.spawn((
+                                    NodeBundle {
+                                    style: Style {
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center,    
+                                        size: Size::new(Val::Percent(100.0), Val::Percent(60.0)),
+                                        overflow: Overflow::Hidden,
+                                        ..default()
+                                    },
+                                    ..default()},
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                )).with_children(|scroll_list| {
+                                    let number_items = 2; 
+                                    for _ in 0..number_items { 
+                                        scroll_list.spawn((
+                                            TextBundle {
+                                                text: Text::from_section(
+                                                "",
+                                                TextStyle {
+                                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                                    font_size: 18.0,
+                                                    color: Color::WHITE,
+                                                }),
+                                                style: Style {
+                                                    flex_grow: 1.0,
+                                                    ..default()
+                                                },
+                                                ..default()
+                                            },
+                                            ItemBoard,
+                                            AccessibilityNode(NodeBuilder::new(Role::ListItem))
+                                        ));
+                                    }
+                                });            
+                            });
                         });
                     });
                 });
             });
         });
-
-
-    /*commands
-        //root node
-        .spawn((NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
-            visibility: Visibility::Hidden,
-            ..default()
-        },
-        BoardUI
-        ))
-        .with_children(|parent| {
-             //board
-            parent.spawn(NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    flex_grow: 1.0,
-                    ..default()
-                },
-                background_color: Color::MIDNIGHT_BLUE.into(),
-                ..default()
-            }).with_children(|board| {
-                
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-                //instruction
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-
-                board.spawn( NodeBundle {
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        border: UiRect::all(Val::Px(2.0)),
-                        size: Size::new(Val::Percent(100.0), Val::Percent(25.0)),
-                        ..default()
-                    },
-                    background_color: Color::WHITE.into(),
-                    ..default()
-                }).with_children(|instruction| {
-                    //instruction title
-                    instruction.spawn(TextBundle {
-                        text: Text::from_section(
-                        "Instructions",
-                        TextStyle {
-                            font: asset_server.load("FiraMono-Medium.ttf"),
-                            font_size: 30.0,
-                            color: Color::WHITE,
-                        }),
-                        background_color: Color::MIDNIGHT_BLUE.into(),
-                        ..default()
-                    });
-                    //instruction list
-                    instruction.spawn(NodeBundle {
-                        style: Style {
-                            flex_grow: 1.0,
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Column,
-                            align_self: AlignSelf::Stretch,
-                            ..default()
-                        },
-                        background_color: Color::MIDNIGHT_BLUE.into(),
-                        ..default()
-                    }).with_children(|instruction_list| {
-                        instruction_list.spawn((NodeBundle {
-                            style: Style {
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::Start,    
-                                flex_grow: 1.0,
-                                size: Size::new(Val::Percent(100.0), Val::Px(150.0)),
-                                overflow: Overflow::Hidden,
-                                ..default()
-                            },
-                            ..default()},
-                            AccessibilityNode(NodeBuilder::new(Role::List)),
-                        )).with_children(|scroll_list| {
-                            scroll_list.spawn((TextBundle {
-                                text: Text::from_section(
-                                "- Find all the items.",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                }),
-                                style: Style {
-                                    flex_grow: 1.0,
-                                    ..default()
-                                },
-                                ..default()
-                                },
-                                AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                            ));
-                            scroll_list.spawn((TextBundle {
-                                text: Text::from_section(
-                                "- Unlock the target.",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                }),
-                                style: Style {
-                                    flex_grow: 1.0,
-                                    ..default()
-                                },
-                                ..default()
-                                },
-                                AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                            ));
-                            scroll_list.spawn((TextBundle {
-                                text: Text::from_section(
-                                "- Stole a currency.",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                }),
-                                style: Style {
-                                    flex_grow: 1.0,
-                                    ..default()
-                                },
-                                ..default()
-                                },
-                                AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                            ));
-                            scroll_list.spawn((TextBundle {
-                                text: Text::from_section(
-                                "- Escape through the extraction point.",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                }),
-                                style: Style {
-                                    flex_grow: 1.0,
-                                    ..default()
-                                },
-                                ..default()
-                                },
-                                AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                            ));
-                            scroll_list.spawn((TextBundle {
-                                text: Text::from_section(
-                                "- You should stay clear from security.",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                }),
-                                style: Style {
-                                    flex_grow: 1.0,
-                                    ..default()
-                                },
-                                ..default()
-                                },
-                                AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                                StealthStatus,
-                            ));
-                        });
-                        
-                    }); 
-                });
-                
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-                //item
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-                board.spawn( NodeBundle {
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(100.0), Val::Percent(25.0)),
-                        border: UiRect::all(Val::Px(2.0)),
-                        ..default()
-                    },
-                    background_color: Color::WHITE.into(),
-                    ..default()
-                }).with_children(|item| {
-                    //item title
-                    item.spawn(TextBundle {
-                        text: Text::from_section(
-                        "Items",
-                        TextStyle {
-                            font: asset_server.load("FiraMono-Medium.ttf"),
-                            font_size: 30.0,
-                            color: Color::WHITE,
-                        }),
-                        background_color: Color::MIDNIGHT_BLUE.into(),
-                        ..default()
-                    });
-                    //item list
-                    item.spawn(NodeBundle {
-                        style: Style {
-                            flex_grow: 1.0,
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Column,
-                            align_self: AlignSelf::Stretch,
-                            ..default()
-                        },
-                        background_color: Color::MIDNIGHT_BLUE.into(),
-                        ..default()
-                    }).with_children(|item_list| {
-                        item_list.spawn((NodeBundle {
-                            style: Style {
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::Start,    
-                                flex_grow: 1.0,
-                                size: Size::new(Val::Percent(100.0), Val::Px(150.0)),
-                                overflow: Overflow::Hidden,
-                                ..default()
-                            },
-                            ..default()},
-                            AccessibilityNode(NodeBuilder::new(Role::List)),
-                        )).with_children(|scroll_list| {
-                            for i in 0..6 {
-                                scroll_list.spawn((
-                                    TextBundle::from_section(
-                                        format!("Item {i}"),
-                                        TextStyle {
-                                            font: asset_server
-                                                .load("FiraMono-Medium.ttf"),
-                                            font_size: 20.0,
-                                            color: Color::WHITE,
-                                        },
-                                    ),
-                                    ItemBoard,
-                                    AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                                ));
-                            }
-                        });
-                        
-                    }); 
-                });
-                        
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-                //target
-                //---------------------------------------------------------------------
-                //---------------------------------------------------------------------
-
-                board.spawn(
-                        NodeBundle {
-                        style: Style {
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Column,
-                            border: UiRect::all(Val::Px(2.0)),
-                            size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
-                            ..default()
-                        },
-                        background_color: Color::WHITE.into(),
-                        ..default()
-                    }).with_children(|target|{
-                    //target title
-                    target.spawn(TextBundle {
-                        text: Text::from_section(
-                        "Target",
-                        TextStyle {
-                            font: asset_server.load("FiraMono-Medium.ttf"),
-                            font_size: 30.0,
-                            color: Color::WHITE,
-                        }),
-                        background_color: Color::MIDNIGHT_BLUE.into(),
-                        ..default()
-                    });
-                    //button section
-                    target.spawn((
-                        NodeBundle {
-                            style: Style {
-                                flex_grow: 1.0,
-                                display: Display::Flex,
-                                flex_direction: FlexDirection::Column,
-                                align_self: AlignSelf::Stretch,
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                position_type: PositionType::Relative,
-                                ..default()
-                            },
-                            background_color: Color::MIDNIGHT_BLUE.into(),
-                            ..default()
-                        },
-                        LockedButton,
-                    )).with_children(|button_section|{
-                        button_section.spawn((
-                            NodeBundle { 
-                                    style: Style {
-                                        display: Display::Flex,
-                                        flex_direction: FlexDirection::Column,
-                                        size: Size::new(Val::Percent(50.0), Val::Percent(20.0)),
-                                        /* border: UiRect::all(Val::Px(5.0)), */
-                                        // horizontally center child text
-                                        justify_content: JustifyContent::Center,
-                                        // vertically center child text
-                                        align_items: AlignItems::Center,
-                                        position_type: PositionType::Absolute,
-                                        border: UiRect::all(Val::Px(5.0)),
-                                        ..default()
-                                    },
-                                    background_color: Color::WHITE.into(),
-                                    ..default()
-                            }, 
-                            Button,
-                            BorderColor(Color::BLACK),
-                        )).with_children(|button| {
-                            button.spawn((
-                                NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(0.0), Val::Percent(100.0)),
-                                        position_type: PositionType::Absolute,
-                                        ..default()
-                                    },
-                                    background_color: Color::SEA_GREEN.into(),
-                                    ..default()
-                                },
-                                LoadingBar,
-                            ));
-                            button.spawn(
-                                TextBundle::from_section(
-                                "Locked",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                        });
-                    });
-
-                    target.spawn((
-                        NodeBundle { 
-                            style: Style {
-                                flex_grow: 1.0,
-                                display: Display::None,
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::SpaceEvenly,
-                                size: Size::new(Val::Percent(100.0), Val::Auto),
-                                ..default()
-                            },
-                            background_color: Color::MIDNIGHT_BLUE.into(),
-                            ..default()
-                            },
-                            OpenTarget,
-                    )).with_children(|values_section|{
-                        values_section.spawn((
-                            //button
-                            ButtonBundle { 
-                                style: Style {
-                                    display: Display::Flex,
-                                    flex_direction: FlexDirection::Column,
-                                    size: Size::new(Val::Percent(50.0), Val::Percent(20.0)),
-                                    border: UiRect::all(Val::Px(5.0)),
-                                    // horizontally center child text
-                                    justify_content: JustifyContent::Center,
-                                    // vertically center child text
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                background_color: Color::WHITE.into(),
-                                ..default()
-                            },
-                            UnlockedButton,
-                            BorderColor(Color::BLACK),
-                        )).with_children(|button| {
-                            button.spawn(
-                                TextBundle::from_section(
-                                "1000",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                            button.spawn(
-                                TextBundle::from_section(
-                                "euros",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                        });
-                        values_section.spawn((
-                            //button
-                            ButtonBundle { 
-                                style: Style {
-                                    display: Display::Flex,
-                                    flex_direction: FlexDirection::Column,
-                                    size: Size::new(Val::Percent(50.0), Val::Percent(20.0)),
-                                    border: UiRect::all(Val::Px(5.0)),
-                                    // horizontally center child text
-                                    justify_content: JustifyContent::Center,
-                                    // vertically center child text
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                background_color: Color::WHITE.into(),
-                                ..default()
-                            },
-                            UnlockedButton,
-                            BorderColor(Color::BLACK),
-                        )).with_children(|button| {
-                            button.spawn(
-                                TextBundle::from_section(
-                                "2500",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                            button.spawn(
-                                TextBundle::from_section(
-                                "dollars",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                        });
-                        values_section.spawn((
-                            //button
-                            ButtonBundle { 
-                                style: Style {
-                                    display: Display::Flex,
-                                    flex_direction: FlexDirection::Column,
-                                    size: Size::new(Val::Percent(50.0), Val::Percent(20.0)),
-                                    border: UiRect::all(Val::Px(5.0)),
-                                    // horizontally center child text
-                                    justify_content: JustifyContent::Center,
-                                    // vertically center child text
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                background_color: Color::WHITE.into(),
-                                ..default()
-                            },
-                            UnlockedButton, 
-                            BorderColor(Color::BLACK),
-                        )).with_children(|button| {
-                            button.spawn(
-                                TextBundle::from_section(
-                                "6500",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                            button.spawn(
-                                TextBundle::from_section(
-                                "yens",
-                                TextStyle {
-                                    font: asset_server.load("FiraMono-Medium.ttf"),
-                                    font_size: 20.0,
-                                    color: Color::BLACK.into()
-                                    }
-                            ));
-                        });
-                    });
-                });
-            });
-        }); */
 }
 
 pub fn despawn_board(
@@ -835,47 +547,66 @@ pub fn display_intel_label (
 pub fn switch_section (
     mut section_q: Query<(&mut Section, &Visibility), With<IntelMenu>>,
     mut vault_q: Query<&mut Visibility, (With<Vault>, Without<Section>)>,
+    mut item_q: Query<&mut Visibility,(With<ItemContent>, Without<Vault>, Without<IntelMenu>, Without<Instruction>)>,
+    mut instruction_q: Query<&mut Visibility, (With<Instruction>, Without<Vault>, Without<IntelMenu>)>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
     if let Ok((mut section, visibility)) = section_q.get_single_mut() {
-        let mut vault_vis = vault_q.get_single_mut().unwrap();
-        match *visibility {
-            Visibility::Visible => {
-                if keyboard_input.just_pressed(KeyCode::Left) {
-                    match *section {
-                        Section::Instruction => {
-                            *section = Section::Item;
-                            *vault_vis = Visibility::Hidden; 
-                        },
-                        Section::Item => {
-                            *section = Section::Vault;
-                            *vault_vis = Visibility::Visible; 
-                        },
-                        Section::Vault => {
-                            *section = Section::Instruction;
-                            *vault_vis = Visibility::Hidden; 
-                        }
-                    }
-                }
+        if let Ok(mut vault_vis) = vault_q.get_single_mut() {
+            if let Ok(mut instruction_vis) = instruction_q.get_single_mut() {
+                if let Ok(mut item_vis) = item_q.get_single_mut() {
+                    match *visibility {
+                        Visibility::Visible => {
+                            if keyboard_input.just_pressed(KeyCode::Left) {
+                                match *section {
+                                    Section::Instruction => {
+                                        *section = Section::Item;
+                                        *vault_vis = Visibility::Hidden; 
+                                        *instruction_vis = Visibility::Hidden;
+                                        *item_vis = Visibility::Inherited;
+                                    },
+                                    Section::Item => {
+                                        *section = Section::Vault;
+                                        *vault_vis = Visibility::Inherited; 
+                                        *instruction_vis = Visibility::Hidden;
+                                        *item_vis = Visibility::Hidden;
+                                    },
+                                    Section::Vault => {
+                                        *section = Section::Instruction;
+                                        *vault_vis = Visibility::Hidden; 
+                                        *instruction_vis = Visibility::Inherited;
+                                        *item_vis = Visibility::Hidden;
+                                    }
+                                }
+                            }
 
-                if keyboard_input.just_pressed(KeyCode::Right) {
-                    match *section {
-                        Section::Instruction => {
-                            *section = Section::Vault;
-                            *vault_vis = Visibility::Visible; 
-                        },
-                        Section::Item => {
-                            *section = Section::Instruction;
-                            *vault_vis = Visibility::Hidden; 
-                        },
-                        Section::Vault => {
-                            *section = Section::Item;
-                            *vault_vis = Visibility::Hidden; 
+                            if keyboard_input.just_pressed(KeyCode::Right) {
+                                match *section {
+                                    Section::Instruction => {
+                                        *section = Section::Vault;
+                                        *vault_vis = Visibility::Inherited; 
+                                        *instruction_vis = Visibility::Hidden;
+                                        *item_vis = Visibility::Hidden;
+                                    },
+                                    Section::Item => {
+                                        *section = Section::Instruction;
+                                        *vault_vis = Visibility::Hidden; 
+                                        *instruction_vis = Visibility::Inherited;
+                                        *item_vis = Visibility::Hidden;
+                                    },
+                                    Section::Vault => {
+                                        *section = Section::Item;
+                                        *vault_vis = Visibility::Hidden; 
+                                        *instruction_vis = Visibility::Hidden;
+                                        *item_vis = Visibility::Inherited;
+                                    }
+                                }
+                            }
                         }
+                        _=> {},
                     }
                 }
             }
-            _=> {},
         }
     }
 }

@@ -7,7 +7,7 @@ use crate::game::playground::components::{WorldPosition, ReachDistance};
 use super::components::{Target, TargetBundle, UnlockTimer};
 use super::is_target_unlock;
 use crate::game::playground::player::components::Player;
-use crate::game::board::components::{Helper, IntelMenu, Section, Vault};
+use crate::game::board::components::{Helper, IntelMenu, Section, Vault, Instruction, ItemContent};
 use super::interaction_allowed_for_target;
 
 pub fn spawn_target (
@@ -53,8 +53,10 @@ pub fn signal_target_zone (
 
 
 pub fn load_target_unlock (
-    mut intel_q: Query<(&mut Visibility, &mut Section), (With<IntelMenu>, Without<Vault>)>,
+    mut intel_q: Query<(&mut Visibility, &mut Section), With<IntelMenu>>,
     mut vault_q: Query<&mut Visibility, (With<Vault>, Without<IntelMenu>)>,
+    mut instruction_q: Query<&mut Visibility, (With<Instruction>, Without<Vault>, Without<IntelMenu>)>,
+    mut item_q: Query<&mut Visibility, (With<ItemContent>, Without<Vault>, Without<IntelMenu>, Without<Instruction>)>,
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Target>)>,
@@ -64,18 +66,24 @@ pub fn load_target_unlock (
     if interaction_allowed_for_target(player_q, target_q) {
         if let Ok((mut visibility, mut section)) = intel_q.get_single_mut() {
             if let Ok(mut vault_vis) = vault_q.get_single_mut() {
-                if let Ok(mut timer) = timer_q.get_single_mut() {
-                    if keyboard_input.just_pressed(KeyCode::U) {
-                        timer.0.reset();
-                        *visibility = Visibility::Visible;
-                        *section = Section::Vault;
-                        *vault_vis = Visibility::Inherited;
-                    } else if keyboard_input.pressed(KeyCode::U) {
-                        timer.0.tick(time.delta());
-                    } else if keyboard_input.just_released(KeyCode::U) {
-                        if !timer.0.finished() {
-                            timer.0.reset(); 
-                        } 
+                if let Ok(mut instruction_vis) = instruction_q.get_single_mut() {
+                    if let Ok(mut item_vis) = item_q.get_single_mut() {
+                        if let Ok(mut timer) = timer_q.get_single_mut() {
+                            if keyboard_input.just_pressed(KeyCode::U) {
+                                timer.0.reset();
+                                *vault_vis = Visibility::Inherited;
+                                *visibility = Visibility::Visible;
+                                *section = Section::Vault;
+                                *instruction_vis = Visibility::Hidden; 
+                                *item_vis = Visibility::Hidden; 
+                            } else if keyboard_input.pressed(KeyCode::U) {
+                                timer.0.tick(time.delta());
+                            } else if keyboard_input.just_released(KeyCode::U) {
+                                if !timer.0.finished() {
+                                    timer.0.reset(); 
+                                } 
+                            }
+                        }
                     }
                 }
             }

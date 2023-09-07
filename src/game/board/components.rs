@@ -63,3 +63,10 @@ pub struct Amount;
 
 #[derive(Component, Debug)]
 pub struct Currency;
+
+
+#[derive(Component, Debug)]
+pub struct Instruction;
+
+#[derive(Component, Debug)]
+pub struct ItemContent;
