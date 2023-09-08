@@ -8,6 +8,9 @@ use crate::game::playground::guard::components::Patrol;
 
 use systems::*;
 
+use super::scenery::SCENERY_SIZE;
+use super::scenery::components::Bounds;
+
 
 
 
@@ -49,4 +52,23 @@ pub fn search_direction (
 ) -> Vec3 {
     let direction = Vec3::from(*target_pos) - Vec3::from(*guard_pos);
     direction.normalize_or_zero()
+}
+
+pub fn obstacle_in_fov (
+    player_pos: &WorldPosition, 
+    guard_pos: &WorldPosition, 
+    bounds: &Bounds, 
+) -> bool {
+    if !bounds.0.is_empty() {
+        let direction = Vec3::from(*player_pos) - Vec3::from(*guard_pos); 
+        for i in 0..1000 {
+            let position = Vec3::from(*guard_pos) + (i as f32)*direction*0.001;
+            let (x, y) = (position.x as usize, (SCENERY_SIZE.1-position.y) as usize);
+            if bounds.0[y][x] == 1 {
+                return true;
+            }
+        }
+        return false; 
+    }
+    true
 }

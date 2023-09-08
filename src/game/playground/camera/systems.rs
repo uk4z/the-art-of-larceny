@@ -25,10 +25,10 @@ pub fn spawn_camera(
             ..default()
         },
         CameraBundle {
-            position: CameraPosition {x: 1500.0, y: 1000.0},
-            fov_position: WorldPosition {x:1500.0, y: 1000.0},
-            orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
-            pattern: CameraPattern::Arc((PI/2.0, 0.0, Rotate::Trigo)),
+            position: CameraPosition {x: 1044.0, y: 332.0},
+            fov_position: WorldPosition {x:1044.0, y: 332.0},
+            orientation: Orientation(Quat::from_rotation_z(0.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+            pattern: CameraPattern::Arc((PI/5.0, 0.0, Rotate::Trigo)),
             fov_length: FOVLength(140.0),
         }, 
         Camera

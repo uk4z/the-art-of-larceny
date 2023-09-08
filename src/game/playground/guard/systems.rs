@@ -5,14 +5,15 @@ use bevy::sprite::MaterialMesh2dBundle;
 use bevy::app::AppExit;
 
 use std::f32::consts::PI;
-use super::components::*;
+use super::{components::*, obstacle_in_fov};
 use super::{patrol_direction, chase_direction, search_direction};
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
 use crate::components::Layer;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
-use crate::game::playground::scenery::get_scenery_scale_from_window;
+use crate::game::playground::scenery::components::{Bounds, Scenery};
+use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
 
 
 const FOV_RANGE: f32 = 220.0; 
@@ -50,7 +51,7 @@ pub fn spawn_guard(
    
 
     //spawn_guard
-    for i in 0..1 {
+    for _ in 0..1 {
         commands.spawn((
             SpriteBundle{
                 texture: asset_server.load("guard/static.png"),
@@ -58,7 +59,7 @@ pub fn spawn_guard(
             ..default()
             }, 
             GuardBundle { 
-                position: WorldPosition {x: 500.0+(i as f32)*100.0 , y: 50.0 +(i as f32)*100.0},
+                position: WorldPosition {x: 717.0 , y: 849.0},
                 orientation: Orientation(Quat::IDENTITY),
                 pace: GuardPace::Walk,
                 animation: AnimatedMotion {
@@ -67,17 +68,18 @@ pub fn spawn_guard(
                 },
                 reach: ReachDistance(20.0),
                 patrol: Patrol {
-                    positions: vec![WorldPosition {x: 500.0+(i as f32)*100.0, y: 500.0+(i as f32)*100.0},
-                            WorldPosition {x: 400.0+(i as f32)*100.0, y: 500.0+(i as f32)*100.0},
-                            WorldPosition {x: 300.0+(i as f32)*100.0, y: 600.0+(i as f32)*100.0}, 
-                            WorldPosition {x: 300.0+(i as f32)*100.0, y: 700.0+(i as f32)*100.0},
-                            WorldPosition {x: 400.0+(i as f32)*100.0, y: 800.0+(i as f32)*100.0},
-                            WorldPosition {x: 500.0+(i as f32)*100.0, y: 800.0+(i as f32)*100.0},
-                            WorldPosition {x: 600.0+(i as f32)*100.0, y: 700.0+(i as f32)*100.0},
-                            WorldPosition {x: 600.0+(i as f32)*100.0, y: 600.0+(i as f32)*100.0}],
+                    positions: vec![WorldPosition {x: 717.0, y:849.0},
+                        WorldPosition {x: 726.0, y:335.0},
+                        WorldPosition {x: 382.0, y:345.0},
+                        WorldPosition {x: 726.0, y:335.0},
+                    ],
                     waitings: vec![
                         Waiting {
-                            position: WorldPosition { x: 340.0, y: 160.0 },
+                            position: WorldPosition {x: 717.0, y:849.0},
+                            time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                        },
+                        Waiting {
+                            position: WorldPosition {x: 382.0, y:345.0},
                             time: Timer::from_seconds(2.0, TimerMode::Repeating),
                         },
                     ],
@@ -96,17 +98,22 @@ pub fn spawn_guard(
 pub fn alert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
+    bounds_q: Query<&Bounds, With<Scenery>>,
 ){
     if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
-        for (mut state, guard_pos, orientation, mut pace) in guards_q.iter_mut() {
-            let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
-            let fov_vector = orientation.0.mul_vec3(Vec3::X);
-            let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
-            let distance = target_vector.length();
-            if *state != GuardState::Chasing && (angle < PI/4.0 && FOV_RANGE >= distance) {
-                *state = GuardState::Chasing;
-                *pace = GuardPace::Run;
-                *stealth = Stealth::None;
+        if let Ok(bounds) = bounds_q.get_single() {
+            for (mut state, guard_pos, orientation, mut pace) in guards_q.iter_mut() {
+                if !obstacle_in_fov(player_pos, guard_pos, bounds) {
+                    let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
+                    let fov_vector = orientation.0.mul_vec3(Vec3::X);
+                    let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
+                    let distance = target_vector.length();
+                    if *state != GuardState::Chasing && (angle < PI/4.0 && FOV_RANGE >= distance) {
+                        *state = GuardState::Chasing;
+                        *pace = GuardPace::Run;
+                        *stealth = Stealth::None;
+                    }
+                }
             }
         }
     }
@@ -167,6 +174,7 @@ pub fn move_guard(
     time: Res<Time>,
     player_q: Query<&WorldPosition, (With<Player>, Without<Guard>)>,
     mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &GuardPace, &GuardState), (With<Guard>, Without<Player>)>,
+    bounds_q: Query<&Bounds, With<Scenery>>,
 ) { 
     guard_q.for_each_mut(|
         (mut position, mut patrol, mut orientation, 
@@ -203,8 +211,27 @@ pub fn move_guard(
         let translation: Vec3 = direction*speed;
 
         if !(patrol.is_waiting_position() && patrol.patrol_position_reached(*position)) {
-            position.x += translation.x; 
-            position.y += translation.y;
+            if let Ok(bounds) = bounds_q.get_single() {
+                let (x, y) = ((position.x+translation.x) as usize, (SCENERY_SIZE.1-(position.y+translation.y)) as usize);
+                            
+                let mut move_guard = true; 
+                if !bounds.0.is_empty() {
+                    for width in 0..20 {
+                        for height in 0..20 {
+                            move_guard = move_guard 
+                                        && bounds.0[y+height][x+width] == 0 
+                                        && bounds.0[y+height][x-width] == 0
+                                        && bounds.0[y-height][x-width] == 0 
+                                        && bounds.0[y-height][x-width] == 0 ;
+                        }
+                    }
+                }
+                
+                if move_guard {
+                    position.x += translation.x; 
+                    position.y += translation.y;
+                }
+            }
         }
 
         //update orientation

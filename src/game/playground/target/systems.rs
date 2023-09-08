@@ -24,8 +24,8 @@ pub fn spawn_target (
         },
         TargetBundle {
             position: WorldPosition {
-                x: 1376.0,
-                y: 640.0,
+                x: 1266.0,
+                y: 1123.0,
             },
             reach: ReachDistance(40.0),
             unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),

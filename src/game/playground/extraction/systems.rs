@@ -18,15 +18,15 @@ pub fn spawn_extraction (
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
-            transform: Transform::from_xyz(623.0, 1076.0, 4.0),
+            transform: Transform::from_xyz(623.0, 231.0, 4.0),
             material: materials.add(ColorMaterial::from(Color::YELLOW)),
             visibility: Visibility::Hidden,
             ..default()
         },
         ExtractionBundle {
             position: WorldPosition {
-                x: 623.0,
-                y: 1076.0,
+                x: 2075.0,
+                y: 405.0,
             },
             reach: ReachDistance(40.0),
         },

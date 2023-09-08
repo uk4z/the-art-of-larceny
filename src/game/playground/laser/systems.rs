@@ -14,15 +14,15 @@ pub fn spawn_laser(
 ) {
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Box::new(200.0, 4.0, 0.0))).into(),
+            mesh: meshes.add(Mesh::from(shape::Box::new(146.0, 4.0, 0.0))).into(),
             transform: Transform::from_xyz(800.0, 400.0, 4.0),
             material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
             ..default()
         },
         LaserBundle {
-            position: WorldPosition {x: 800.0, y: 400.0},
+            position: WorldPosition {x: 1246.0, y: 945.0},
             orientation: Orientation(Quat::from_rotation_z(Direction::Horizontal.into())), //angle is 0.0 or PI/2.0 ; 
-            length: LaserLength(200.0)
+            length: LaserLength(146.0)
         }, 
         Laser
     ));

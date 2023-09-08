@@ -27,7 +27,10 @@ pub fn spawn_player(
         ..default()
         }, 
         PlayerBundle { 
-            position: WorldPosition {x: 1000.0, y: 1000.0,},
+            position: WorldPosition {
+                x: 2075.0,
+                y: 405.0,
+            },
             orientation: Orientation(Quat::IDENTITY),
             pace: PlayerPace::Walk,
             animation: AnimatedMotion {
@@ -81,7 +84,7 @@ pub fn move_player(
                                 }
                             }
                         }
-                        
+
                         if move_player {
                             position.x += translation.x; 
                             position.y += translation.y;

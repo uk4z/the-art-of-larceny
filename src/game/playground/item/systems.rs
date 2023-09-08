@@ -27,7 +27,7 @@ pub fn spawn_item (
         ..default()
         }, 
         ItemBundle { 
-            position: WorldPosition {x: 500.0, y: 500.0,},
+            position: WorldPosition {x: 890.0, y: 433.0,},
             orientation: Orientation(Quat::IDENTITY),
             reach: ReachDistance(40.0),
             name: Name("Exchange rate eur/dol:".to_string()),

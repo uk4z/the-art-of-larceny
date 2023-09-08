@@ -22,7 +22,7 @@ pub fn spawn_security(
             ..default()
         },
         SecurityBundle {
-            position: WorldPosition {x: 1400.0, y: 250.0},
+            position: WorldPosition {x: 710.0, y: 975.0},
             intrusion: Intrusion(false),
             active: Active(true),
             reach: ReachDistance(40.0),
