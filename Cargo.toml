@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.10"
+image = "0.24"
 rand = "0.8.5"
 bevy_ui_borders = "0.3.0"
 # Enable max optimizations for dependencies, but not for our code:

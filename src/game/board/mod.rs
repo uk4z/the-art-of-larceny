@@ -17,7 +17,6 @@ impl Plugin for BoardPlugin {
         app.add_plugin(BordersPlugin)
             .add_startup_system(spawn_board)
             .add_system(clean_helper)
-            .add_system(lock_animation)
             .add_system(unlock_animation)
             .add_system(unlock_target)
             .add_system(button_system)

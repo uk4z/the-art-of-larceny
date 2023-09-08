@@ -355,7 +355,7 @@ pub fn spawn_board (
                                                 instructions[i],
                                                 TextStyle {
                                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                                    font_size: 18.0,
+                                                    font_size: 24.0,
                                                     color: Color::WHITE,
                                                 }),
                                                 style: Style {
@@ -373,7 +373,7 @@ pub fn spawn_board (
                                             "",
                                             TextStyle {
                                                 font: asset_server.load("FiraMono-Medium.ttf"),
-                                                font_size: 18.0,
+                                                font_size: 24.0,
                                                 color: Color::WHITE,
                                             }),
                                             style: Style {
@@ -452,7 +452,7 @@ pub fn spawn_board (
                                                 "",
                                                 TextStyle {
                                                     font: asset_server.load("FiraMono-Medium.ttf"),
-                                                    font_size: 18.0,
+                                                    font_size: 24.0,
                                                     color: Color::WHITE,
                                                 }),
                                                 style: Style {
@@ -624,19 +624,6 @@ pub fn switch_section (
                     }
                 }
             }
-        }
-    }
-}
-
-pub fn lock_animation (
-    mut button_q: Query<&mut Style, With<LoadingBar>>,
-    timer_q: Query<&UnlockTimer, With<Target>>,
-) {
-    if let Ok(mut loading_bar) = button_q.get_single_mut() {
-        if let Ok(timer) = timer_q.get_single() {
-            let elapsed_time = timer.0.elapsed().as_millis() as f32;
-            let total_time = timer.0.duration().as_millis() as f32;
-            loading_bar.size = Size::new(Val::Percent(100.0*elapsed_time/total_time), Val::Percent(100.0))
         }
     }
 }

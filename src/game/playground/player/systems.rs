@@ -9,7 +9,8 @@ use super::{get_player_direction, DISTANCE_PER_SECOND};
 use crate::components::Layer;
 use crate::game::board::components::IntelMenu;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
-use crate::game::playground::scenery::get_scenery_scale_from_window;
+use crate::game::playground::scenery::components::{Bounds, Scenery};
+use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -45,6 +46,7 @@ pub fn move_player(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_q: Query<(&mut WorldPosition, &mut Orientation, &PlayerPace), With<Player>>,
     intel_q: Query<&Visibility, With<IntelMenu>>, 
+    bounds_q: Query<&Bounds, With<Scenery>>,
 
 ) {
     if let Ok(visibility) = intel_q.get_single() {
@@ -63,8 +65,29 @@ pub fn move_player(
                         },
                     };
                     let translation: Vec3 = direction*speed;
-                    position.x += translation.x; 
-                    position.y += translation.y;
+
+                    if let Ok(bounds) = bounds_q.get_single() {
+                        let (x, y) = ((position.x+translation.x) as usize, (SCENERY_SIZE.1-(position.y+translation.y)) as usize);
+                        
+                        let mut move_player = true; 
+                        if !bounds.0.is_empty() {
+                            for width in 0..20 {
+                                for height in 0..20 {
+                                    move_player = move_player 
+                                                && bounds.0[y+height][x+width] == 0 
+                                                && bounds.0[y+height][x-width] == 0
+                                                && bounds.0[y-height][x-width] == 0 
+                                                && bounds.0[y-height][x-width] == 0 ;
+                                }
+                            }
+                        }
+                        
+                        if move_player {
+                            position.x += translation.x; 
+                            position.y += translation.y;
+                        }
+            
+                    } 
             
                     //update orientation
                     if direction.length() > 0.0 {

@@ -5,6 +5,8 @@ use bevy::prelude::*;
 
 use systems::*;
 
+use self::components::BoundsEvent;
+
 
 pub const SCENERY_SIZE: (f32, f32) = (2240.0, 1280.0); //In pixel size
 
@@ -12,7 +14,10 @@ pub struct SceneryPlugin;
 
 impl Plugin for SceneryPlugin{
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_scenery);
+        app.add_event::<BoundsEvent>()
+            .add_startup_system(spawn_scenery)
+            .add_startup_system(bounds_event)
+            .add_system(set_bounds);
     }
 }
 

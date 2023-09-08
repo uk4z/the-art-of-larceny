@@ -40,6 +40,7 @@ pub fn confine_position(
     });
 }
 
+
 pub fn update_scale(
     mut resize_event: EventReader<WindowResized>, 
     mut world_q: Query<(&mut Transform, &WorldPosition), Without<Scenery>>,

@@ -3,7 +3,7 @@ pub mod game;
 pub mod components;
 
 use bevy::prelude::*;
-use bevy::window::{Window, WindowMode, PresentMode};
+use bevy::window::{Window, WindowMode, PresentMode}; 
 
 use game::board::BoardPlugin;
 use game::playground::PlaygroundPlugin;
@@ -11,6 +11,7 @@ use systems::*;
 
 
 fn main() {
+
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {
             title: "The art of larceny: rogue's riches".to_string(),
