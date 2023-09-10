@@ -2,12 +2,14 @@ pub mod systems;
 pub mod game;
 pub mod components;
 pub mod main_menu;
+pub mod pause_menu;
 
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
 
 use game::GamePlugin;
 use main_menu::MainMenuPlugin;
+use pause_menu::PauseMenuPlugin;
 use systems::*;
 
 
@@ -31,6 +33,7 @@ fn main() {
         .add_state::<AppState>()
         .add_plugin(MainMenuPlugin)
         .add_plugin(GamePlugin)
+        .add_plugin(PauseMenuPlugin)
         .add_startup_system(spawn_setup)
         .add_system(debug_window_size)
         .add_system(bevy::window::close_on_esc) //To close the window when pressing 'ESC' key

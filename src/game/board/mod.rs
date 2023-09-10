@@ -34,6 +34,7 @@ impl Plugin for BoardPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_board.in_schedule(OnExit(SimulationState::Running)));
     }
 }

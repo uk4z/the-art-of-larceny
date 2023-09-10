@@ -1,22 +1,22 @@
-use bevy::app::AppExit;
 use bevy::prelude::*;
 
 use crate::components::Layer;
-use crate::main_menu::components::*;
+use crate::game::SimulationState;
+use crate::pause_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
 
-pub fn interact_with_play_button(
+pub fn interact_with_resume_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
-        (Changed<Interaction>, With<PlayButton>),
+        (Changed<Interaction>, With<ResumeButton>),
     >,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
-                app_state_next_state.set(AppState::Game);
+                simulation_state_next_state.set(SimulationState::Running);
                 
             }
             Interaction::Hovered => {
@@ -31,17 +31,17 @@ pub fn interact_with_play_button(
     }
 }
 
-pub fn interact_with_quit_button(
-    mut app_exit_event_writer: EventWriter<AppExit>,
+pub fn interact_with_exit_button(
+    mut app_state_next_state: ResMut<NextState<AppState>>,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
-        (Changed<Interaction>, With<QuitButton>),
+        (Changed<Interaction>, With<ExitButton>),
     >,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
-                app_exit_event_writer.send(AppExit);
+                app_state_next_state.set(AppState::MainMenu);
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;
@@ -55,17 +55,17 @@ pub fn interact_with_quit_button(
     }
 }
 
-pub fn despawn_main_menu(mut commands: Commands, main_menu_query: Query<Entity, With<MainMenu>>) {
-    if let Ok(main_menu_entity) = main_menu_query.get_single() {
-        commands.entity(main_menu_entity).despawn_recursive();
+pub fn despawn_pause_menu(mut commands: Commands, pause_menu_query: Query<Entity, With<PauseMenu>>) {
+    if let Ok(pause_menu_entity) = pause_menu_query.get_single() {
+        commands.entity(pause_menu_entity).despawn_recursive();
     }
 }
 
-pub fn spawn_main_menu(
+pub fn spawn_pause_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>
 ) {
-   commands.spawn((
+    commands.spawn((
     NodeBundle {
         style: Style {
             display: Display::Flex,
@@ -80,7 +80,7 @@ pub fn spawn_main_menu(
         background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
         ..default()
     },
-    MainMenu,
+    PauseMenu,
    )).with_children(|root|{
         root.spawn(
             NodeBundle {
@@ -144,11 +144,11 @@ pub fn spawn_main_menu(
                     ..default()
                 },
                 BorderColor(Color::WHITE),
-                PlayButton,
+                ResumeButton,
             )).with_children(|button| {
                 button.spawn((
                     TextBundle::from_section(
-                        "Play",
+                        "Resume",
                     TextStyle {
                         font: asset_server.load("FiraMono-Medium.ttf"),
                         font_size: 20.0,
@@ -175,12 +175,12 @@ pub fn spawn_main_menu(
                     ..default()
                 },
                 BorderColor(Color::WHITE),
-                LevelButton,
+                SaveButton,
 
             )).with_children(|button| {
                 button.spawn((
                     TextBundle::from_section(
-                        "Level",
+                        "Save",
                     TextStyle {
                         font: asset_server.load("FiraMono-Medium.ttf"),
                         font_size: 20.0,
@@ -207,12 +207,12 @@ pub fn spawn_main_menu(
                     ..default()
                 },
                 BorderColor(Color::WHITE),
-                QuitButton,
+                ExitButton,
 
             )).with_children(|button| {
                 button.spawn((
                     TextBundle::from_section(
-                        "Quit",
+                        "Exit",
                     TextStyle {
                         font: asset_server.load("FiraMono-Medium.ttf"),
                         font_size: 20.0,
