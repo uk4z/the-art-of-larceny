@@ -11,7 +11,7 @@ pub struct SceneryBundle {
     pub bounds: Bounds
 }
 
-#[derive(Debug)]
-pub struct BoundsEvent{
+#[derive(Resource, Debug)]
+pub struct BoundsResource{
     pub handle: Handle<Image>,
 }

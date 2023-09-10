@@ -3,6 +3,8 @@ pub mod components;
 
 use bevy::prelude::*;
 
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::WorldPosition;
 use crate::game::playground::guard::components::Patrol; 
 
@@ -18,15 +20,23 @@ pub struct GuardPlugin;
 
 impl Plugin for GuardPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_guard)
-            .add_system(move_guard)
-            .add_system(update_patrols_positions)
-            .add_system(guard_motion_handler)
-            .add_system(update_fov)
-            .add_system(alert_guard)
-            .add_system(disalert_guard)
-            .add_system(update_chase_stack)
-            .add_system(catch_player);
+        app
+            .add_system(spawn_guard.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    move_guard, 
+                    update_patrols_positions,
+                    guard_motion_handler,
+                    update_waiting_timer,
+                    update_fov,
+                    alert_guard,
+                    disalert_guard,
+                    update_chase_stack,
+                    catch_player,
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

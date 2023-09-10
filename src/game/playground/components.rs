@@ -29,3 +29,5 @@ pub struct Name(pub String);
 
 #[derive(Debug, Component)]
 pub struct Value(pub f32);
+
+pub struct GameOver; 

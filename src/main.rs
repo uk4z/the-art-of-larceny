@@ -1,12 +1,13 @@
 pub mod systems;
 pub mod game;
 pub mod components;
+pub mod main_menu;
 
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
 
-use game::board::BoardPlugin;
-use game::playground::PlaygroundPlugin;
+use game::GamePlugin;
+use main_menu::MainMenuPlugin;
 use systems::*;
 
 
@@ -27,12 +28,23 @@ fn main() {
 
     App::new()
         .add_plugins(DefaultPlugins.set(window_plugin))
-        .add_plugin(BoardPlugin)
-        .add_plugin(PlaygroundPlugin)
+        .add_state::<AppState>()
+        .add_plugin(MainMenuPlugin)
+        .add_plugin(GamePlugin)
         .add_startup_system(spawn_setup)
         .add_system(debug_window_size)
         .add_system(bevy::window::close_on_esc) //To close the window when pressing 'ESC' key
         .add_system(request_resize)
         .add_system(update_camera_position)
+        .add_system(enter_main_menu)
+        .add_system(start_level)
         .run();
+}
+
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+pub enum AppState {
+    #[default]
+    MainMenu,
+    Game,
+    GameOver,
 }

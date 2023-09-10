@@ -5,6 +5,8 @@ use bevy::prelude::*;
 
 use systems::*;
 
+use crate::{game::SimulationState, AppState};
+
 use self::components::LaserLength;
 
 use std::f32::{consts::PI, INFINITY};
@@ -14,8 +16,15 @@ pub struct LaserPlugin;
 
 impl Plugin for LaserPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_laser)
-            .add_system(alert_security);
+        app
+            .add_system(spawn_laser.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    alert_security,  
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

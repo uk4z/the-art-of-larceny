@@ -4,6 +4,8 @@ pub mod components;
 use bevy::prelude::*;
 use systems::*;
 
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use components::Security; 
@@ -11,10 +13,17 @@ pub struct SecurityPlugin;
 
 impl Plugin for SecurityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_security)
-            .add_system(signal_security)
-            .add_system(update_visibility)
-            .add_system(desactivate_security);
+        app
+            .add_system(spawn_security.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    signal_security, 
+                    update_visibility,
+                    desactivate_security 
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

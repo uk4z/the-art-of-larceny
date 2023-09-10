@@ -2,6 +2,8 @@ pub mod systems;
 pub mod components;
 
 use bevy::prelude::*;
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use components::Footage;
@@ -11,9 +13,16 @@ pub struct FootagePlugin;
 
 impl Plugin for FootagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_footage)
-            .add_system(signal_footage)
-            .add_system(suppress_footage);
+        app
+            .add_system(spawn_footage.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    signal_footage, 
+                    suppress_footage, 
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
 use bevy::utils::Duration;
 use bevy::sprite::MaterialMesh2dBundle;
-use bevy::app::AppExit;
 
 use std::f32::consts::PI;
 use super::{components::*, obstacle_in_fov};
@@ -11,7 +10,7 @@ use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
 use crate::components::Layer;
-use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
+use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance, GameOver};
 use crate::game::playground::scenery::components::{Bounds, Scenery};
 use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
 
@@ -36,6 +35,7 @@ pub fn spawn_guard(
                 mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(VISION_LENGTH, 3))).into(),
                 transform: Transform::from_xyz(500.0, 50.0, 4.0),
                 material: materials.add(ColorMaterial::from(Color::YELLOW)), 
+                visibility: Visibility::Hidden,
                 ..default()
             },
             FOVBundle {
@@ -108,10 +108,15 @@ pub fn alert_guard (
                     let fov_vector = orientation.0.mul_vec3(Vec3::X);
                     let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
                     let distance = target_vector.length();
-                    if *state != GuardState::Chasing && (angle < PI/4.0 && FOV_RANGE >= distance) {
-                        *state = GuardState::Chasing;
-                        *pace = GuardPace::Run;
-                        *stealth = Stealth::None;
+                    match *state {
+                        GuardState::Chasing => {},
+                        _ => {
+                            if angle < PI/4.0 && FOV_RANGE >= distance {
+                                *state = GuardState::Chasing;
+                                *pace = GuardPace::Run;
+                                *stealth = Stealth::None;
+                            }
+                        }
                     }
                 }
             }
@@ -122,15 +127,23 @@ pub fn alert_guard (
 pub fn disalert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation), With<Guard>>, 
     player_q: Query<&WorldPosition, With<Player>>,
+    bounds_q: Query<&Bounds, With<Scenery>>,
 ){
     if let Ok(player_pos) = player_q.get_single() {
-        for (mut state, guard_pos, orientation,) in guards_q.iter_mut() {
-            let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
-            let fov_vector = orientation.0.mul_vec3(Vec3::X);
-            let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
-            let distance = target_vector.length();
-            if *state == GuardState::Chasing && !(angle < PI/4.0 && FOV_RANGE >= distance) {
-                *state = GuardState::Searching(*player_pos);
+        if let Ok(bounds) = bounds_q.get_single() {
+            for (mut state, guard_pos, orientation,) in guards_q.iter_mut() {
+                let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
+                let fov_vector = orientation.0.mul_vec3(Vec3::X);
+                let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
+                let distance = target_vector.length();
+                match *state {
+                    GuardState::Chasing => {
+                        if !(angle < PI/4.0 && FOV_RANGE >= distance) || obstacle_in_fov(player_pos, guard_pos, bounds) {
+                            *state = GuardState::Searching(*player_pos);
+                        }
+                    },
+                    _ => {}
+                }
             }
         }
     }
@@ -139,13 +152,13 @@ pub fn disalert_guard (
 pub fn catch_player (
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
     mut guard_q: Query<(&WorldPosition, &ReachDistance), (With<Guard>, Without<Player>)>,
-    mut exit: EventWriter<AppExit>,
+    mut game_over: EventWriter<GameOver>,
 ) {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
         guard_q.for_each_mut(|(guard_position, guard_reach)| {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*guard_position));
             if distance <= player_reach.0+guard_reach.0 {
-                exit.send(AppExit);
+                game_over.send(GameOver);
             }
         });
     }
@@ -173,14 +186,14 @@ pub fn update_fov(
 pub fn move_guard(
     time: Res<Time>,
     player_q: Query<&WorldPosition, (With<Player>, Without<Guard>)>,
-    mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &GuardPace, &GuardState), (With<Guard>, Without<Player>)>,
+    mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &GuardPace, &mut GuardState), (With<Guard>, Without<Player>)>,
     bounds_q: Query<&Bounds, With<Scenery>>,
 ) { 
     guard_q.for_each_mut(|
         (mut position, mut patrol, mut orientation, 
-            pace, state,
+            pace, mut state,
         )| { 
-        let direction = match state {
+        let direction = match *state {
             GuardState::Patrolling => {
                 patrol_direction(&mut *patrol, &*position)
             },
@@ -192,13 +205,16 @@ pub fn move_guard(
                 }
             }, 
             GuardState::Searching(target) => {
-                search_direction(target, &*position)
+                search_direction(&target, &*position)
             },
             GuardState::Returning => {
                 Vec3::ZERO
+            },
+            GuardState::Waiting(_) => {
+                Vec3::ZERO
             }
         };
-    
+  
         //update position
         let speed = match pace {
             GuardPace::Run => {
@@ -230,6 +246,13 @@ pub fn move_guard(
                 if move_guard {
                     position.x += translation.x; 
                     position.y += translation.y;
+                } else {
+                    match *state {
+                        GuardState::Searching(_) => {
+                            *state = GuardState::Waiting(Timer::from_seconds(2.0, TimerMode::Once)); 
+                        }
+                        _ => {}
+                    }
                 }
             }
         }
@@ -239,6 +262,25 @@ pub fn move_guard(
             orientation.0 = Quat::from_rotation_arc(Vec3::X, direction);
         }
         
+    });
+}
+
+pub fn update_waiting_timer(
+    mut guard_q: Query<&mut GuardState, With<Guard>>,
+    time: Res<Time>
+) {
+    guard_q.for_each_mut(|mut state|{
+        match state.clone() {
+            GuardState::Waiting(mut timer) => {
+                if timer.finished() {
+                    *state = GuardState::Returning;
+                } else {
+                    timer.tick(time.delta());
+                    *state = GuardState::Waiting(timer);
+                }
+            },
+            _ => {}
+        }
     });
 }
 
@@ -276,7 +318,7 @@ pub fn update_chase_stack (
             GuardState::Searching(target) => {
                 let distance = (Vec3::from(target) - Vec3::from(*position)).length();
                 if distance < POSITION_REACH {
-                    *state = GuardState::Returning;
+                    *state = GuardState::Waiting(Timer::from_seconds(2.0, TimerMode::Once));
                 } else {
                     stack.0.push((*position, *orientation));
                 }

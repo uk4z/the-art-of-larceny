@@ -5,6 +5,8 @@ use bevy::prelude::*;
 
 use systems::*;
 use components::*;
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 
@@ -12,9 +14,18 @@ pub struct TargetPlugin;
 
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_target)
+        app/* .add_startup_system(spawn_target)
             .add_system(signal_target_zone)
-            .add_system(load_target_unlock);
+            .add_system(load_target_unlock); */
+            .add_system(spawn_target.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    signal_target_zone, 
+                    load_target_unlock, 
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

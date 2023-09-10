@@ -50,12 +50,13 @@ impl Patrol {
     } 
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq)]
+#[derive(Component, Debug, Clone)]
 pub enum GuardState {
     Patrolling,
     Chasing,
     Returning, 
     Searching(WorldPosition), 
+    Waiting(Timer),
 }
 
 #[derive(Bundle, Debug)]

@@ -17,6 +17,7 @@ pub fn spawn_footage (
             mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
             transform: Transform::from_xyz(2300.0, 817.0, 4.0),
             material: materials.add(ColorMaterial::from(Color::FUCHSIA)),
+            visibility: Visibility::Hidden,
             ..default()
         },
         FootageBundle {

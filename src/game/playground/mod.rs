@@ -24,7 +24,13 @@ use guard::GuardPlugin;
 use camera::CameraPlugin;
 use security::SecurityPlugin;
 use laser::LaserPlugin;
-use footage::FootagePlugin; 
+use footage::FootagePlugin;
+
+use components::GameOver;
+
+use crate::AppState;
+
+use super::SimulationState; 
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -44,9 +50,18 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(SecurityPlugin)
             .add_plugin(LaserPlugin)
             .add_plugin(FootagePlugin)
-            .add_system(confine_position)
-            .add_system(update_scale)
-            .add_system(world_to_screen);
+            .add_event::<GameOver>()
+            .add_systems(
+                (
+                    handle_game_over, 
+                    confine_position, 
+                    update_scale,
+                    world_to_screen,
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
+
     }
 }
 

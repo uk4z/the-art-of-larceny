@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::WindowResized;
 
-use super::components::WorldPosition;
+use super::components::{WorldPosition, GameOver};
 use super::player::components::PlayerPace;
 use super::scenery::{
     components::Scenery,
@@ -85,5 +85,13 @@ pub fn world_to_screen(
                 transform.rotation = rotation.0;
             }
         });
+    }
+}
+
+pub fn handle_game_over (
+   mut ev: EventReader<GameOver>
+) {
+    for _ in ev.iter() {
+        println!("game is over");
     }
 }

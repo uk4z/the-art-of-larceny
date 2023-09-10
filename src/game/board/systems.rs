@@ -486,11 +486,14 @@ pub fn despawn_board(
 
 pub fn clean_helper (
     mut helper_q: Query<&mut Text, With<Helper>>,
+    status_q: Query<&Text, (With<StealthStatus>, Without<Helper>)>,
 ) {
     //This function is called at the begining of each frame to clean the helper section of any given text. 
     //Therefore, the BoardPlugin has to be added before the PlaygroundPlugin in the LevelPlugin.
     if let Ok(mut text) = helper_q.get_single_mut() {
-        text.sections[0].value = "".to_string();
+        if let Ok(status) = status_q.get_single() {
+            text.sections[0].value = status.sections[0].value.clone();
+        }
     }
 }
 
@@ -684,8 +687,10 @@ pub fn button_system(
     button_q.for_each_mut(|(mut border_color, interaction) | {
         match interaction {
             Interaction::Clicked => {
-                border_color.0 = Color::GREEN;
-                currency_locked.0 = true; 
+                if !currency_locked.0 {
+                    border_color.0 = Color::GREEN;
+                    currency_locked.0 = true; 
+                }
             }
             Interaction::Hovered => {
                 if !currency_locked.0 {

@@ -3,6 +3,9 @@ use bevy::render::view::RenderLayers;
 use bevy::window::{PrimaryWindow, WindowMode, WindowResized};
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 
+use crate::AppState;
+use crate::main_menu::components::MainMenu;
+
 use super::components::Layer;
 
 pub fn debug_window_size(
@@ -62,3 +65,36 @@ pub fn update_camera_position(
         }
     } 
 }
+
+pub fn start_level(
+    app_state: Res<State<AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut visibility_q: Query<&mut Visibility, With<MainMenu>>,
+) {
+
+    if keyboard_input.just_pressed(KeyCode::Return) {
+        if app_state.0 != AppState::Game {
+            if let Ok(mut visibility) = visibility_q.get_single_mut() {
+                app_state_next_state.set(AppState::Game);
+                println!("Entered AppState::Game");
+                *visibility = Visibility::Hidden;
+            }
+        }
+    }   
+}
+
+
+pub fn enter_main_menu(
+    app_state: Res<State<AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut app_state_next_state: ResMut<NextState<AppState>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::M) {
+        if app_state.0 != AppState::MainMenu {
+            app_state_next_state.set(AppState::MainMenu);
+            println!("Entered AppState::MainMenu");
+        }
+    }   
+}
+

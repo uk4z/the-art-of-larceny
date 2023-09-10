@@ -4,7 +4,7 @@ pub mod systems;
 use bevy::prelude::*;
 
 use systems::*;
-use crate::game::playground::WORLD_SCALE;
+use crate::{game::{playground::WORLD_SCALE, SimulationState}, AppState};
 
 const METERS_PER_SECOND: f32 = 2.6;//In meters 
 pub const DISTANCE_PER_SECOND: f32 = METERS_PER_SECOND*WORLD_SCALE;
@@ -13,10 +13,17 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_player)
-            .add_system(motion_handler)
-            .add_system(set_player_pace)
-            .add_system(move_player);
+        app
+            .add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    motion_handler, 
+                    set_player_pace,
+                    move_player, 
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

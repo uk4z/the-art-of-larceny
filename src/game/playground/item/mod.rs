@@ -2,6 +2,8 @@ pub mod components;
 pub mod systems; 
 
 use bevy::prelude::*;
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 
@@ -12,9 +14,16 @@ pub struct ItemPlugin;
 
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_item)
-            .add_system(signal_item)
-            .add_system(take_item);
+        app
+            .add_system(spawn_item.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    signal_item, 
+                    take_item, 
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

@@ -34,7 +34,7 @@ pub fn spawn_extraction (
     ));
 }
 
-pub fn signal_target_zone (
+pub fn signal_extraction (
     mut help_q: Query<&mut Text, With<Helper>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Extraction>)>,
     extraction_q: Query<(&WorldPosition, &ReachDistance), (With<Extraction>, Without<Player>)>,

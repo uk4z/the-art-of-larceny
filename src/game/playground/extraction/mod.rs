@@ -2,19 +2,28 @@ pub mod systems;
 pub mod components;
 
 use bevy::prelude::*;
+use crate::AppState;
+use crate::game::SimulationState;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use crate::game::playground::extraction::components::Extraction;
 
-use self::systems::{spawn_extraction, signal_target_zone, end_level, reveal_extraction};
+use self::systems::{spawn_extraction, signal_extraction, end_level, reveal_extraction};
 pub struct ExtractionPlugin;
 
 impl Plugin for ExtractionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_extraction)
-            .add_system(signal_target_zone)
-            .add_system(end_level)
-            .add_system(reveal_extraction);
+        app
+            .add_system(spawn_extraction.in_schedule(OnEnter(AppState::Game)))
+            .add_systems(
+                (
+                    signal_extraction, 
+                    end_level, 
+                    reveal_extraction,
+                ) 
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 

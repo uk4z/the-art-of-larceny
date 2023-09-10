@@ -19,6 +19,7 @@ pub fn spawn_security(
             mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
             transform: Transform::from_xyz(1400.0, 250.0, 4.0),
             material: materials.add(ColorMaterial::from(Color::NAVY)),
+            visibility: Visibility::Hidden,
             ..default()
         },
         SecurityBundle {
