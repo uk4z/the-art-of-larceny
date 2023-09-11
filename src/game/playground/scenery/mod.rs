@@ -23,7 +23,7 @@ impl Plugin for SceneryPlugin{
             .add_system(
                 set_bounds
                 .in_set(OnUpdate(AppState::Game))
-                .in_set(OnUpdate(SimulationState::Paused)),
+                .in_set(OnUpdate(SimulationState::Loading)),
             )
             .add_system(despawn_scenery.in_schedule(OnExit(AppState::Game)));
     }

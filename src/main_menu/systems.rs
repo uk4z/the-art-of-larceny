@@ -19,7 +19,7 @@ pub fn interact_with_play_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::Game);
-                simulation_state_next_state.set(SimulationState::Paused);
+                simulation_state_next_state.set(SimulationState::Loading);
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;

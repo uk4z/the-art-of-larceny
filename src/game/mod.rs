@@ -30,4 +30,5 @@ pub enum SimulationState {
     #[default]
     Running,
     Paused,
+    Loading,
 }
