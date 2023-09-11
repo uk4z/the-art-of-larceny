@@ -75,7 +75,6 @@ pub fn set_scale(
 ) {
     if let Ok(window) = window_q.get_single() {
         if let Ok(mut scenery_t) = scenery_q.get_single_mut() {
-            println!("heri");
             let new_width = window.width();
             let new_height = window.height();
             let new_scale = get_scenery_scale_from_window(&new_width, &new_height);

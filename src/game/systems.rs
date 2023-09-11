@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use crate::game::SimulationState;
+use crate::{game::SimulationState, AppState};
+
+use super::playground::components::GameOver;
 
 pub fn pause_simulation(mut simulation_state_next_state: ResMut<NextState<SimulationState>>) {
     simulation_state_next_state.set(SimulationState::Paused);
@@ -24,5 +26,15 @@ pub fn toggle_simulation(
             simulation_state_next_state.set(SimulationState::Running);
             println!("Simulation Running.");
         }
+    }
+}
+
+pub fn handle_game_over(
+    mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut game_over_event: EventReader<GameOver>,
+) {
+    for _ in game_over_event.iter() {
+        app_state_next_state.set(AppState::ScoreMenu);
+        println!("Entered AppState::ScoreMenu");
     }
 }

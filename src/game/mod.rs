@@ -20,6 +20,7 @@ impl Plugin for GamePlugin {
             .add_plugin(BoardPlugin)
             // Systems
             .add_system(toggle_simulation.run_if(in_state(AppState::Game)))
+            .add_system(handle_game_over.run_if(in_state(AppState::Game)))
             // Exit State Systems
             .add_system(resume_simulation.in_schedule(OnExit(AppState::Game)));
     }

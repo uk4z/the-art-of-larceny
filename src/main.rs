@@ -4,6 +4,7 @@ pub mod components;
 pub mod main_menu;
 pub mod pause_menu;
 pub mod load_menu;
+pub mod score_menu; 
 
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
@@ -12,6 +13,7 @@ use game::GamePlugin;
 use main_menu::MainMenuPlugin;
 use pause_menu::PauseMenuPlugin;
 use load_menu::LoadMenuPlugin; 
+use score_menu::ScoreMenuPlugin;
 use systems::*;
 
 
@@ -37,6 +39,7 @@ fn main() {
         .add_plugin(GamePlugin)
         .add_plugin(PauseMenuPlugin)
         .add_plugin(LoadMenuPlugin)
+        .add_plugin(ScoreMenuPlugin)
         .add_startup_system(spawn_setup)
         .add_system(debug_window_size)
         .add_system(bevy::window::close_on_esc) //To close the window when pressing 'ESC' key
@@ -51,6 +54,6 @@ fn main() {
 pub enum AppState {
     #[default]
     MainMenu,
+    ScoreMenu,
     Game,
-    GameOver,
 }
