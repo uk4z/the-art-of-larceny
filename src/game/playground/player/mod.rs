@@ -23,7 +23,8 @@ impl Plugin for PlayerPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_player.in_schedule(OnExit(AppState::Game)));
     }
 }
 

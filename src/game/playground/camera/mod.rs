@@ -20,6 +20,7 @@ impl Plugin for CameraPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_camera.in_schedule(OnExit(AppState::Game)));
     }
 }

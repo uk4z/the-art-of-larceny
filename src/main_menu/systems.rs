@@ -2,6 +2,7 @@ use bevy::app::AppExit;
 use bevy::prelude::*;
 
 use crate::components::Layer;
+use crate::game::SimulationState;
 use crate::main_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
@@ -12,12 +13,13 @@ pub fn interact_with_play_button(
         (Changed<Interaction>, With<PlayButton>),
     >,
     mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::Game);
-                
+                simulation_state_next_state.set(SimulationState::Paused);
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;

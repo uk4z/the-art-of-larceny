@@ -35,6 +35,15 @@ pub fn spawn_camera(
     ));
 }
 
+pub fn despawn_camera(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Camera>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn alert_security (
     cameras_q: Query<(&CameraPosition, &Orientation, &FOVLength), With<Camera>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,

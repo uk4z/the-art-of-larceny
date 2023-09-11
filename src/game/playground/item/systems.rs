@@ -37,6 +37,15 @@ pub fn spawn_item (
     ));
 }
 
+pub fn despawn_item(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Item>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn signal_item (
     item_visibility_q: Query<&Visibility, With<Item>>,
     mut help_q: Query<&mut Text, With<Helper>>,

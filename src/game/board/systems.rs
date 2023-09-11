@@ -61,7 +61,7 @@ pub fn spawn_board (
                 }).with_children(|text_division|{
                     text_division.spawn((TextBundle {
                         text: Text::from_section(
-                            "This will be the helper section",
+                            "",
                             TextStyle {
                                 font: asset_server.load("FiraMono-Medium.ttf"),
                                 font_size: 30.0,
@@ -478,7 +478,7 @@ pub fn despawn_board(
     mut commands: Commands, 
     board_q: Query<Entity, With<BoardUI>>,
 ) {
-    if let Ok(board) = board_q.get_single() {
+    for board in board_q.iter() {
         commands.entity(board).despawn_recursive();
     };
     
@@ -486,14 +486,11 @@ pub fn despawn_board(
 
 pub fn clean_helper (
     mut helper_q: Query<&mut Text, With<Helper>>,
-    status_q: Query<&Text, (With<StealthStatus>, Without<Helper>)>,
 ) {
     //This function is called at the begining of each frame to clean the helper section of any given text. 
     //Therefore, the BoardPlugin has to be added before the PlaygroundPlugin in the LevelPlugin.
     if let Ok(mut text) = helper_q.get_single_mut() {
-        if let Ok(status) = status_q.get_single() {
-            text.sections[0].value = status.sections[0].value.clone();
-        }
+        text.sections[0].value = "".to_string();
     }
 }
 

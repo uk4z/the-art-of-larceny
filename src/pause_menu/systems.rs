@@ -42,6 +42,7 @@ pub fn interact_with_exit_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::MainMenu);
+                println!("Entered AppState::MainMenu");
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;

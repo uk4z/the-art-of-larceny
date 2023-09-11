@@ -22,7 +22,8 @@ impl Plugin for FootagePlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_footage.in_schedule(OnExit(AppState::Game)));
     }
 }
 

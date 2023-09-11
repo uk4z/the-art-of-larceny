@@ -14,9 +14,7 @@ pub struct TargetPlugin;
 
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
-        app/* .add_startup_system(spawn_target)
-            .add_system(signal_target_zone)
-            .add_system(load_target_unlock); */
+        app
             .add_system(spawn_target.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (
@@ -25,7 +23,8 @@ impl Plugin for TargetPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_target.in_schedule(OnExit(AppState::Game)));
     }
 }
 

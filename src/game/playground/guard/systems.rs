@@ -95,6 +95,24 @@ pub fn spawn_guard(
     
 }
 
+pub fn despawn_guard(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Guard>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
+pub fn despawn_fov(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<FOV>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn alert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,

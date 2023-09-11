@@ -30,6 +30,16 @@ pub fn spawn_scenery(
     ));
 }
 
+pub fn despawn_scenery(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Scenery>>, 
+) {
+    commands.remove_resource::<BoundsResource>();
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn spawn_bounds_resource(
     mut commands: Commands,
     asset_server: Res<AssetServer>,

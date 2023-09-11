@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::window::WindowResized;
+use bevy::window::{WindowResized, PrimaryWindow};
 
 use super::components::{WorldPosition, GameOver};
 use super::player::components::PlayerPace;
@@ -41,7 +41,7 @@ pub fn confine_position(
 }
 
 
-pub fn update_scale(
+pub fn update_scale_on_resize(
     mut resize_event: EventReader<WindowResized>, 
     mut world_q: Query<(&mut Transform, &WorldPosition), Without<Scenery>>,
     mut scenery_q: Query<&mut Transform, With<Scenery>>,
@@ -65,6 +65,35 @@ pub fn update_scale(
             scenery_t.scale = Vec3::new(new_scale, new_scale, 1.0);
         }
     }
+    
+}
+
+pub fn set_scale(
+    window_q: Query<&Window, With<PrimaryWindow>>,
+    mut world_q: Query<(&mut Transform, &WorldPosition), Without<Scenery>>,
+    mut scenery_q: Query<&mut Transform, With<Scenery>>,
+) {
+    if let Ok(window) = window_q.get_single() {
+        if let Ok(mut scenery_t) = scenery_q.get_single_mut() {
+            println!("heri");
+            let new_width = window.width();
+            let new_height = window.height();
+            let new_scale = get_scenery_scale_from_window(&new_width, &new_height);
+            let (new_x, new_y) = get_scenery_position_from_window(&new_width, &new_height);
+    
+            world_q.for_each_mut(|(mut transform, position)| {
+                let z_layer = transform.translation.z;
+                let window_position = Vec3::new(new_x, new_y, z_layer)-Vec3::from(*position);
+    
+                transform.translation = window_position;
+                transform.scale = Vec3::new(new_scale, new_scale, 1.0)
+    
+            });
+            scenery_t.translation = Vec3::new(new_x, new_y, Layer::Scenery.into());
+            scenery_t.scale = Vec3::new(new_scale, new_scale, 1.0);
+        }
+    }
+    
     
 }
 

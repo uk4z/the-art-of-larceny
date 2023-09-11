@@ -8,7 +8,7 @@ use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use crate::game::playground::extraction::components::Extraction;
 
-use self::systems::{spawn_extraction, signal_extraction, end_level, reveal_extraction};
+use self::systems::*;
 pub struct ExtractionPlugin;
 
 impl Plugin for ExtractionPlugin {
@@ -23,7 +23,8 @@ impl Plugin for ExtractionPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_extraction.in_schedule(OnExit(AppState::Game)));
     }
 }
 

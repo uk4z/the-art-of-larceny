@@ -51,12 +51,13 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(LaserPlugin)
             .add_plugin(FootagePlugin)
             .add_event::<GameOver>()
+            .add_system(set_scale.in_schedule(OnEnter(SimulationState::Running)))
             .add_systems(
                 (
                     handle_game_over, 
                     confine_position, 
-                    update_scale,
                     world_to_screen,
+                    update_scale_on_resize,
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),

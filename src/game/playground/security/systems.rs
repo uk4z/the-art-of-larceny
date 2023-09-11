@@ -32,6 +32,15 @@ pub fn spawn_security(
     )); 
 }
 
+pub fn despawn_security(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Security>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn signal_security (
     mut help_q: Query<&mut Text, With<Helper>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Security>)>,

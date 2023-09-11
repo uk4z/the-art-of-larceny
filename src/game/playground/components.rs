@@ -31,3 +31,5 @@ pub struct Name(pub String);
 pub struct Value(pub f32);
 
 pub struct GameOver; 
+
+pub struct LevelStarted;

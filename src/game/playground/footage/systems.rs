@@ -32,6 +32,15 @@ pub fn spawn_footage (
     ));
 }
 
+pub fn despawn_footage(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Footage>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn signal_footage (
     mut help_q: Query<&mut Text, With<Helper>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Footage>)>,

@@ -23,7 +23,8 @@ impl Plugin for SecurityPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_security.in_schedule(OnExit(AppState::Game)));
     }
 }
 

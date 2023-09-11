@@ -24,7 +24,8 @@ impl Plugin for LaserPlugin {
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
-            );
+            )
+            .add_system(despawn_laser.in_schedule(OnExit(AppState::Game)));
     }
 }
 

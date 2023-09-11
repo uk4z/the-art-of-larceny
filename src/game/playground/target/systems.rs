@@ -35,6 +35,15 @@ pub fn spawn_target (
     ));
 }
 
+pub fn despawn_target(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Target>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub fn signal_target_zone (
     mut help_q: Query<&mut Text, With<Helper>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Target>)>,

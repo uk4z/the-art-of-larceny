@@ -28,6 +28,15 @@ pub fn spawn_laser(
     ));
 }
 
+pub fn despawn_laser(
+    mut commands: Commands,
+    entity_q: Query<Entity, With<Laser>>,
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 
 pub fn alert_security (
     lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength), With<Laser>>, 
