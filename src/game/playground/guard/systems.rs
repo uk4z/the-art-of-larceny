@@ -31,7 +31,7 @@ pub fn spawn_guard(
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     //spawn FOV
-    if let Some(fovs) = get_fov_bundle(&level.name) {
+    if let Some(fovs) = get_fov_bundle(&level) {
         for bundle in fovs {
             commands.spawn((
                 MaterialMesh2dBundle {
@@ -49,7 +49,7 @@ pub fn spawn_guard(
    
 
     //spawn_guard
-    if let Some(guards) = get_guard_bundle(&level.name) {
+    if let Some(guards) = get_guard_bundle(&level) {
         for bundle in guards {
             commands.spawn((
                 SpriteBundle{

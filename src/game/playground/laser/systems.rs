@@ -14,7 +14,7 @@ pub fn spawn_laser(
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>
 ) {
-    if let Some(lasers) = get_laser_bundle(&level.name) {
+    if let Some(lasers) = get_laser_bundle(&level) {
         for bundle in lasers {
             commands.spawn((
                 MaterialMesh2dBundle {

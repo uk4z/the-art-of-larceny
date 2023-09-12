@@ -1,10 +1,10 @@
 use bevy::prelude::Quat;
 
-use crate::game::playground::{laser::components::{LaserBundle, LaserLength, Direction}, components::{Orientation, WorldPosition}};
+use crate::game::{playground::{laser::components::{LaserBundle, LaserLength, Direction}, components::{Orientation, WorldPosition}}, components::Level};
 
-pub fn get_laser_bundle(level: &str) -> Option<Vec<LaserBundle>> {
+pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 vec![
                     LaserBundle {

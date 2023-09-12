@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 use std::f32::consts::PI;
-use crate::game::playground::{
+use crate::game::{playground::{
     camera::{components::{CameraBundle, CameraPosition, Rotate, CameraPattern, FOVLength}, systems::ROTATION_CORRECTION}, 
-    components::{WorldPosition, Orientation}};
+    components::{WorldPosition, Orientation}}, components::Level};
 
 
 
 
-pub fn get_camera_bundle(level: &str) -> Option<Vec<CameraBundle>> {
+pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 vec![
                     CameraBundle {

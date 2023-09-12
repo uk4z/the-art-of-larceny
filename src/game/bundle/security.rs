@@ -1,9 +1,9 @@
-use crate::game::playground::{security::components::{Active, SecurityBundle, Intrusion}, components::{ReachDistance, WorldPosition}};
+use crate::game::{playground::{security::components::{Active, SecurityBundle, Intrusion}, components::{ReachDistance, WorldPosition}}, components::Level};
 
 
-pub fn get_security_bundle(level: &str) -> Option<SecurityBundle> {
+pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 SecurityBundle {
                     position: WorldPosition {x: 710.0, y: 975.0},

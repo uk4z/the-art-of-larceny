@@ -16,7 +16,7 @@ pub fn spawn_target (
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>, 
 ) {
-    if let Some(bundle) = get_target_bundle(&level.name) {
+    if let Some(bundle) = get_target_bundle(&level) {
         commands.spawn((
             MaterialMesh2dBundle {
                 mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),

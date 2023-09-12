@@ -176,38 +176,6 @@ pub fn spawn_pause_menu(
                     ..default()
                 },
                 BorderColor(Color::WHITE),
-                SaveButton,
-
-            )).with_children(|button| {
-                button.spawn((
-                    TextBundle::from_section(
-                        "Save",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 20.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-            });
-
-            values_section.spawn((
-                //button
-                ButtonBundle { 
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
-                        border: UiRect::all(Val::Px(2.0)),
-                        // horizontally center child text
-                        justify_content: JustifyContent::Center,
-                        // vertically center child text
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
-                    ..default()
-                },
-                BorderColor(Color::WHITE),
                 ExitButton,
 
             )).with_children(|button| {

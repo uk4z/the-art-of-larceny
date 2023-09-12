@@ -1,8 +1,8 @@
-use crate::game::playground::{scenery::components::{SceneryBundle, Bounds}, components::Path};
+use crate::game::{playground::{scenery::components::{SceneryBundle, Bounds}, components::Path}, components::Level};
 
-pub fn get_scenery_bundle(level: &str) -> Option<SceneryBundle> {
+pub fn get_scenery_bundle(level: &Level) -> Option<SceneryBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 SceneryBundle {
                     bounds: Bounds(Vec::new()),

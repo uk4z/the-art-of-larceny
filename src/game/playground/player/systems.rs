@@ -21,7 +21,7 @@ pub fn spawn_player(
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
-    if let Some(bundle) = get_player_bundle(&level.name) {
+    if let Some(bundle) = get_player_bundle(&level) {
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load("player/static.png"),

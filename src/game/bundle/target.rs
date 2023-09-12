@@ -2,12 +2,12 @@ use std::time::Duration;
 
 use bevy::time::{Timer, TimerMode};
 
-use crate::game::playground::{target::components::{TargetBundle, UnlockTimer}, components::{WorldPosition, ReachDistance}};
+use crate::game::{playground::{target::components::{TargetBundle, UnlockTimer}, components::{WorldPosition, ReachDistance}}, components::Level};
 
 
-pub fn get_target_bundle(level: &str) -> Option<TargetBundle> {
+pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 TargetBundle {
                     position: WorldPosition {

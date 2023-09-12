@@ -1,8 +1,8 @@
-use crate::game::playground::{extraction::components::ExtractionBundle, components::{WorldPosition, ReachDistance}};
+use crate::game::{playground::{extraction::components::ExtractionBundle, components::{WorldPosition, ReachDistance}}, components::Level};
 
-pub fn get_extraction_bundle(level: &str) -> Option<ExtractionBundle> {
+pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 ExtractionBundle {
                     position: WorldPosition {

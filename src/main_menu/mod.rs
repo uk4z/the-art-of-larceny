@@ -15,16 +15,33 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(BordersPlugin)
-            .insert_resource(Level { name: "starting".to_string()})
+            .insert_resource(Level::Mock)
             // OnEnter State Systems
-            .add_system(spawn_main_menu.in_schedule(OnEnter(AppState::MainMenu)))
+            .add_systems(
+                (
+                    clear_main_image, 
+                    spawn_main_menu,
+                    spawn_level_menu,
+                ).in_schedule(OnEnter(AppState::MainMenu)))
             // Systems
             .add_systems(
-                (interact_with_play_button, interact_with_quit_button, update_main_image_on_resize)
+                (
+                    interact_with_play_button, 
+                    interact_with_quit_button, 
+                    interact_with_select_button, 
+                    update_main_image_on_resize, 
+                    switch_level, 
+                    display_level_title,
+                    update_main_image,
+                )
                     .in_set(OnUpdate(AppState::MainMenu)),
             )
             // OnExit State Systems
-            .add_system(despawn_main_menu.in_schedule(OnExit(AppState::MainMenu)));
+            .add_systems(
+                (
+                    despawn_main_menu,
+                    despawn_level_menu,
+                ).in_schedule(OnExit(AppState::MainMenu)));
     }
 }
 

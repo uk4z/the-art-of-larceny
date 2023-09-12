@@ -21,7 +21,7 @@ pub fn spawn_camera(
     level: Res<Level>
 ) {
 
-    if let Some(cameras) = get_camera_bundle(&level.name) {
+    if let Some(cameras) = get_camera_bundle(&level) {
         for bundle in cameras {
             commands.spawn((
                 MaterialMesh2dBundle {

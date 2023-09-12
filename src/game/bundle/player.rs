@@ -2,12 +2,12 @@ use std::time::Duration;
 
 use bevy::{prelude::Quat, time::{TimerMode, Timer}};
 
-use crate::game::playground::{components::{Orientation, WorldPosition, AnimatedMotion, ReachDistance}, player::components::{PlayerBundle, PlayerPace, Stealth}};
+use crate::game::{playground::{components::{Orientation, WorldPosition, AnimatedMotion, ReachDistance}, player::components::{PlayerBundle, PlayerPace, Stealth}}, components::Level};
 
 
-pub fn get_player_bundle(level: &str) -> Option<PlayerBundle> {
+pub fn get_player_bundle(level: &Level) -> Option<PlayerBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 PlayerBundle { 
                     position: WorldPosition {

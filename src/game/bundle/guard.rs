@@ -2,11 +2,11 @@ use std::time::Duration;
 
 use bevy::{prelude::Quat, time::{Timer, TimerMode}};
 
-use crate::game::playground::{guard::components::{GuardBundle, GuardPace, Patrol, Waiting, ChaseStack, GuardState, FOVBundle}, components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance}};
+use crate::game::{playground::{guard::components::{GuardBundle, GuardPace, Patrol, Waiting, ChaseStack, GuardState, FOVBundle}, components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance}}, components::Level};
 
-pub fn get_guard_bundle(level: &str) -> Option<Vec<GuardBundle>> {
+pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 vec![ 
                     GuardBundle { 
@@ -48,9 +48,9 @@ pub fn get_guard_bundle(level: &str) -> Option<Vec<GuardBundle>> {
 }
 
 
-pub fn get_fov_bundle(level: &str) -> Option<Vec<FOVBundle>> {
+pub fn get_fov_bundle(level: &Level) -> Option<Vec<FOVBundle>> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 vec![
                     FOVBundle {

@@ -22,7 +22,7 @@ pub fn spawn_item (
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
-    if let Some(items) = get_item_bundle(&level.name) {
+    if let Some(items) = get_item_bundle(&level) {
         for bundle in items {
             commands.spawn((
                 SpriteBundle{

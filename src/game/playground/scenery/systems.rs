@@ -20,7 +20,7 @@ pub fn spawn_scenery(
     let (x, y) = get_scenery_position_from_window(&window.width(), &window.height());
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
-    if let Some(bundle) = get_scenery_bundle(&level.name) {
+    if let Some(bundle) = get_scenery_bundle(&level) {
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load(bundle.path.0.clone()),

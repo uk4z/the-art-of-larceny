@@ -1,9 +1,9 @@
-use crate::game::playground::{footage::components::{FootageBundle, Available}, components::{WorldPosition, ReachDistance}};
+use crate::game::{playground::{footage::components::{FootageBundle, Available}, components::{WorldPosition, ReachDistance}}, components::Level};
 
 
-pub fn get_footage_bundle(level: &str) -> Option<FootageBundle> {
+pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 FootageBundle {
                     position: WorldPosition {

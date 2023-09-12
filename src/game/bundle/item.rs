@@ -1,10 +1,10 @@
 use bevy::prelude::Quat;
 
-use crate::game::playground::{item::components::ItemBundle, components::{WorldPosition, ReachDistance, Name, Value, Orientation, Path}};
+use crate::game::{playground::{item::components::ItemBundle, components::{WorldPosition, ReachDistance, Name, Value, Orientation, Path}}, components::Level};
 
-pub fn get_item_bundle(level: &str) -> Option<Vec<ItemBundle>> {
+pub fn get_item_bundle(level: &Level) -> Option<Vec<ItemBundle>> {
     match level {
-        "starting" => {
+        Level::Starting => {
             Some(
                 vec![
                     ItemBundle { 
