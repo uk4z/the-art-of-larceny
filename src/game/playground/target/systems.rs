@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
-use bevy::utils::Duration;
-
+use crate::game::components::Level;
+use crate::game::bundle::target::get_target_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 
-use super::components::{Target, TargetBundle, UnlockTimer};
+use super::components::{Target, UnlockTimer};
 use super::is_target_unlock;
 use crate::game::playground::player::components::Player;
 use crate::game::board::components::{Helper, IntelMenu, Section, Vault, Instruction, ItemContent};
@@ -14,25 +14,22 @@ pub fn spawn_target (
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    level: Res<Level>, 
 ) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
-            transform: Transform::from_xyz(1376.0, 640.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::PURPLE)), 
-            visibility: Visibility::Hidden,
-            ..default()
-        },
-        TargetBundle {
-            position: WorldPosition {
-                x: 1266.0,
-                y: 1123.0,
+    if let Some(bundle) = get_target_bundle(&level.name) {
+        commands.spawn((
+            MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
+                transform: Transform::from_xyz(1376.0, 640.0, 4.0),
+                material: materials.add(ColorMaterial::from(Color::PURPLE)), 
+                visibility: Visibility::Hidden,
+                ..default()
             },
-            reach: ReachDistance(40.0),
-            unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),
-        },
-        Target,
-    ));
+            bundle,
+            Target,
+        ));
+    }
+    
 }
 
 pub fn despawn_target(

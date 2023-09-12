@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
+use crate::game::components::Level;
+use crate::game::bundle::footage::get_footage_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 
-use super::components::{Footage, FootageBundle, Available};
+use super::components::{Footage, Available};
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::board::components::Helper;
 use super::interaction_allowed_for_footage;
@@ -11,25 +13,21 @@ pub fn spawn_footage (
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    level: Res<Level>
 ) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
-            transform: Transform::from_xyz(2300.0, 817.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::FUCHSIA)),
-            visibility: Visibility::Hidden,
-            ..default()
-        },
-        FootageBundle {
-            position: WorldPosition {
-                x: 1800.0,
-                y: 817.0,
+    if let Some(bundle) = get_footage_bundle(&level.name) {
+        commands.spawn((
+            MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
+                transform: Transform::from_xyz(2300.0, 817.0, 4.0),
+                material: materials.add(ColorMaterial::from(Color::FUCHSIA)),
+                visibility: Visibility::Hidden,
+                ..default()
             },
-            reach: ReachDistance(40.0),
-            available: Available(true),
-        },
-        Footage,
-    ));
+            bundle,
+            Footage,
+        ));
+    }
 }
 
 pub fn despawn_footage(
@@ -51,7 +49,7 @@ pub fn signal_footage (
         if interaction_allowed_for_footage(player_q, footage_q) {
             if let Ok(available) = available_q.get_single() {
                 if available.0 {
-                    text.sections[0].value = "Press S to suppress the footage".to_string();
+                    text.sections[0].value = "Press E to suppress the footage".to_string();
                 }
             }
         }
@@ -66,7 +64,7 @@ pub fn suppress_footage(
     mut stealth_q: Query<&mut Stealth, With<Player>>,
 ) {
     if interaction_allowed_for_footage(player_q, footage_q) {
-        if keyboard_input.just_pressed(KeyCode::S) {
+        if keyboard_input.just_pressed(KeyCode::E) {
             if let Ok(mut available) = available_q.get_single_mut() {
                 if let Ok(mut stealth) = stealth_q.get_single_mut() {
                     available.0 = false;
@@ -76,7 +74,6 @@ pub fn suppress_footage(
                         },
                         _ => {},
                     };
-                    println!("suppressed"); 
                 }
             }
         }

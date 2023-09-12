@@ -8,12 +8,14 @@ use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use crate::game::playground::extraction::components::Extraction;
 
+use self::components::LevelCompleted;
 use self::systems::*;
 pub struct ExtractionPlugin;
 
 impl Plugin for ExtractionPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<LevelCompleted>()
             .add_system(spawn_extraction.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (

@@ -16,7 +16,7 @@ impl Plugin for ScoreMenuPlugin {
             .add_system(spawn_score_menu.in_schedule(OnEnter(AppState::ScoreMenu)))
             // Systems
             .add_systems(
-                (interact_with_restart_button, interact_with_leave_button)
+                (interact_with_restart_button, interact_with_leave_button, handle_score_event)
                     .in_set(OnUpdate(AppState::ScoreMenu)),
             )
             // OnExit State System

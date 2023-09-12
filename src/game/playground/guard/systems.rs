@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
-use bevy::utils::Duration;
 use bevy::sprite::MaterialMesh2dBundle;
 
 use std::f32::consts::PI;
 use super::{components::*, obstacle_in_fov};
 use super::{patrol_direction, chase_direction, search_direction};
+use crate::game::components::Level;
+use crate::game::bundle::guard::{get_fov_bundle, get_guard_bundle};
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
@@ -24,74 +25,44 @@ pub fn spawn_guard(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     window_q: Query<&Window, With<PrimaryWindow>>,
+    level: Res<Level>,
 ) {
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     //spawn FOV
-    for _ in 0..1 {
-        commands.spawn((
-            MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(VISION_LENGTH, 3))).into(),
-                transform: Transform::from_xyz(500.0, 50.0, 4.0),
-                material: materials.add(ColorMaterial::from(Color::YELLOW)), 
-                visibility: Visibility::Hidden,
-                ..default()
-            },
-            FOVBundle {
-                position: WorldPosition {
-                    x: 500.0,
-                    y: 50.0,
+    if let Some(fovs) = get_fov_bundle(&level.name) {
+        for bundle in fovs {
+            commands.spawn((
+                MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(VISION_LENGTH, 3))).into(),
+                    transform: Transform::from_xyz(500.0, 50.0, 4.0),
+                    material: materials.add(ColorMaterial::from(Color::YELLOW)), 
+                    visibility: Visibility::Hidden,
+                    ..default()
                 },
-                orientation: Orientation(Quat::IDENTITY),
-            },
-            FOV,
-        ));
+                bundle,
+                FOV,
+            ));
+        }
     }
    
 
     //spawn_guard
-    for _ in 0..1 {
-        commands.spawn((
-            SpriteBundle{
-                texture: asset_server.load("guard/static.png"),
-                transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
-            ..default()
-            }, 
-            GuardBundle { 
-                position: WorldPosition {x: 717.0 , y: 849.0},
-                orientation: Orientation(Quat::IDENTITY),
-                pace: GuardPace::Walk,
-                animation: AnimatedMotion {
-                    walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
-                    run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
-                },
-                reach: ReachDistance(20.0),
-                patrol: Patrol {
-                    positions: vec![WorldPosition {x: 717.0, y:849.0},
-                        WorldPosition {x: 726.0, y:335.0},
-                        WorldPosition {x: 382.0, y:345.0},
-                        WorldPosition {x: 726.0, y:335.0},
-                    ],
-                    waitings: vec![
-                        Waiting {
-                            position: WorldPosition {x: 717.0, y:849.0},
-                            time: Timer::from_seconds(2.0, TimerMode::Repeating),
-                        },
-                        Waiting {
-                            position: WorldPosition {x: 382.0, y:345.0},
-                            time: Timer::from_seconds(2.0, TimerMode::Repeating),
-                        },
-                    ],
-                    position_index: 0, 
-                    waiting_index: 0,
-                },
-                state: GuardState::Patrolling,
-                chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
-            },
-            Guard,
-        ));
+    if let Some(guards) = get_guard_bundle(&level.name) {
+        for bundle in guards {
+            commands.spawn((
+                SpriteBundle{
+                    texture: asset_server.load("guard/static.png"),
+                    transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                ..default()
+                }, 
+                bundle,
+                Guard,
+            ));
+        }
     }
+    
     
 }
 

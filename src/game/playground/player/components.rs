@@ -24,7 +24,7 @@ impl Into<f32> for PlayerPace {
     }
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone, Copy)]
 pub enum Stealth {
     Ghost, 
     Engineer, 

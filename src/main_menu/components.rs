@@ -7,7 +7,11 @@ pub struct MainMenu;
 pub struct PlayButton;
 
 #[derive(Component, Debug)]
-pub struct LevelButton;
+pub struct LoadButton;
 
 #[derive(Component, Debug)]
 pub struct QuitButton;
+
+
+#[derive(Component, Debug)]
+pub struct MainImage;

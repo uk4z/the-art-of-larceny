@@ -1,5 +1,5 @@
 use bevy::prelude::*; 
-use crate::game::playground::components::{WorldPosition, ReachDistance, Orientation};
+use crate::game::playground::components::{WorldPosition, ReachDistance, Orientation, Path};
 use crate::game::playground::components::{Name, Value};
 
 #[derive(Debug, Component)]
@@ -12,4 +12,5 @@ pub struct ItemBundle {
     pub orientation: Orientation, 
     pub name: Name,
     pub value: Value, 
+    pub path: Path, 
 }

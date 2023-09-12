@@ -11,3 +11,6 @@ pub struct ScoreButton;
 
 #[derive(Component, Debug)]
 pub struct LeaveButton;
+
+#[derive(Component, Debug)]
+pub struct Comment;

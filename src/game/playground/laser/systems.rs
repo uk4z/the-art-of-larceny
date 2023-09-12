@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
 use super::{components::*, laser_extremum, get_extremum_values};
-use super::components::Direction;
+use crate::game::components::Level;
+use crate::game::bundle::laser::get_laser_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::security::components::{Security, Intrusion};
@@ -11,21 +12,22 @@ pub fn spawn_laser(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    level: Res<Level>
 ) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Box::new(146.0, 4.0, 0.0))).into(),
-            transform: Transform::from_xyz(800.0, 400.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
-            ..default()
-        },
-        LaserBundle {
-            position: WorldPosition {x: 1246.0, y: 945.0},
-            orientation: Orientation(Quat::from_rotation_z(Direction::Horizontal.into())), //angle is 0.0 or PI/2.0 ; 
-            length: LaserLength(146.0)
-        }, 
-        Laser
-    ));
+    if let Some(lasers) = get_laser_bundle(&level.name) {
+        for bundle in lasers {
+            commands.spawn((
+                MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::Box::new(146.0, 4.0, 0.0))).into(),
+                    transform: Transform::from_xyz(800.0, 400.0, 4.0),
+                    material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
+                    ..default()
+                },
+                bundle, 
+                Laser
+            ));
+        }
+    }
 }
 
 pub fn despawn_laser(

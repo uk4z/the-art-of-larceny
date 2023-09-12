@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::Layer;
-use crate::game::SimulationState;
+use crate::game::components::SimulationState;
 use crate::pause_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;

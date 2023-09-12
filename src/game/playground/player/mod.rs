@@ -33,16 +33,16 @@ pub fn get_player_direction(
 ) -> Vec3 {
     let mut direction = Vec3::ZERO; 
 
-    if keyboard_input.pressed(KeyCode::Up) {
+    if keyboard_input.pressed(KeyCode::Z) {
         direction += Vec3::new(0.0, 1.0, 0.0);
     }
-    if keyboard_input.pressed(KeyCode::Down) {
+    if keyboard_input.pressed(KeyCode::S) {
         direction += Vec3::new(0.0, -1.0, 0.0);
     }
-    if keyboard_input.pressed(KeyCode::Right) {
+    if keyboard_input.pressed(KeyCode::D) {
         direction += Vec3::new(1.0, 0.0, 0.0); 
     }
-    if keyboard_input.pressed(KeyCode::Left) {
+    if keyboard_input.pressed(KeyCode::Q) {
         direction += Vec3::new(-1.0, 0.0, 0.0); 
     }
 

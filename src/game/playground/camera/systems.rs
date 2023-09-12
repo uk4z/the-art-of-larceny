@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
+use crate::game::components::Level;
+use crate::game::bundle::camera::get_camera_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::security::components::{Intrusion, Security};
@@ -16,23 +18,24 @@ pub fn spawn_camera(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    level: Res<Level>
 ) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(140.0, 3))).into(),
-            transform: Transform::from_xyz(1500.0, 1000.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
-            ..default()
-        },
-        CameraBundle {
-            position: CameraPosition {x: 1044.0, y: 332.0},
-            fov_position: WorldPosition {x:1044.0, y: 332.0},
-            orientation: Orientation(Quat::from_rotation_z(0.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
-            pattern: CameraPattern::Arc((PI/5.0, 0.0, Rotate::Trigo)),
-            fov_length: FOVLength(140.0),
-        }, 
-        Camera
-    ));
+
+    if let Some(cameras) = get_camera_bundle(&level.name) {
+        for bundle in cameras {
+            commands.spawn((
+                MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(140.0, 3))).into(),
+                    transform: Transform::from_xyz(1500.0, 1000.0, 4.0),
+                    material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
+                    ..default()
+                },
+                bundle, 
+                Camera,
+            ));
+        }
+    }
+    
 }
 
 pub fn despawn_camera(

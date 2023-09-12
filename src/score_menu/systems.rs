@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::Layer;
-use crate::game::SimulationState;
+use crate::game::components::{SimulationState, ScoreEvent};
 use crate::score_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
@@ -67,14 +67,13 @@ pub fn spawn_score_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>
 ) {
-    println!("In score menu");
     commands.spawn((
     NodeBundle {
         style: Style {
             display: Display::Flex,
             position_type: PositionType::Absolute,
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-            flex_direction: FlexDirection::Column,
+            flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Start,
             ..default()
         },
@@ -85,33 +84,6 @@ pub fn spawn_score_menu(
     },
     ScoreMenu,
    )).with_children(|root|{
-        root.spawn(
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::Start,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::new(Val::Percent(5.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
-                    ..default()
-                },
-                ..default()
-        }).with_children(|title_section|{
-                title_section.spawn((
-                    TextBundle::from_section(
-                        "The Art of Larceny: Rogue's Riches",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 80.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-        });
-
         root.spawn((
             NodeBundle {
                 style: Style {
@@ -123,7 +95,7 @@ pub fn spawn_score_menu(
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
+                    size: Size::new(Val::Percent(30.0), Val::Percent(100.0)),
                     ..default()
                 },
                 ..default()
@@ -135,7 +107,7 @@ pub fn spawn_score_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
+                        size: Size::new(Val::Percent(80.0), Val::Px(100.0)),
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -166,39 +138,7 @@ pub fn spawn_score_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
-                        border: UiRect::all(Val::Px(2.0)),
-                        // horizontally center child text
-                        justify_content: JustifyContent::Center,
-                        // vertically center child text
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
-                    ..default()
-                },
-                BorderColor(Color::WHITE),
-                ScoreButton,
-
-            )).with_children(|button| {
-                button.spawn((
-                    TextBundle::from_section(
-                        "Score",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 20.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-            });
-
-            values_section.spawn((
-                //button
-                ButtonBundle { 
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
+                        size: Size::new(Val::Percent(80.0), Val::Px(100.0)),
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -224,5 +164,95 @@ pub fn spawn_score_menu(
                 ));
             });
         });
+
+        root.spawn(NodeBundle {
+            style: Style {
+                display: Display::Flex, 
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                size: Size { width: Val::Percent(60.0), height: Val::Percent(100.0) },
+                justify_content: JustifyContent::Start,
+                flex_wrap: FlexWrap::Wrap,
+                ..default()
+            },
+            ..default()
+        }).with_children(|node|{
+            node.spawn(NodeBundle {
+                style: Style {
+                    display: Display::Flex, 
+                    size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                    justify_content: JustifyContent::Center, 
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                ..default()
+            }).with_children(|title_section| {
+                title_section.spawn(
+                    TextBundle::from_section(
+                        "Score",
+                        TextStyle {
+                            font: asset_server.load("FiraMono-Medium.ttf"),
+                            font_size: 80.0,
+                            color: Color::WHITE,
+                        },
+                    )
+                );
+            });
+
+            node.spawn((
+                NodeBundle {
+                    style: Style {
+                        justify_content: JustifyContent::SpaceBetween,
+                        flex_wrap: FlexWrap::Wrap,
+                        ..default()
+                    },
+                    ..default()
+                },
+                Comment,
+            ));
+        });
     });
+}
+
+pub fn handle_score_event( 
+    mut commands: Commands,
+    mut score_event: EventReader<ScoreEvent>,
+    mut entity_q: Query<Entity, With<Comment>>,
+    asset_server: Res<AssetServer>
+) {
+    for score in score_event.iter() {
+        if let Ok(entity) = entity_q.get_single_mut() {
+            commands.entity(entity).with_children(|node|{
+                for word in score.comment.split(" ") {
+                    node.spawn((
+                        TextBundle::from_section(
+                            word.to_string(),
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 18.0,
+                                color: Color::WHITE,
+                            },
+                        )
+                        .with_text_alignment(TextAlignment::Center)
+                        .with_style(Style {
+                            // this is required becouse of the bevy bug
+                            // https://github.com/bevyengine/bevy/issues/5834
+                            max_size: Size::new(Val::Undefined, Val::Px(18.0)),
+        
+                            // this is the size of the spaces between words
+                            margin: UiRect::all(Val::Px(3.0)),
+                            ..default()
+                        }),
+                    ));
+                }
+                node.spawn(NodeBundle {
+                    style: Style {
+                        flex_grow: 1.,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
+        }
+    }
 }

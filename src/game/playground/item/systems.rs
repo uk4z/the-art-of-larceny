@@ -2,39 +2,39 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
 use crate::components::Layer;
+use crate::game::components::Level;
+use crate::game::bundle::item::get_item_bundle;
 use crate::game::playground::is_visible;
 use super::components::*;
-use crate::game::playground::components::{WorldPosition, Orientation, ReachDistance};
+use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::scenery::get_scenery_scale_from_window;
 use crate::game::playground::player::components::Player;
 use crate::game::board::components::Helper;
 use super::interaction_allowed_for_item;
-use crate::game::playground::components::{Name, Value};
 
 
 pub fn spawn_item (
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
     window_q: Query<&Window, With<PrimaryWindow>>,
+    level: Res<Level>
 ) {
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
-     commands.spawn(
-        (SpriteBundle{
-            texture: asset_server.load("items/Note.png"),
-            transform: Transform::from_xyz(500.0, 500.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
-        ..default()
-        }, 
-        ItemBundle { 
-            position: WorldPosition {x: 890.0, y: 433.0,},
-            orientation: Orientation(Quat::IDENTITY),
-            reach: ReachDistance(40.0),
-            name: Name("Exchange rate eur/dol:".to_string()),
-            value: Value(1.2),
-        },
-        Item, 
-    ));
+    if let Some(items) = get_item_bundle(&level.name) {
+        for bundle in items {
+            commands.spawn((
+                SpriteBundle{
+                    texture: asset_server.load(bundle.path.0.clone()),
+                    transform: Transform::from_xyz(500.0, 500.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                ..default()
+                }, 
+                bundle, 
+                Item, 
+            ));
+        }
+    }
 }
 
 pub fn despawn_item(

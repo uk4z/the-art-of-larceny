@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::playground::components::{WorldPosition, ReachDistance};
+use crate::game::playground::{components::{WorldPosition, ReachDistance}, player::components::Stealth};
 
 #[derive(Component, Debug)]
 pub struct Extraction;
@@ -10,4 +10,8 @@ pub struct Extraction;
 pub  struct ExtractionBundle {
     pub position: WorldPosition,
     pub reach: ReachDistance,
+}
+
+pub struct LevelCompleted {
+    pub stealth: Stealth
 }

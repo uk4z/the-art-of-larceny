@@ -30,6 +30,9 @@ pub struct Name(pub String);
 #[derive(Debug, Component)]
 pub struct Value(pub f32);
 
+#[derive(Debug, Component)]
+pub struct Path(pub String);
+
 pub struct GameOver; 
 
 pub struct LevelStarted;

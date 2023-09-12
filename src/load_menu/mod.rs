@@ -6,7 +6,7 @@ use systems::*;
 
 use bevy::prelude::*;
 
-use crate::game::SimulationState;
+use crate::game::components::SimulationState;
 
 pub struct LoadMenuPlugin;
 

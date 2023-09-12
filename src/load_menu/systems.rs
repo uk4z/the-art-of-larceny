@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::Layer;
-use crate::game::SimulationState;
+use crate::game::components::SimulationState;
 use crate::load_menu::components::*;
 use bevy_ui_borders::BorderColor;
 
@@ -70,8 +70,8 @@ pub fn spawn_load_menu(
                     ..default()
                 },
                 ..default()
-        }).with_children(|title_section|{
-            title_section.spawn( NodeBundle {
+        }).with_children(|story_section|{
+            story_section.spawn( NodeBundle {
                 style: Style {
                     display: Display::Flex, 
                     flex_direction: FlexDirection::Column,

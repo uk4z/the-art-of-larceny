@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
+use crate::game::components::Level;
+use crate::game::bundle::security::get_security_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use super::interaction_allowed_for_security;
 use super::components::*;
@@ -13,23 +15,21 @@ pub fn spawn_security(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    level: Res<Level>,
 ) {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
-            transform: Transform::from_xyz(1400.0, 250.0, 4.0),
-            material: materials.add(ColorMaterial::from(Color::NAVY)),
-            visibility: Visibility::Hidden,
-            ..default()
-        },
-        SecurityBundle {
-            position: WorldPosition {x: 710.0, y: 975.0},
-            intrusion: Intrusion(false),
-            active: Active(true),
-            reach: ReachDistance(40.0),
-        },
-        Security,
-    )); 
+    if let Some(bundle) = get_security_bundle(&level.name) {
+        commands.spawn((
+            MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
+                transform: Transform::from_xyz(1400.0, 250.0, 4.0),
+                material: materials.add(ColorMaterial::from(Color::NAVY)),
+                visibility: Visibility::Hidden,
+                ..default()
+            },
+            bundle,
+            Security,
+        ));
+    } 
 }
 
 pub fn despawn_security(

@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
-use bevy::utils::Duration;
-
 
 use super::components::*;
 use super::{get_player_direction, DISTANCE_PER_SECOND};
 
 use crate::components::Layer;
 use crate::game::board::components::IntelMenu;
-use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
+use crate::game::components::Level;
+use crate::game::bundle::player::get_player_bundle;
+use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion};
 use crate::game::playground::scenery::components::{Bounds, Scenery};
 use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
 
@@ -16,32 +16,23 @@ pub fn spawn_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     window_q: Query<&Window, With<PrimaryWindow>>,
+    level: Res<Level>,
 ) {
     let window = window_q.get_single().unwrap();
     let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
-    commands.spawn(
-        (SpriteBundle{
-            texture: asset_server.load("player/static.png"),
-            transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
-        ..default()
-        }, 
-        PlayerBundle { 
-            position: WorldPosition {
-                x: 2075.0,
-                y: 405.0,
-            },
-            orientation: Orientation(Quat::IDENTITY),
-            pace: PlayerPace::Walk,
-            animation: AnimatedMotion {
-                walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
-                run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
-            },
-            reach: ReachDistance(20.0),
-            stealth: Stealth::Ghost,
-        },
-        Player, 
-    ));
+    if let Some(bundle) = get_player_bundle(&level.name) {
+        commands.spawn(
+            (SpriteBundle{
+                texture: asset_server.load("player/static.png"),
+                transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+            ..default()
+            }, 
+            bundle,
+            Player, 
+        ));
+    }
+    
 }
 
 pub fn despawn_player(
@@ -121,7 +112,7 @@ pub fn set_player_pace(
 ) {
     if let Ok(mut player_pace) = player_q.get_single_mut() {
         let pace = player_pace.as_mut();
-        if keyboard_input.pressed(KeyCode::R) {
+        if keyboard_input.pressed(KeyCode::LShift) {
             *pace = PlayerPace::Run;
         } else {
             *pace = PlayerPace::Walk;
@@ -143,7 +134,7 @@ pub fn motion_handler(
                 if let Ok((mut texture, mut animated, mut transform, pace)) 
                         = player_q.get_single_mut() {
             
-                    if keyboard_input.any_pressed([KeyCode::Up, KeyCode::Down, KeyCode::Right, KeyCode::Left]) {
+                    if keyboard_input.any_pressed([KeyCode::Z, KeyCode::Q, KeyCode::S, KeyCode::D]) {
                         *texture = asset_server.load("player/motion.png");
                         match pace {
                             PlayerPace::Run => {
