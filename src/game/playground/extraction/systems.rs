@@ -65,13 +65,17 @@ pub fn end_level(
     extraction_q: Query<(&WorldPosition, &ReachDistance), (With<Extraction>, Without<Player>)>,
     stealth_q: Query<&Stealth, With<Player>>,
     mut level_event: EventWriter<LevelCompleted>,
+    target_q: Query<&UnlockTimer, With<Target>>,
 ) {
     if interaction_allowed_for_extraction(player_q, extraction_q) {
-        if keyboard_input.just_pressed(KeyCode::E) {
-            if let Ok(stealth) = stealth_q.get_single() {
-                level_event.send(LevelCompleted {stealth: stealth.clone()})
+        if let Ok(timer) = target_q.get_single() {
+            if is_target_unlock(timer) {
+                if keyboard_input.just_pressed(KeyCode::E) {
+                    if let Ok(stealth) = stealth_q.get_single() {
+                        level_event.send(LevelCompleted {stealth: stealth.clone()})
+                    }   
+                }
             }
-            
         }
     }
 }

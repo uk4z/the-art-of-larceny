@@ -15,7 +15,7 @@ pub struct ItemPlugin;
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_item.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_item.in_schedule(OnEnter(SimulationState::Loading)))
             .add_systems(
                 (
                     signal_item, 

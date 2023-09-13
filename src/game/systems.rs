@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::{SimulationState, playground::player::components::Stealth}, AppState};
+use crate::game::{SimulationState, playground::player::components::Stealth};
 
 use super::{playground::{components::GameOver, extraction::components::LevelCompleted}, ScoreEvent};
 
@@ -30,19 +30,19 @@ pub fn toggle_simulation(
 }
 
 pub fn handle_game_over(
-    mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut game_over_event: EventReader<GameOver>,
     mut score_event: EventWriter<ScoreEvent>,
 ) {
     for _ in game_over_event.iter() {
         score_event.send(ScoreEvent { comment: "You lost !".to_string()});
-        app_state_next_state.set(AppState::ScoreMenu);
+        simulation_state_next_state.set(SimulationState::Score);
         println!("Entered AppState::ScoreMenu");
     }
 }
 
 pub fn handle_level_complete(
-    mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut level_complete_event: EventReader<LevelCompleted>,
     mut score_event: EventWriter<ScoreEvent>,
 ) {
@@ -72,7 +72,7 @@ pub fn handle_level_complete(
         };
 
         score_event.send(ScoreEvent { comment});
-        app_state_next_state.set(AppState::ScoreMenu);
+        simulation_state_next_state.set(SimulationState::Score);
         println!("Entered AppState::ScoreMenu");
     }
 }

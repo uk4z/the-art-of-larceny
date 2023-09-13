@@ -33,6 +33,7 @@ pub fn interact_with_resume_button(
 
 pub fn interact_with_exit_button(
     mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<ExitButton>),
@@ -42,6 +43,7 @@ pub fn interact_with_exit_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::MainMenu);
+                simulation_state_next_state.set(SimulationState::None);
                 println!("Entered AppState::MainMenu");
             }
             Interaction::Hovered => {
@@ -73,55 +75,25 @@ pub fn spawn_pause_menu(
             position_type: PositionType::Absolute,
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::Start,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center, 
             ..default()
         },
         transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
         visibility: Visibility::Visible, 
-        background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
         ..default()
     },
     PauseMenu,
    )).with_children(|root|{
-        root.spawn(
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::Start,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::new(Val::Percent(5.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
-                    ..default()
-                },
-                ..default()
-        }).with_children(|title_section|{
-                title_section.spawn((
-                    TextBundle::from_section(
-                        "The Art of Larceny: Rogue's Riches",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 80.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-        });
-
         root.spawn((
             NodeBundle {
                 style: Style {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::SpaceEvenly,
-                    align_items: AlignItems::Start,
-                    padding: UiRect::new(Val::Percent(5.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
+                    align_items: AlignItems::Center,
+                    size: Size::new(Val::Percent(50.0), Val::Percent(50.0)),
+                    border: UiRect::all(Val::Px(3.0)),
                     ..default()
                 },
                 ..default()

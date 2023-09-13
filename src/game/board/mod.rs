@@ -18,23 +18,19 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(CurrencyLocked(false))
-            .add_system(spawn_board.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_helper_menu.in_schedule(OnEnter(SimulationState::Running))
+            )
+            .add_system(spawn_stealth_icon.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (
                     clean_helper,
                     unlock_animation,
-                    unlock_target,
-                    button_system,
-                    show_item_found,
-                    display_stealth,
-                    resize_intel_menu,
-                    handle_intel_visibility,
-                    display_intel_label,
-                    switch_section,
+                    update_icon,
                 ) 
                     .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
-            .add_system(despawn_board.in_schedule(OnExit(AppState::Game)));
+            .add_system(despawn_helper_menu.in_schedule(OnExit(SimulationState::Running)))
+            .add_system(despawn_stealth_icon.in_schedule(OnExit(AppState::Game)));
     }
 }

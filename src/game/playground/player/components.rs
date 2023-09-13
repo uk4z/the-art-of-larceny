@@ -32,6 +32,9 @@ pub enum Stealth {
     None, 
 }
 
+#[derive(Debug, Component)]
+pub struct Corpse; 
+
 #[derive(Bundle, Debug)]
 pub struct PlayerBundle {
     pub position: WorldPosition,

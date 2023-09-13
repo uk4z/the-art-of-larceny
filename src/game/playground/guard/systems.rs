@@ -140,14 +140,19 @@ pub fn disalert_guard (
 
 pub fn catch_player (
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
-    mut guard_q: Query<(&WorldPosition, &ReachDistance), (With<Guard>, Without<Player>)>,
+    mut guard_q: Query<(&WorldPosition, &ReachDistance, &GuardState), (With<Guard>, Without<Player>)>,
     mut game_over: EventWriter<GameOver>,
 ) {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
-        guard_q.for_each_mut(|(guard_position, guard_reach)| {
+        guard_q.for_each_mut(|(guard_position, guard_reach, state)| {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*guard_position));
             if distance <= player_reach.0+guard_reach.0 {
-                game_over.send(GameOver);
+                match *state {
+                    GuardState::Chasing => {
+                        game_over.send(GameOver);
+                    }, 
+                    _ => {}
+                }
             }
         });
     }

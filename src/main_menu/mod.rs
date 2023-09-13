@@ -22,6 +22,7 @@ impl Plugin for MainMenuPlugin {
                     clear_main_image, 
                     spawn_main_menu,
                     spawn_level_menu,
+                    spawn_main_image,
                 ).in_schedule(OnEnter(AppState::MainMenu)))
             // Systems
             .add_systems(
@@ -38,7 +39,8 @@ impl Plugin for MainMenuPlugin {
             )
             // OnExit State Systems
             .add_systems(
-                (
+                (   
+                    despawn_main_image,
                     despawn_main_menu,
                     despawn_level_menu,
                 ).in_schedule(OnExit(AppState::MainMenu)));

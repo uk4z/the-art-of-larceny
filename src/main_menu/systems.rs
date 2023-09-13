@@ -6,7 +6,6 @@ use crate::components::Layer;
 use crate::game::components::{SimulationState, Level};
 use crate::game::playground::scenery::get_scenery_scale_from_window;
 use crate::main_menu::components::*;
-use crate::AppState;
 use bevy_ui_borders::BorderColor;
 
 use super::get_main_scale_from_window;
@@ -46,13 +45,11 @@ pub fn interact_with_select_button(
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<SelectButton>),
     >,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
-                app_state_next_state.set(AppState::Game);
                 simulation_state_next_state.set(SimulationState::Loading);
             }
             Interaction::Hovered => {
@@ -118,7 +115,7 @@ pub fn update_main_image(
 
             let image_path = match *level {
                 Level::Starting => {
-                    "blur_level.png"
+                    "levels/backgrounds/test.png"
                 }, 
                 Level::Mock => {
                     "test.png"
@@ -181,11 +178,18 @@ pub fn interact_with_quit_button(
 pub fn despawn_main_menu(
     mut commands: Commands, 
     main_menu_query: Query<Entity, With<MainMenu>>,
-    main_image_query: Query<Entity, With<MainImage>>,
+    
 ) {
     if let Ok(main_menu_entity) = main_menu_query.get_single() {
         commands.entity(main_menu_entity).despawn_recursive();
     }
+    
+}
+
+pub fn despawn_main_image(
+    main_image_query: Query<Entity, With<MainImage>>,
+    mut commands: Commands, 
+) {
     if let Ok(main_image_entity) = main_image_query.get_single() {
         commands.entity(main_image_entity).despawn_recursive();
     }
@@ -197,7 +201,7 @@ pub fn clear_main_image(
     *level = Level::Mock; 
 }
 
-pub fn spawn_main_menu(
+pub fn spawn_main_image(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
     window_q: Query<&Window, With<PrimaryWindow>>,
@@ -209,11 +213,19 @@ pub fn spawn_main_menu(
     commands.spawn((
         SpriteBundle{
             texture: asset_server.load("test.png"),
-            transform: Transform::from_xyz(x, y, Layer::Scenery.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+            transform: Transform::from_xyz(x, y, Layer::UI.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+            visibility: Visibility::Visible,
         ..default()
         },
         MainImage, 
     ));
+}
+
+pub fn spawn_main_menu(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+) {
+    
 
     commands.spawn((
     NodeBundle {

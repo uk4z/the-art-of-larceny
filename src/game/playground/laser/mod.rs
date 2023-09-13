@@ -17,7 +17,7 @@ pub struct LaserPlugin;
 impl Plugin for LaserPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_laser.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_laser.in_schedule(OnEnter(SimulationState::Loading)))
             .add_systems(
                 (
                     alert_security,  

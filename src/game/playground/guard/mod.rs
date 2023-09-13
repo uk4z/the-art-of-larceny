@@ -21,7 +21,7 @@ pub struct GuardPlugin;
 impl Plugin for GuardPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_guard.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_guard.in_schedule(OnEnter(SimulationState::Loading)))
             .add_systems(
                 (
                     move_guard, 

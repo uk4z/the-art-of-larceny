@@ -15,10 +15,10 @@ impl Into<f32> for Layer {
                 0.0
             },
             Layer::Interactable => {
-                1.0
+                10.0
             }
             Layer::UI => {
-                2.0
+                20.0
             },
             Layer::Camera => {
                 999.9

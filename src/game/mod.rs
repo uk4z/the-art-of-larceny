@@ -19,7 +19,7 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<SimulationState>()
+        app
             .add_event::<ScoreEvent>()
             .add_plugin(PlaygroundPlugin)
             .add_plugin(BoardPlugin)

@@ -58,8 +58,12 @@ pub fn alert_security (
             if player_pos.x >= min_x && player_pos.x <= max_x && player_pos.y >= min_y && player_pos.y <= max_y {
                 if let Ok(mut intrusion) = security_q.get_single_mut() {
                     intrusion.0 = true; 
-                    *stealth = Stealth::Begineer;
-                    println!("{:?}", player_pos);
+                    match *stealth {
+                        Stealth::Ghost => {
+                         *stealth = Stealth::Begineer;
+                        }
+                        _ => {}
+                    }
                 }
             }
         }

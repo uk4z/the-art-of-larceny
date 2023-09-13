@@ -15,7 +15,7 @@ pub struct TargetPlugin;
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_target.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_target.in_schedule(OnEnter(SimulationState::Loading)))
             .add_systems(
                 (
                     signal_target_zone, 

@@ -48,54 +48,44 @@ pub fn spawn_bounds_resource(
     asset_server: Res<AssetServer>,
 ) {
     let asset: Handle<Image> = asset_server.load("levels/backgrounds/bounds.png");
-
+    println!("resource inserted");
     commands.insert_resource(BoundsResource{handle: asset});
 }
 
 pub fn set_bounds(
-    mut ev_asset: EventReader<AssetEvent<Image>>,
-    bounds_handle: Res<BoundsResource>,
+    resource: Res<BoundsResource>,
     assets: ResMut<Assets<Image>>,
     mut bounds_q: Query<&mut Bounds, With<Scenery>>,
 ) { 
-    for ev in ev_asset.iter() { 
-        match ev {
-            AssetEvent::Created { handle } => {
-                let img = assets.get(handle).unwrap();
+    if let Some(img) = assets.get(&resource.handle) {
+        let height = img.texture_descriptor.size.height as usize;
+        let width = img.texture_descriptor.size.width as usize;
 
-                if *handle == bounds_handle.handle {
-                    let height = img.texture_descriptor.size.height as usize;
-                    let width = img.texture_descriptor.size.width as usize;
-            
-                    if let Ok(mut bounds) = bounds_q.get_single_mut() {
-            
-                        let mut pixel_rgba = Vec::new(); 
-                        for i in (0..img.data.len() as usize).step_by(4) {
-                            let r = img.data[i];
-                            let g = img.data[i + 1];
-                            let b = img.data[i + 2];
-                            let a = img.data[i + 3];
-                            pixel_rgba.push((r, g, b, a));
-                        }
-            
-                        let mut update_bounds = Vec::new();
-                        for i in 0..height {
-                            let row: Vec<i32> = pixel_rgba[i*width..(i+1)*width].iter().map(|(r,g,b,_)| {
-                                if *r == 0 && *g == 0 && *b == 0 {
-                                    0
-                                } else {
-                                    1
-                                }
-                            }).collect();
-                            update_bounds.push(row);
-                        }
-                        *bounds = Bounds(update_bounds); 
-                    };
-                }
+        if let Ok(mut bounds) = bounds_q.get_single_mut() {
 
-            }, 
-            _ => {},
-        }
-    }
+            let mut pixel_rgba = Vec::new(); 
+            for i in (0..img.data.len() as usize).step_by(4) {
+                let r = img.data[i];
+                let g = img.data[i + 1];
+                let b = img.data[i + 2];
+                let a = img.data[i + 3];
+                pixel_rgba.push((r, g, b, a));
+            }
+
+            let mut update_bounds = Vec::new();
+            for i in 0..height {
+                let row: Vec<i32> = pixel_rgba[i*width..(i+1)*width].iter().map(|(r,g,b,_)| {
+                    if *r == 0 && *g == 0 && *b == 0 {
+                        0
+                    } else {
+                        1
+                    }
+                }).collect();
+                update_bounds.push(row);
+            }
+            *bounds = Bounds(update_bounds); 
+        };
+    } else {
+    };
 }
 

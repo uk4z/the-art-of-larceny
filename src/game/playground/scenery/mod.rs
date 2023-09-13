@@ -18,12 +18,11 @@ impl Plugin for SceneryPlugin{
                 spawn_scenery,
                 spawn_bounds_resource,
                 )
-                .in_schedule(OnEnter(AppState::Game))
+                .in_schedule(OnEnter(SimulationState::Loading))
             )
             .add_system(
                 set_bounds
-                .in_set(OnUpdate(AppState::Game))
-                .in_set(OnUpdate(SimulationState::Loading)),
+                .in_set(OnUpdate(SimulationState::Loading))
             )
             .add_system(despawn_scenery.in_schedule(OnExit(AppState::Game)));
     }

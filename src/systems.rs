@@ -97,4 +97,3 @@ pub fn enter_main_menu(
         }
     }   
 }
-

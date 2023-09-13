@@ -13,4 +13,7 @@ pub struct ScoreButton;
 pub struct LeaveButton;
 
 #[derive(Component, Debug)]
+pub struct ScoreImage;
+
+#[derive(Component, Debug)]
 pub struct Comment;

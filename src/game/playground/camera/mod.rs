@@ -11,7 +11,7 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_camera.in_schedule(OnEnter(AppState::Game)))
+            .add_system(spawn_camera.in_schedule(OnEnter(SimulationState::Loading)))
             .add_systems(
                 (
                     alert_security, 

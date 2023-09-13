@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
 
 use game::GamePlugin;
+use game::components::SimulationState;
 use main_menu::MainMenuPlugin;
 use pause_menu::PauseMenuPlugin;
 use load_menu::LoadMenuPlugin; 
@@ -35,10 +36,11 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(window_plugin))
         .add_state::<AppState>()
+        .add_state::<SimulationState>()
         .add_plugin(MainMenuPlugin)
+        .add_plugin(LoadMenuPlugin)
         .add_plugin(GamePlugin)
         .add_plugin(PauseMenuPlugin)
-        .add_plugin(LoadMenuPlugin)
         .add_plugin(ScoreMenuPlugin)
         .add_startup_system(spawn_setup)
         .add_system(debug_window_size)
@@ -54,6 +56,6 @@ fn main() {
 pub enum AppState {
     #[default]
     MainMenu,
-    ScoreMenu,
     Game,
+    None, 
 }

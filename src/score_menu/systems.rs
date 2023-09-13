@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-
 use crate::components::Layer;
 use crate::game::components::{SimulationState, ScoreEvent};
 use crate::score_menu::components::*;
@@ -17,8 +16,8 @@ pub fn interact_with_restart_button(
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
-                app_state_next_state.set(AppState::Game);
-                simulation_state_next_state.set(SimulationState::Loading);
+                app_state_next_state.set(AppState::MainMenu);
+                simulation_state_next_state.set(SimulationState::None);
                 
             }
             Interaction::Hovered => {
@@ -35,6 +34,7 @@ pub fn interact_with_restart_button(
 
 pub fn interact_with_leave_button(
     mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<LeaveButton>),
@@ -44,6 +44,7 @@ pub fn interact_with_leave_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::MainMenu);
+                simulation_state_next_state.set(SimulationState::None);
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;
@@ -74,12 +75,13 @@ pub fn spawn_score_menu(
             position_type: PositionType::Absolute,
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::Start,
+            justify_content: JustifyContent::SpaceEvenly,
+            align_items: AlignItems::Center,
             ..default()
         },
         transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
         visibility: Visibility::Visible, 
-        background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+        //background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
         ..default()
     },
     ScoreMenu,
@@ -165,18 +167,22 @@ pub fn spawn_score_menu(
             });
         });
 
-        root.spawn(NodeBundle {
-            style: Style {
-                display: Display::Flex, 
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                size: Size { width: Val::Percent(60.0), height: Val::Percent(100.0) },
-                justify_content: JustifyContent::Start,
-                flex_wrap: FlexWrap::Wrap,
+        root.spawn((
+            NodeBundle {
+                style: Style {
+                    display: Display::Flex, 
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Center,
+                    size: Size { width: Val::Percent(40.0), height: Val::Percent(60.0) },
+                    justify_content: JustifyContent::Start,
+                    border: UiRect::all(Val::Px(3.0)),
+                    ..default()
+                },
+                background_color: Color::rgba(0.18, 0.20, 0.25, 0.8).into(),
                 ..default()
             },
-            ..default()
-        }).with_children(|node|{
+            BorderColor(Color::WHITE),
+        )).with_children(|node|{
             node.spawn(NodeBundle {
                 style: Style {
                     display: Display::Flex, 
@@ -199,17 +205,85 @@ pub fn spawn_score_menu(
                 );
             });
 
-            node.spawn((
-                NodeBundle {
+            node.spawn(NodeBundle {
+                style: Style {
+                    display: Display::Flex, 
+                    flex_direction: FlexDirection::Column,
+                    size: Size::new(Val::Percent(90.0), Val::Percent(70.0)),
+                    justify_content: JustifyContent::SpaceBetween, 
+                    align_items: AlignItems::Center,
+                    padding: UiRect::new(Val::Px(20.0), Val::Undefined, Val::Undefined, Val::Undefined),
+                    ..default()
+                },
+                ..default()
+            }).with_children(|category|{
+                category.spawn(NodeBundle {
                     style: Style {
-                        justify_content: JustifyContent::SpaceBetween,
-                        flex_wrap: FlexWrap::Wrap,
+                        display: Display::Flex, 
+                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                        justify_content: JustifyContent::Start, 
+                        align_items: AlignItems::Center,
                         ..default()
                     },
                     ..default()
-                },
-                Comment,
-            ));
+                }).with_children(|title_section| {
+                    title_section.spawn(
+                        TextBundle::from_section(
+                            "Time:",
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        )
+                    );
+                });
+
+                category.spawn(NodeBundle {
+                    style: Style {
+                        display: Display::Flex, 
+                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                        justify_content: JustifyContent::Start, 
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    ..default()
+                }).with_children(|title_section| {
+                    title_section.spawn(
+                        TextBundle::from_section(
+                            "Items found:",
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        )
+                    );
+                });
+
+                category.spawn(NodeBundle {
+                    style: Style {
+                        display: Display::Flex, 
+                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                        justify_content: JustifyContent::Start, 
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    ..default()
+                }).with_children(|title_section| {
+                    title_section.spawn(
+                        TextBundle::from_section(
+                            "Total:",
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        )
+                    );
+                });
+            });
+            
         });
     });
 }
