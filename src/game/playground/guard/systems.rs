@@ -187,11 +187,14 @@ pub fn move_guard(
         (mut position, mut patrol, mut orientation, 
             pace, mut state,
         )| { 
+
+        let mut is_chasing = false;
         let direction = match *state {
             GuardState::Patrolling => {
                 patrol_direction(&mut *patrol, &*position)
             },
             GuardState::Chasing => {
+                is_chasing = true; 
                 if let Ok(player_pos) = player_q.get_single() {
                     chase_direction(player_pos, &*position)
                 } else {
@@ -220,7 +223,7 @@ pub fn move_guard(
         };
         let translation: Vec3 = direction*speed;
 
-        if !(patrol.is_waiting_position() && patrol.patrol_position_reached(*position)) {
+        if (!(patrol.is_waiting_position() && patrol.patrol_position_reached(*position))) || is_chasing {
             if let Ok(bounds) = bounds_q.get_single() {
                 let (x, y) = ((position.x+translation.x) as usize, (SCENERY_SIZE.1-(position.y+translation.y)) as usize);
                             
@@ -280,20 +283,25 @@ pub fn update_waiting_timer(
 
 pub fn update_patrols_positions(
     past_time: Res<Time>,
-    mut guard_q: Query<(&WorldPosition, &mut Patrol), With<Guard>>,
+    mut guard_q: Query<(&WorldPosition, &mut Patrol, &GuardState), With<Guard>>,
 ) {
-    guard_q.for_each_mut(|(position, mut patrol)| {
-        if patrol.patrol_position_reached(*position) {
-            if patrol.is_waiting_position() {
-                let waiting = patrol.get_waiting();
-                waiting.time.tick(past_time.delta());
-                if waiting.time.finished() {
-                    patrol.next_waiting();
-                    patrol.next_position();
+    guard_q.for_each_mut(|(position, mut patrol, state)| {
+        match *state {
+            GuardState::Patrolling => {
+                if patrol.patrol_position_reached(*position) {
+                    if patrol.is_waiting_position() {
+                        let waiting = patrol.get_waiting();
+                        waiting.time.tick(past_time.delta());
+                        if waiting.time.finished() {
+                            patrol.next_waiting();
+                            patrol.next_position();
+                        }
+                    } else {
+                        patrol.next_position();
+                    }
                 }
-            } else {
-                patrol.next_position();
             }
+            _ => {}
         }
     });
 }

@@ -28,8 +28,6 @@ use footage::FootagePlugin;
 
 use components::GameOver;
 
-use crate::AppState;
-
 use super::SimulationState; 
 
 
@@ -58,9 +56,7 @@ impl Plugin for PlaygroundPlugin {
                     confine_position, 
                     world_to_screen,
                     update_scale_on_resize,
-                ) 
-                    .in_set(OnUpdate(AppState::Game))
-                    .in_set(OnUpdate(SimulationState::Running)),
+                ).in_set(OnUpdate(SimulationState::Running))
             );
 
     }

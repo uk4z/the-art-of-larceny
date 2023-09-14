@@ -23,7 +23,6 @@ impl Plugin for ExtractionPlugin {
                     end_level, 
                     reveal_extraction,
                 ) 
-                    .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
             .add_system(despawn_extraction.in_schedule(OnExit(AppState::Game)));

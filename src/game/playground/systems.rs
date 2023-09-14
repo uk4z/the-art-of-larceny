@@ -108,7 +108,6 @@ pub fn world_to_screen(
             let origin = get_world_origin(scale, (scenery_position.x, scenery_position.y));
             let in_screen_position = origin + Vec3::from(*position)*scale + Vec3::new(0.0, 0.0, Layer::Interactable.into());
             transform.translation = in_screen_position; 
-
             if let Some(rotation) = orientation {
                 transform.rotation = rotation.0;
             }

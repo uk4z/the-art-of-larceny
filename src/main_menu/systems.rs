@@ -4,6 +4,7 @@ use bevy::window::{PrimaryWindow, WindowResized};
 
 use crate::components::Layer;
 use crate::game::components::{SimulationState, Level};
+use crate::game::playground::scenery::components::BoundsResource;
 use crate::game::playground::scenery::get_scenery_scale_from_window;
 use crate::main_menu::components::*;
 use bevy_ui_borders::BorderColor;
@@ -41,6 +42,8 @@ pub fn interact_with_play_button(
 }
 
 pub fn interact_with_select_button(
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<SelectButton>),
@@ -50,6 +53,8 @@ pub fn interact_with_select_button(
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
+                let asset: Handle<Image> = asset_server.load("levels/backgrounds/bounds.png");
+                commands.insert_resource(BoundsResource{handle: asset});
                 simulation_state_next_state.set(SimulationState::Loading);
             }
             Interaction::Hovered => {

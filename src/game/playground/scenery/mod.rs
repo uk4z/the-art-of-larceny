@@ -14,11 +14,7 @@ pub struct SceneryPlugin;
 impl Plugin for SceneryPlugin{
     fn build(&self, app: &mut App) {
         app
-            .add_systems( (
-                spawn_scenery,
-                spawn_bounds_resource,
-                )
-                .in_schedule(OnEnter(SimulationState::Loading))
+            .add_system(spawn_scenery.in_schedule(OnEnter(SimulationState::Loading))
             )
             .add_system(
                 set_bounds

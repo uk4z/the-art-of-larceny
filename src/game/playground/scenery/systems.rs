@@ -24,7 +24,7 @@ pub fn spawn_scenery(
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load(bundle.path.0.clone()),
-                transform: Transform::from_xyz(x, y, Layer::Scenery.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
             ..default()
             },
             Scenery,
@@ -37,19 +37,9 @@ pub fn despawn_scenery(
     mut commands: Commands,
     entity_q: Query<Entity, With<Scenery>>, 
 ) {
-    commands.remove_resource::<BoundsResource>();
     for entity in entity_q.iter() {
         commands.entity(entity).despawn();
     }
-}
-
-pub fn spawn_bounds_resource(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    let asset: Handle<Image> = asset_server.load("levels/backgrounds/bounds.png");
-    println!("resource inserted");
-    commands.insert_resource(BoundsResource{handle: asset});
 }
 
 pub fn set_bounds(
@@ -62,28 +52,29 @@ pub fn set_bounds(
         let width = img.texture_descriptor.size.width as usize;
 
         if let Ok(mut bounds) = bounds_q.get_single_mut() {
-
-            let mut pixel_rgba = Vec::new(); 
-            for i in (0..img.data.len() as usize).step_by(4) {
-                let r = img.data[i];
-                let g = img.data[i + 1];
-                let b = img.data[i + 2];
-                let a = img.data[i + 3];
-                pixel_rgba.push((r, g, b, a));
+            if bounds.0.len() <= 0 {
+                let mut pixel_rgba = Vec::new(); 
+                for i in (0..img.data.len() as usize).step_by(4) {
+                    let r = img.data[i];
+                    let g = img.data[i + 1];
+                    let b = img.data[i + 2];
+                    let a = img.data[i + 3];
+                    pixel_rgba.push((r, g, b, a));
+                }
+    
+                let mut update_bounds = Vec::new();
+                for i in 0..height {
+                    let row: Vec<i32> = pixel_rgba[i*width..(i+1)*width].iter().map(|(r,g,b,_)| {
+                        if *r == 0 && *g == 0 && *b == 0 {
+                            0
+                        } else {
+                            1
+                        }
+                    }).collect();
+                    update_bounds.push(row);
+                }
+                *bounds = Bounds(update_bounds); 
             }
-
-            let mut update_bounds = Vec::new();
-            for i in 0..height {
-                let row: Vec<i32> = pixel_rgba[i*width..(i+1)*width].iter().map(|(r,g,b,_)| {
-                    if *r == 0 && *g == 0 && *b == 0 {
-                        0
-                    } else {
-                        1
-                    }
-                }).collect();
-                update_bounds.push(row);
-            }
-            *bounds = Bounds(update_bounds); 
         };
     } else {
     };

@@ -71,7 +71,7 @@ pub fn desactivate_security (
     keyboard_input: Res<Input<KeyCode>>, 
 ) {
     if interaction_allowed_for_security(&player_q, &security_q) {
-        if keyboard_input.just_pressed(KeyCode::D) {
+        if keyboard_input.just_pressed(KeyCode::E) {
             if let Ok(mut active) = active_q.get_single_mut() {
                 active.0 = !active.0; 
                 

@@ -12,11 +12,17 @@ pub fn interact_with_start_button(
     >,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut app_state_next_state: ResMut<NextState<AppState>>,
+    state: Res<State<AppState>>, 
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
-                app_state_next_state.set(AppState::Game);
+                match state.0 {
+                    AppState::MainMenu => {
+                        app_state_next_state.set(AppState::Game);
+                    }
+                    _ => {}
+                }
                 simulation_state_next_state.set(SimulationState::Running);
             }
             Interaction::Hovered => {
@@ -43,10 +49,8 @@ pub fn despawn_load_menu(
 pub fn spawn_load_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
 ) {
-    println!("in");
-    app_state_next_state.set(AppState::None);
+    println!("spawn load menu");
     
     commands.spawn((
     NodeBundle {

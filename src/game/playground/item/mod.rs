@@ -21,7 +21,6 @@ impl Plugin for ItemPlugin {
                     signal_item, 
                     take_item, 
                 ) 
-                    .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
             .add_system(despawn_item.in_schedule(OnExit(AppState::Game)));

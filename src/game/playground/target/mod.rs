@@ -21,7 +21,6 @@ impl Plugin for TargetPlugin {
                     signal_target_zone, 
                     load_target_unlock, 
                 ) 
-                    .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
             .add_system(despawn_target.in_schedule(OnExit(AppState::Game)));

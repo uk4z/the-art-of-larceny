@@ -5,32 +5,6 @@ use crate::score_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
 
-pub fn interact_with_restart_button(
-    mut button_query: Query<
-        (&Interaction, &mut BackgroundColor, &mut BorderColor),
-        (Changed<Interaction>, With<RestartButton>),
-    >,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
-    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
-) {
-    if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                app_state_next_state.set(AppState::MainMenu);
-                simulation_state_next_state.set(SimulationState::None);
-                
-            }
-            Interaction::Hovered => {
-                border.0 = Color::WHITE;
-                color.0 = Color::RED.into();
-            }
-            Interaction::None => {
-                border.0 = Color::WHITE;
-                color.0 = Color::rgba(0.18, 0.20, 0.25, 0.8).into();
-            }
-        }
-    }
-}
 
 pub fn interact_with_leave_button(
     mut app_state_next_state: ResMut<NextState<AppState>>,
@@ -103,37 +77,6 @@ pub fn spawn_score_menu(
                 ..default()
             }, 
         )).with_children(|values_section| {
-            values_section.spawn((
-                //button
-                ButtonBundle { 
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(80.0), Val::Px(100.0)),
-                        border: UiRect::all(Val::Px(2.0)),
-                        // horizontally center child text
-                        justify_content: JustifyContent::Center,
-                        // vertically center child text
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
-                    ..default()
-                },
-                BorderColor(Color::WHITE),
-                RestartButton,
-            )).with_children(|button| {
-                button.spawn((
-                    TextBundle::from_section(
-                        "Restart",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 20.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-            });
-
             values_section.spawn((
                 //button
                 ButtonBundle { 

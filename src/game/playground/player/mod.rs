@@ -22,7 +22,6 @@ impl Plugin for PlayerPlugin {
                     move_player, 
                     neutralise_guard, 
                 ) 
-                    .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
             .add_systems(

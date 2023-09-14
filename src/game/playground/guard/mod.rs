@@ -34,7 +34,6 @@ impl Plugin for GuardPlugin {
                     update_chase_stack,
                     catch_player,
                 ) 
-                    .in_set(OnUpdate(AppState::Game))
                     .in_set(OnUpdate(SimulationState::Running)),
             )
             .add_system(despawn_guard.in_schedule(OnExit(AppState::Game)));
