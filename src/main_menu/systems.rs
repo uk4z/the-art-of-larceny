@@ -18,6 +18,7 @@ pub fn interact_with_play_button(
     >,
     mut level_q: Query<&mut Visibility, With<LevelMenu>>,
     mut main_q: Query<&mut Visibility, (Without<LevelMenu>, With<MainMenu>)>,
+    mut level: ResMut<Level>, 
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
@@ -26,6 +27,7 @@ pub fn interact_with_play_button(
                     if let Ok(mut main_visibility) = main_q.get_single_mut() {
                         *level_visibility = Visibility::Visible;
                         *main_visibility = Visibility::Hidden;
+                        *level = Level::Starting; 
                     }
                 }
             }
@@ -81,7 +83,7 @@ pub fn switch_level(
                 if keyboard_input.just_pressed(KeyCode::Right) {
                     match *level {
                         Level::Starting => {
-                            *level = Level::Mock;
+                            *level = Level::Starting;
                         },
                         Level::Mock => {
                             *level = Level::Starting;
@@ -91,7 +93,7 @@ pub fn switch_level(
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
                         Level::Starting => {
-                            *level = Level::Mock;
+                            *level = Level::Starting;
                         },
                         Level::Mock => {
                             *level = Level::Starting;
@@ -116,17 +118,16 @@ pub fn update_main_image(
             commands.entity(main).despawn();
 
             let (width, height) = (window.width(), window.height());
-            let scale = get_scenery_scale_from_window(&width, &height);
+            let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
             let image_path = match *level {
                 Level::Starting => {
-                    "levels/backgrounds/test.png"
+                    "levels/backgrounds/factory.png"
                 }, 
                 Level::Mock => {
                     "test.png"
                 }
             };
-
 
             commands.spawn((
                 SpriteBundle{
@@ -209,12 +210,13 @@ pub fn clear_main_image(
 pub fn spawn_main_image(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
+    mut level: ResMut<Level>,
     window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
+    *level = Level::Mock; 
     let window = window_q.get_single().unwrap();
     let (x, y) = (window.width()/2.0, window.height()/2.0);
     let scale = get_main_scale_from_window(&window.width(), &window.height());
-
     commands.spawn((
         SpriteBundle{
             texture: asset_server.load("test.png"),

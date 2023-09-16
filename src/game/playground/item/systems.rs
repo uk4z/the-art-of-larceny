@@ -1,13 +1,10 @@
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
-
 use crate::components::Layer;
-use crate::game::components::Level;
+use crate::game::components::{Level, ItemCount};
 use crate::game::bundle::item::get_item_bundle;
 use crate::game::playground::is_visible;
 use super::components::*;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
-use crate::game::playground::scenery::get_scenery_scale_from_window;
 use crate::game::playground::player::components::Player;
 use crate::game::board::components::Helper;
 use super::interaction_allowed_for_item;
@@ -16,11 +13,9 @@ use super::interaction_allowed_for_item;
 pub fn spawn_item (
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
-    window_q: Query<&Window, With<PrimaryWindow>>,
     level: Res<Level>
 ) {
-    let window = window_q.get_single().unwrap();
-    let scale = get_scenery_scale_from_window(&window.width(), &window.height());
+    let scale = 30.0/850.0; 
 
     if let Some(items) = get_item_bundle(&level) {
         for bundle in items {
@@ -36,6 +31,8 @@ pub fn spawn_item (
         }
     }
 }
+
+
 
 pub fn despawn_item(
     mut commands: Commands,
@@ -64,17 +61,20 @@ pub fn signal_item (
 }
 
 pub fn take_item (
-    mut item_visibility_q: Query<&mut Visibility, With<Item>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Item>)>,
-    item_q: Query<(&WorldPosition, &ReachDistance), (With<Item>, Without<Player>)>,
+    item_q: Query<(Entity, &WorldPosition, &ReachDistance), (With<Item>, Without<Player>)>,
+    mut count: ResMut<ItemCount>, 
     keyboard_input: ResMut<Input<KeyCode>>,
+    mut commands: Commands,
+
 ) {
-    if interaction_allowed_for_item(&player_q, &item_q) {
-        item_visibility_q.for_each_mut(|mut visibility| {
-            if keyboard_input.just_pressed(KeyCode::E) && is_visible(&*visibility) {
-                *visibility = Visibility::Hidden;
+    if let Ok((player_position, player_reach)) = player_q.get_single() {
+        for (entity, item_position, item_reach) in item_q.iter() {
+            let distance = Vec3::from(*player_position).distance(Vec3::from(*item_position));
+            if distance <= player_reach.0+item_reach.0 && keyboard_input.pressed(KeyCode::E)  {
+                    commands.entity(entity).despawn(); 
+                    count.0 += 1; 
             }
-        });
-        
+        }
     }
 }

@@ -6,7 +6,7 @@ pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
         Level::Starting => {
             Some(
                 SecurityBundle {
-                    position: WorldPosition {x: 710.0, y: 975.0},
+                    position: WorldPosition {x: 2408.0, y: 1291.0},
                     intrusion: Intrusion(false),
                     active: Active(true),
                     reach: ReachDistance(40.0),

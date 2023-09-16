@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::{SimulationState, playground::player::components::Stealth};
 
-use super::{playground::{components::GameOver, extraction::components::LevelCompleted}, ScoreEvent};
+use super::{playground::{components::GameOver, extraction::components::LevelCompleted, guard::components::Guard}, ScoreEvent, components::{ItemCount, GameTime}};
 
 pub fn pause_simulation(mut simulation_state_next_state: ResMut<NextState<SimulationState>>) {
     simulation_state_next_state.set(SimulationState::Paused);
@@ -17,7 +17,7 @@ pub fn toggle_simulation(
     simulation_state: Res<State<SimulationState>>,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::P) {
+    if keyboard_input.just_pressed(KeyCode::Escape) {
         if simulation_state.0 == SimulationState::Running {
             simulation_state_next_state.set(SimulationState::Paused);
             println!("Simulation Paused.");
@@ -45,33 +45,37 @@ pub fn handle_level_complete(
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut level_complete_event: EventReader<LevelCompleted>,
     mut score_event: EventWriter<ScoreEvent>,
+    time: Res<GameTime>,
+    count: Res<ItemCount>,  
+    guard_q: Query<Entity, With<Guard>>,
 ) {
     for level in level_complete_event.iter() {
         let stealth = level.stealth;
 
-        let comment: String = match stealth {
-            Stealth::Begineer => {
-                let stealth_comment = "Your footprints will have to suppressed. You are not a manager, it is not your job to add some more work to the task \
-                                    at hand. It is okay to be seen, but it is not to let your mistakes be handled by other. You can do better!";
-                stealth_comment.to_string()
-            },
-            Stealth::Engineer => {
-                let stealth_comment = "Great recovery. You have been spotted by one of the security devices but managed to suppress the footage quickly \
-                            enough. Missions require brain and you seem to have engineering skills. Good job!";
-                stealth_comment.to_string()
-            },
-            Stealth::Ghost => {
-                let stealth_comment = "No one has seen you. Perfectly silent, you got through your mission with great composure and managed \
-                    to get out without alerting the guards. As if you were a ghost. Good job!";
 
-                stealth_comment.to_string()
-            },
+        let gems_score = count.0 as u64 * 25000;
+        let nb_guards = guard_q.iter().len() as u64; 
+        let guard_score = nb_guards * 25000; 
+
+        let target_score: u64 = 100000; 
+
+        let time_score = 100000*((3600-time.0.elapsed().as_secs())/3600);
+
+        let stealth_coefficient = match stealth {
             Stealth::None => {
-                "You have been seen you dumbass!. Now you will have blood on you hands. Poor guys, they were not supposed to be shortlived.".to_string()
+                1
+            }, 
+            Stealth::Begineer => {
+                2
+            },
+            _ => {
+                4
             }
         };
 
-        score_event.send(ScoreEvent { comment});
+        let total_score = format!(" {}", (gems_score + time_score + target_score + guard_score)*stealth_coefficient);
+
+        score_event.send(ScoreEvent {comment: total_score});
         simulation_state_next_state.set(SimulationState::Score);
         println!("Entered AppState::ScoreMenu");
     }

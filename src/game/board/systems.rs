@@ -5,7 +5,6 @@ use rand::prelude::*;
 use super::components::*;
 use crate::components::Layer;
 use crate::game::playground::player::components::{Stealth, Player};
-use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
 use crate::game::playground::target::components::{UnlockTimer, Target};
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::target::interaction_allowed_for_target;
@@ -16,12 +15,12 @@ pub fn spawn_stealth_icon(
     window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_q.get_single().unwrap();
-    let scale = get_scenery_scale_from_window(&window.width(), &window.height());
+    let scale = 0.6; 
 
     commands.spawn(
         (SpriteBundle{
             texture: asset_server.load("stealth_icon/ninja.png"),
-            transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+            transform: Transform::from_xyz(9.0*window.width()/10.0, 9.0*window.height()/10.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
         ..default()
         },
         StealthIcon,
@@ -202,16 +201,15 @@ pub fn update_icon(
             let window = window_q.get_single().unwrap();
             let width = window.width();
             let height = window.height();
-            let scale = get_scenery_scale_from_window(&width, &height);
+            let scale = 0.6; 
 
-            let x_step = (width - scale*SCENERY_SIZE.0)/2.0;
-            let y_step = (height - scale*SCENERY_SIZE.1)/2.0;
-            let position = Vec3::new(x_step, y_step, 0.0) + Vec3::new(135.0, 125.0, 0.0)*scale;
+            let x = 9.0*width/10.0;
+            let y = 9.0*height/10.0;
 
             commands.spawn(
                 (SpriteBundle{
                     texture: asset_server.load(path),
-                    transform: Transform::from_xyz(position.x, position.y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                    transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
                 ..default()
                 },
                 StealthIcon,

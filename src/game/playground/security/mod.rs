@@ -19,7 +19,7 @@ impl Plugin for SecurityPlugin {
                 (
                     signal_security, 
                     update_visibility,
-                    desactivate_security 
+                    desactivate_security,  
                 ) 
                     .in_set(OnUpdate(SimulationState::Running)),
             )

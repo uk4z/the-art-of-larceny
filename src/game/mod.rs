@@ -5,6 +5,8 @@ pub mod bundle;
 pub mod components;
 
 
+use std::time::Instant;
+
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -21,6 +23,8 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<ScoreEvent>()
+            .insert_resource(ItemCount(0))
+            .insert_resource(GameTime(Instant::now()))
             .add_plugin(PlaygroundPlugin)
             .add_plugin(BoardPlugin)
             // Systems

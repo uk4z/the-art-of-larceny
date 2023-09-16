@@ -3,7 +3,7 @@ use bevy::window::{Window, PrimaryWindow};
 
 
 use super::components::*;
-use super::{get_scenery_position_from_window, get_scenery_scale_from_window};
+use super::get_scenery_position_from_window;
 use crate::components::Layer;
 use crate::game::components::Level;
 use crate::game::bundle::scenery::get_scenery_bundle;
@@ -18,13 +18,12 @@ pub fn spawn_scenery(
 ) {
     let window = window_q.get_single().unwrap();
     let (x, y) = get_scenery_position_from_window(&window.width(), &window.height());
-    let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     if let Some(bundle) = get_scenery_bundle(&level) {
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load(bundle.path.0.clone()),
-                transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                transform: Transform::from_xyz(x, y, Layer::Interactable.into()),
             ..default()
             },
             Scenery,
@@ -65,7 +64,7 @@ pub fn set_bounds(
                 let mut update_bounds = Vec::new();
                 for i in 0..height {
                     let row: Vec<i32> = pixel_rgba[i*width..(i+1)*width].iter().map(|(r,g,b,_)| {
-                        if *r == 0 && *g == 0 && *b == 0 {
+                        if *r == 255 && *g == 255 && *b == 255 {
                             0
                         } else {
                             1

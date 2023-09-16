@@ -7,7 +7,7 @@ use systems::*;
 
 use crate::{AppState, game::SimulationState};
 
-pub const SCENERY_SIZE: (f32, f32) = (2240.0, 1280.0); //In pixel size
+pub const SCENERY_SIZE: (f32, f32) = (3360.0, 2240.0); //In pixel size
 
 pub struct SceneryPlugin;
 

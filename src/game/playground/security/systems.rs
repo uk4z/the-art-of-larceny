@@ -51,13 +51,13 @@ pub fn signal_security (
         if active.0 {
             if let Ok(mut text) = help_q.get_single_mut() {
                 if interaction_allowed_for_security(&player_q, &security_q) {
-                    text.sections[0].value = "Press D to desactivate the security".to_string();
+                    text.sections[0].value = "Press E to desactivate the security".to_string();
                 }
             }
         } else {
             if let Ok(mut text) = help_q.get_single_mut() {
                 if interaction_allowed_for_security(&player_q, &security_q) {
-                    text.sections[0].value = "Press D to activate the security".to_string();
+                    text.sections[0].value = "Press E to activate the security".to_string();
                 }
             }
         }
@@ -102,7 +102,5 @@ pub fn update_visibility(
             });
         }
         
-    }
-    
-        
+    }        
 }

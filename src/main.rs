@@ -43,11 +43,9 @@ fn main() {
         .add_plugin(PauseMenuPlugin)
         .add_plugin(ScoreMenuPlugin)
         .add_startup_system(spawn_setup)
-        .add_system(debug_window_size)
-        .add_system(bevy::window::close_on_esc) //To close the window when pressing 'ESC' key
+        .add_system(debug_window_size) //To close the window when pressing 'ESC' key
         .add_system(request_resize)
         .add_system(update_camera_position)
-        .add_system(enter_main_menu)
         .add_system(start_level)
         .run();
 }

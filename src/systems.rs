@@ -83,17 +83,3 @@ pub fn start_level(
         }
     }   
 }
-
-
-pub fn enter_main_menu(
-    app_state: Res<State<AppState>>,
-    keyboard_input: Res<Input<KeyCode>>,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
-) {
-    if keyboard_input.just_pressed(KeyCode::M) {
-        if app_state.0 != AppState::MainMenu {
-            app_state_next_state.set(AppState::MainMenu);
-            println!("Entered AppState::MainMenu");
-        }
-    }   
-}

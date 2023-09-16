@@ -16,7 +16,7 @@ impl Plugin for ScoreMenuPlugin {
             .add_system(spawn_score_menu.in_schedule(OnEnter(SimulationState::Score)))
             // Systems
             .add_systems(
-                (interact_with_leave_button, handle_score_event)
+                (interact_with_leave_button, )
                     .in_set(OnUpdate(SimulationState::Score)),
             )
             // OnExit State System

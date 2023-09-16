@@ -32,7 +32,7 @@ pub fn interaction_allowed_for_item (
     item_q: &Query<(&WorldPosition, &ReachDistance), (With<Item>, Without<Player>)>,
 ) -> bool {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
-        if let Ok((item_position, item_reach)) = item_q.get_single() {
+        for (item_position, item_reach) in item_q.iter() {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*item_position));
             if distance <= player_reach.0+item_reach.0 {
                 return true

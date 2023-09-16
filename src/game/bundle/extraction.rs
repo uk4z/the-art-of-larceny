@@ -5,10 +5,7 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
         Level::Starting => {
             Some(
                 ExtractionBundle {
-                    position: WorldPosition {
-                        x: 2075.0,
-                        y: 405.0,
-                    },
+                    position: WorldPosition {x: 2910.0, y: 217.0},
                     reach: ReachDistance(40.0),
                 }
             )

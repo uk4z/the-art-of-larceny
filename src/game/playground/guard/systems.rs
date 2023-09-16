@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::window::{Window, PrimaryWindow};
 use bevy::sprite::MaterialMesh2dBundle;
 
 use std::f32::consts::PI;
@@ -13,22 +12,19 @@ use crate::game::playground::player::DISTANCE_PER_SECOND;
 use crate::components::Layer;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance, GameOver};
 use crate::game::playground::scenery::components::{Bounds, Scenery};
-use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
+use crate::game::playground::scenery::SCENERY_SIZE;
 
 
-const FOV_RANGE: f32 = 220.0; 
-const VISION_LENGTH: f32 = 150.0;
+const FOV_RANGE: f32 = 250.0; 
+const VISION_LENGTH: f32 = 400.0;
 
 pub fn spawn_guard(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    window_q: Query<&Window, With<PrimaryWindow>>,
     level: Res<Level>,
 ) {
-    let window = window_q.get_single().unwrap();
-    let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     //spawn FOV
     if let Some(fovs) = get_fov_bundle(&level) {
@@ -54,7 +50,7 @@ pub fn spawn_guard(
             commands.spawn((
                 SpriteBundle{
                     texture: asset_server.load("guard/static.png"),
-                    transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                    transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(1.2, 1.2, 1.0)),       
                 ..default()
                 }, 
                 bundle,
@@ -326,7 +322,11 @@ pub fn update_chase_stack (
                 }
             },
             GuardState::Returning => {
-                if let Some((pos, stack_orientation)) = stack.0.pop() {
+                if stack.0.len() == 1 {
+                    let (pos, stack_orientation) = stack.0.pop().unwrap() ;
+                    *position = pos;
+                    orientation.0 =  stack_orientation.0;
+                } else if let Some((pos, stack_orientation)) = stack.0.pop() {
                     *position = pos;
                     orientation.0 =  stack_orientation.0.mul_quat(Quat::from_rotation_z(PI));  
                 } else {

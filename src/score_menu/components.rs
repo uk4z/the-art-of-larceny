@@ -3,17 +3,11 @@ use bevy::prelude::Component;
 #[derive(Component, Debug)]
 pub struct ScoreMenu;
 
-#[derive(Component)]
-pub struct RestartButton;
-
-#[derive(Component, Debug)]
-pub struct ScoreButton;
-
 #[derive(Component, Debug)]
 pub struct LeaveButton;
 
 #[derive(Component, Debug)]
-pub struct ScoreImage;
+pub struct ItemBoard;
 
 #[derive(Component, Debug)]
-pub struct Comment;
+pub struct TimeBoard;

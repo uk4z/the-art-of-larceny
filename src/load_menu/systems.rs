@@ -1,7 +1,9 @@
+use std::time::Instant;
+
 use bevy::prelude::*;
 use crate::AppState;
 use crate::components::Layer;
-use crate::game::components::SimulationState;
+use crate::game::components::{SimulationState, ItemCount, GameTime};
 use crate::load_menu::components::*;
 use bevy_ui_borders::BorderColor;
 
@@ -13,12 +15,16 @@ pub fn interact_with_start_button(
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut app_state_next_state: ResMut<NextState<AppState>>,
     state: Res<State<AppState>>, 
+    mut count: ResMut<ItemCount>, 
+    mut time: ResMut<GameTime>, 
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Clicked => {
                 match state.0 {
                     AppState::MainMenu => {
+                        count.0 = 0; 
+                        time.0 = Instant::now(); 
                         app_state_next_state.set(AppState::Game);
                     }
                     _ => {}
@@ -69,74 +75,6 @@ pub fn spawn_load_menu(
     },
     LoadMenu,
    )).with_children(|root|{
-        /* root.spawn(
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    size: Size::new(Val::Percent(100.0), Val::Percent(80.0)),
-                    ..default()
-                },
-                ..default()
-        }).with_children(|story_section|{
-            story_section.spawn( NodeBundle {
-                style: Style {
-                    display: Display::Flex, 
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Start,
-                    size: Size { width: Val::Percent(80.0), height: Val::Percent(80.0) },
-                    justify_content: JustifyContent::SpaceBetween,
-                    flex_wrap: FlexWrap::Wrap,
-                    ..default()
-                },
-                ..default()
-            }).with_children(|commands|{
-                for sentence in STORY.split("\n").into_iter() {
-                    commands.spawn(NodeBundle {
-                        style: Style {
-                            justify_content: JustifyContent::SpaceBetween,
-                            flex_wrap: FlexWrap::Wrap, 
-                            ..default()
-                        },
-                        ..default()
-                    }).with_children(|commands| {
-                        for word in sentence.split(" ") {
-                            commands.spawn((
-                                TextBundle::from_section(
-                                    word.to_string(),
-                                    TextStyle {
-                                        font: asset_server.load("FiraMono-Medium.ttf"),
-                                        font_size: 18.0,
-                                        color: Color::WHITE,
-                                    },
-                                )
-                                .with_text_alignment(TextAlignment::Center)
-                                .with_style(Style {
-                                    // this is required becouse of the bevy bug
-                                    // https://github.com/bevyengine/bevy/issues/5834
-                                    max_size: Size::new(Val::Undefined, Val::Px(18.0)),
-                
-                                    // this is the size of the spaces between words
-                                    margin: UiRect::all(Val::Px(3.0)),
-                                    ..default()
-                                }),
-                            ));
-                        }
-                        commands.spawn(NodeBundle {
-                            style: Style {
-                                flex_grow: 1.,
-                                ..default()
-                            },
-                            ..default()
-                        });
-                    });
-                }
-                
-            });
-        }); */
-
         root.spawn((
             NodeBundle {
                 style: Style {

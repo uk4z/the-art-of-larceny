@@ -22,7 +22,7 @@ pub fn spawn_target (
                 mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
                 transform: Transform::from_xyz(1376.0, 640.0, 4.0),
                 material: materials.add(ColorMaterial::from(Color::PURPLE)), 
-                visibility: Visibility::Visible,
+                visibility: Visibility::Hidden,
                 ..default()
             },
             bundle,

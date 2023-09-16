@@ -10,7 +10,7 @@ use crate::game::bundle::player::get_player_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::guard::components::{GuardState, Guard};
 use crate::game::playground::scenery::components::{Bounds, Scenery};
-use crate::game::playground::scenery::{get_scenery_scale_from_window, SCENERY_SIZE};
+use crate::game::playground::scenery::SCENERY_SIZE;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -19,13 +19,12 @@ pub fn spawn_player(
     level: Res<Level>,
 ) {
     let window = window_q.get_single().unwrap();
-    let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
     if let Some(bundle) = get_player_bundle(&level) {
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load("player/static.png"),
-                transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                transform: Transform::from_xyz(window.width()/2.0, window.height()/2.0, Layer::Interactable.into()),       
             ..default()
             }, 
             bundle,
@@ -147,25 +146,24 @@ pub fn motion_handler(
 pub fn neutralise_guard (
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
-    window_q: Query<&Window, With<PrimaryWindow>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
-    mut guard_q: Query<(Entity, &WorldPosition, &ReachDistance, &GuardState), (With<Guard>, Without<Player>)>,
+    mut guard_q: Query<(Entity, &WorldPosition, &Orientation, &ReachDistance, &GuardState), (With<Guard>, Without<Player>)>,
 ) {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
-        guard_q.for_each_mut(|(entity, guard_position, guard_reach, guard_state)| {
+        guard_q.for_each_mut(|(entity, guard_position, orientation, guard_reach, guard_state)| {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*guard_position));
             if distance <= player_reach.0+guard_reach.0 {
                 match *guard_state {
                     GuardState::Chasing => {},
                     _ => {
                         commands.entity(entity).despawn(); 
-                        let window = window_q.get_single().unwrap();
-                        let scale = get_scenery_scale_from_window(&window.width(), &window.height());
 
                         commands.spawn(
                             (SpriteBundle{
-                                texture: asset_server.load("guard/static.png"),
-                                transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                                texture: asset_server.load("guard/dead.png"), 
+                                transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
+                                    .with_scale(Vec3::new(1.2, 1.2, 1.0))
+                                    .with_rotation(orientation.0),       
                             ..default()
                             }, 
                             WorldPosition {x: guard_position.x, y: guard_position.y}, 

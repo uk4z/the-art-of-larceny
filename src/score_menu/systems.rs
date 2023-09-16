@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::components::Layer;
-use crate::game::components::{SimulationState, ScoreEvent};
+use crate::game::components::{SimulationState, ItemCount, GameTime, ScoreEvent};
 use crate::score_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
@@ -40,8 +40,18 @@ pub fn despawn_score_menu(mut commands: Commands, score_menu_query: Query<Entity
 
 pub fn spawn_score_menu(
     mut commands: Commands, 
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
+    time: Res<GameTime>,
+    count: Res<ItemCount>,  
+    mut score_event: EventReader<ScoreEvent>,
 ) {
+    let elapsed_time = format!(" {}:{}:{}", time.0.elapsed().as_secs()/3600, time.0.elapsed().as_secs()/60, (time.0.elapsed().as_secs()%3600)%60);
+
+    let mut total_score = "You lost !".to_string(); 
+    for ev in score_event.iter() {
+        total_score = ev.comment.clone(); 
+    }
+
     commands.spawn((
     NodeBundle {
         style: Style {
@@ -180,6 +190,18 @@ pub fn spawn_score_menu(
                             },
                         )
                     );
+
+                    title_section.spawn((
+                        TextBundle::from_section(
+                            elapsed_time,
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        ),
+                        TimeBoard, 
+                    ));
                 });
 
                 category.spawn(NodeBundle {
@@ -194,7 +216,7 @@ pub fn spawn_score_menu(
                 }).with_children(|title_section| {
                     title_section.spawn(
                         TextBundle::from_section(
-                            "Items found:",
+                            "Gems collected:",
                             TextStyle {
                                 font: asset_server.load("FiraMono-Medium.ttf"),
                                 font_size: 30.0,
@@ -202,6 +224,18 @@ pub fn spawn_score_menu(
                             },
                         )
                     );
+
+                    title_section.spawn((
+                        TextBundle::from_section(
+                            format!(" {}", count.0),
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        ),
+                        ItemBoard,
+                    ));
                 });
 
                 category.spawn(NodeBundle {
@@ -224,52 +258,21 @@ pub fn spawn_score_menu(
                             },
                         )
                     );
+
+                    title_section.spawn((
+                        TextBundle::from_section(
+                            total_score,
+                            TextStyle {
+                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                        ),
+                        ItemBoard,
+                    ));
                 });
             });
             
         });
     });
-}
-
-pub fn handle_score_event( 
-    mut commands: Commands,
-    mut score_event: EventReader<ScoreEvent>,
-    mut entity_q: Query<Entity, With<Comment>>,
-    asset_server: Res<AssetServer>
-) {
-    for score in score_event.iter() {
-        if let Ok(entity) = entity_q.get_single_mut() {
-            commands.entity(entity).with_children(|node|{
-                for word in score.comment.split(" ") {
-                    node.spawn((
-                        TextBundle::from_section(
-                            word.to_string(),
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 18.0,
-                                color: Color::WHITE,
-                            },
-                        )
-                        .with_text_alignment(TextAlignment::Center)
-                        .with_style(Style {
-                            // this is required becouse of the bevy bug
-                            // https://github.com/bevyengine/bevy/issues/5834
-                            max_size: Size::new(Val::Undefined, Val::Px(18.0)),
-        
-                            // this is the size of the spaces between words
-                            margin: UiRect::all(Val::Px(3.0)),
-                            ..default()
-                        }),
-                    ));
-                }
-                node.spawn(NodeBundle {
-                    style: Style {
-                        flex_grow: 1.,
-                        ..default()
-                    },
-                    ..default()
-                });
-            });
-        }
-    }
 }

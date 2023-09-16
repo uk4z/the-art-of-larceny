@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use bevy::prelude::*;
 
 
@@ -20,3 +22,10 @@ pub enum Level {
     Starting,
     Mock,
 }
+
+
+#[derive(Resource, Debug)]
+pub struct ItemCount(pub u8);
+
+#[derive(Resource, Debug)]
+pub struct GameTime(pub Instant);

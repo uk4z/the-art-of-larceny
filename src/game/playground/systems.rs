@@ -1,13 +1,12 @@
 use bevy::prelude::*;
-use bevy::window::{WindowResized, PrimaryWindow};
+use bevy::window::WindowResized;
 
-use super::components::{WorldPosition, GameOver};
-use super::player::components::PlayerPace;
+use super::components::WorldPosition;
+use super::player::components::{PlayerPace, Player};
 use super::scenery::{
     components::Scenery,
     SCENERY_SIZE,
-    get_scenery_scale_from_window,
-    get_scenery_position_from_window,
+
 };
 use super::CHARACTER_SIZE;
 
@@ -40,85 +39,56 @@ pub fn confine_position(
     });
 }
 
-
-pub fn update_scale_on_resize(
-    mut resize_event: EventReader<WindowResized>, 
-    mut world_q: Query<(&mut Transform, &WorldPosition), Without<Scenery>>,
-    mut scenery_q: Query<&mut Transform, With<Scenery>>,
-) {
-    for resized_window in resize_event.iter() {
-        if let Ok(mut scenery_t) = scenery_q.get_single_mut() {
-            let new_width = resized_window.width;
-            let new_height = resized_window.height;
-            let new_scale = get_scenery_scale_from_window(&new_width, &new_height);
-            let (new_x, new_y) = get_scenery_position_from_window(&new_width, &new_height);
-
-            world_q.for_each_mut(|(mut transform, position)| {
-                let z_layer = transform.translation.z;
-                let window_position = Vec3::new(new_x, new_y, z_layer)-Vec3::from(*position);
-
-                transform.translation = window_position;
-                transform.scale = Vec3::new(new_scale, new_scale, 1.0)
-
-            });
-            scenery_t.translation = Vec3::new(new_x, new_y, Layer::Scenery.into());
-            scenery_t.scale = Vec3::new(new_scale, new_scale, 1.0);
-        }
-    }
-    
-}
-
-pub fn set_scale(
-    window_q: Query<&Window, With<PrimaryWindow>>,
-    mut world_q: Query<(&mut Transform, &WorldPosition), Without<Scenery>>,
-    mut scenery_q: Query<&mut Transform, With<Scenery>>,
-) {
-    if let Ok(window) = window_q.get_single() {
-        if let Ok(mut scenery_t) = scenery_q.get_single_mut() {
-            let new_width = window.width();
-            let new_height = window.height();
-            let new_scale = get_scenery_scale_from_window(&new_width, &new_height);
-            let (new_x, new_y) = get_scenery_position_from_window(&new_width, &new_height);
-    
-            world_q.for_each_mut(|(mut transform, position)| {
-                let z_layer = transform.translation.z;
-                let window_position = Vec3::new(new_x, new_y, z_layer)-Vec3::from(*position);
-    
-                transform.translation = window_position;
-                transform.scale = Vec3::new(new_scale, new_scale, 1.0)
-    
-            });
-            scenery_t.translation = Vec3::new(new_x, new_y, Layer::Scenery.into());
-            scenery_t.scale = Vec3::new(new_scale, new_scale, 1.0);
-        }
-    }
-    
-    
-}
-
 pub fn world_to_screen(
-    mut interactable_q: Query<(&mut Transform, &WorldPosition, Option<&Orientation>), Without<Scenery>>,
-    scenery_q: Query<&mut Transform, With<Scenery>>,
+    mut interactable_q: Query<(&mut Transform, &WorldPosition, Option<&Orientation>), (Without<Scenery>, Without<Player>)>,
+    mut player_q: Query<(&mut Transform, &WorldPosition, &Orientation), With<Player>>,
+    mut scenery_q: Query<&mut Transform, (With<Scenery>, Without<Player>)>,
+    keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if let Ok(scenery_t) = scenery_q.get_single() {
-        let scenery_position = scenery_t.translation - Vec3::new(0.0, 0.0, Layer::Scenery.into());
-        let scale = scenery_t.scale.x;
-
-        interactable_q.for_each_mut(|(mut transform, position, orientation)| {
-            let origin = get_world_origin(scale, (scenery_position.x, scenery_position.y));
-            let in_screen_position = origin + Vec3::from(*position)*scale + Vec3::new(0.0, 0.0, Layer::Interactable.into());
-            transform.translation = in_screen_position; 
-            if let Some(rotation) = orientation {
-                transform.rotation = rotation.0;
+    if let Ok(mut scenery_t) = scenery_q.get_single_mut() {
+        if keyboard_input.pressed(KeyCode::C) {
+            let scenery_position = scenery_t.translation - Vec3::new(0.0, 0.0, Layer::Scenery.into());
+            let scale = scenery_t.scale.x;
+    
+            interactable_q.for_each_mut(|(mut transform, position, orientation)| {
+                let origin = get_world_origin(scale, (scenery_position.x, scenery_position.y));
+                let in_screen_position = origin + Vec3::from(*position)*scale + Vec3::new(0.0, 0.0, Layer::Interactable.into());
+                transform.translation = in_screen_position; 
+    
+                if let Some(rotation) = orientation {
+                    transform.rotation = rotation.0;
+                }
+            });
+        } else {
+            if let Ok((mut player_transform, player_position, player_orientation)) = player_q.get_single_mut() {
+                player_transform.rotation = player_orientation.0;
+    
+                let scenery_direction = Vec3::new(SCENERY_SIZE.0/2.0, SCENERY_SIZE.1/2.0, Layer::Scenery.into()) - Vec3::from(*player_position);
+                scenery_t.translation = scenery_direction + player_transform.translation - Vec3::new(0.0, 0.0, Layer::Interactable.into()); 
+    
+                interactable_q.for_each_mut(|(mut transform, position, orientation)| {
+                    let direction = Vec3::from(*position) - Vec3::from(*player_position);
+                    transform.translation = player_transform.translation + direction ; 
+                    if let Some(rotation) = orientation {
+                        transform.rotation = rotation.0;
+                    }
+                });
             }
-        });
+        }
+        
     }
 }
 
-pub fn handle_game_over (
-   mut ev: EventReader<GameOver>
+pub fn update_player_transform_on_resize(
+    mut resize_event: EventReader<WindowResized>, 
+    mut player_q: Query<&mut Transform, With<Player>>,
 ) {
-    for _ in ev.iter() {
-        println!("game is over");
+    for window in resize_event.iter() {
+        let new_width = window.width;
+        let new_height = window.height;
+
+        if let Ok(mut transform) = player_q.get_single_mut() {
+            transform.translation = Vec3::new(new_width/2.0, new_height/2.0, Layer::Interactable.into());
+        }
     }
 }

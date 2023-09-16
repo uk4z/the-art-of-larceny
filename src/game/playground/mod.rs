@@ -24,9 +24,10 @@ use guard::GuardPlugin;
 use camera::CameraPlugin;
 use security::SecurityPlugin;
 use laser::LaserPlugin;
-use footage::FootagePlugin;
 
 use components::GameOver;
+
+use self::footage::FootagePlugin;
 
 use super::SimulationState; 
 
@@ -49,13 +50,14 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(LaserPlugin)
             .add_plugin(FootagePlugin)
             .add_event::<GameOver>()
-            .add_system(set_scale.in_schedule(OnEnter(SimulationState::Running)))
+            //.add_system(set_scale.in_schedule(OnEnter(SimulationState::Running)))
             .add_systems(
                 (
-                    handle_game_over, 
+
                     confine_position, 
                     world_to_screen,
-                    update_scale_on_resize,
+                    update_player_transform_on_resize,
+                    //update_scale_on_resize,
                 ).in_set(OnUpdate(SimulationState::Running))
             );
 

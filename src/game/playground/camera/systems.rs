@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
+use crate::components::Layer;
 use crate::game::components::Level;
 use crate::game::bundle::camera::get_camera_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
+use crate::game::playground::footage::components::{Available, Footage};
 use crate::game::playground::player::components::{Player, Stealth};
-use crate::game::playground::security::components::{Intrusion, Security};
+use crate::game::playground::security::components::{Intrusion, Security, Active};
 use super::components::Camera;
 
 use super::components::*;
@@ -25,8 +27,8 @@ pub fn spawn_camera(
         for bundle in cameras {
             commands.spawn((
                 MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(140.0, 3))).into(),
-                    transform: Transform::from_xyz(1500.0, 1000.0, 4.0),
+                    mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(bundle.fov_length.0, 3))).into(),
+                    transform: Transform::from_xyz(3315.0, 1616.0, Layer::Interactable.into()),
                     material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
                     ..default()
                 },
@@ -51,6 +53,8 @@ pub fn alert_security (
     cameras_q: Query<(&CameraPosition, &Orientation, &FOVLength), With<Camera>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
     mut security_q: Query<&mut Intrusion, With<Security>>, 
+    active_q: Query<&Active, With<Security>>, 
+    footage_q: Query<&Available, With<Footage>>, 
 ){
     if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         for (camera_pos, orientation, length) in cameras_q.iter() {
@@ -60,15 +64,23 @@ pub fn alert_security (
             let player_distance = target_vector.length();
             let fov_distance = length.0*(1.0+1.0/2.0); //see length isocel triangle
             if angle < PI/4.0 && player_distance <= fov_distance {
-                if let Ok(mut intrusion) = security_q.get_single_mut() {
-                    intrusion.0 = true; 
-                    match *stealth {
-                        Stealth::Ghost => {
-                         *stealth = Stealth::Begineer;
+                if let Ok(active) = active_q.get_single() {
+                    if let Ok(available) = footage_q.get_single() {
+                        if active.0 && available.0 {
+                            if let Ok(mut intrusion) = security_q.get_single_mut() {
+                                intrusion.0 = true; 
+                                match *stealth {
+                                    Stealth::Ghost => {
+                                     *stealth = Stealth::Begineer;
+                                    }
+                                    _ => {}
+                                }
+                            }
                         }
-                        _ => {}
                     }
+                    
                 }
+                
             }
         }
     }

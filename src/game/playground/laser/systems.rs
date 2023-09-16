@@ -5,8 +5,9 @@ use super::{components::*, laser_extremum, get_extremum_values};
 use crate::game::components::Level;
 use crate::game::bundle::laser::get_laser_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
+use crate::game::playground::footage::components::{Available, Footage};
 use crate::game::playground::player::components::{Player, Stealth};
-use crate::game::playground::security::components::{Security, Intrusion};
+use crate::game::playground::security::components::{Security, Intrusion, Active};
 
 pub fn spawn_laser(
     mut commands: Commands,
@@ -18,7 +19,7 @@ pub fn spawn_laser(
         for bundle in lasers {
             commands.spawn((
                 MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Box::new(146.0, 4.0, 0.0))).into(),
+                    mesh: meshes.add(Mesh::from(shape::Box::new(bundle.length.0, 4.0, 0.0))).into(),
                     transform: Transform::from_xyz(800.0, 400.0, 4.0),
                     material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
                     ..default()
@@ -44,6 +45,8 @@ pub fn alert_security (
     lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength), With<Laser>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
     mut security_q: Query<&mut Intrusion, With<Security>>, 
+    active_q: Query<&Active, With<Security>>, 
+    footage_q: Query<&Available, With<Footage>>, 
 ){
     if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         for (laser_pos, orientation, length) in lasers_q.iter() {
@@ -56,14 +59,21 @@ pub fn alert_security (
             let (min_y, max_y) = get_extremum_values( y_axis); 
 
             if player_pos.x >= min_x && player_pos.x <= max_x && player_pos.y >= min_y && player_pos.y <= max_y {
-                if let Ok(mut intrusion) = security_q.get_single_mut() {
-                    intrusion.0 = true; 
-                    match *stealth {
-                        Stealth::Ghost => {
-                         *stealth = Stealth::Begineer;
+                if let Ok(active) = active_q.get_single() {
+                    if let Ok(available) = footage_q.get_single() {
+                        if active.0 && available.0 {
+                            if let Ok(mut intrusion) = security_q.get_single_mut() {
+                                intrusion.0 = true; 
+                                match *stealth {
+                                    Stealth::Ghost => {
+                                     *stealth = Stealth::Begineer;
+                                    }
+                                    _ => {}
+                                }
+                            }
                         }
-                        _ => {}
                     }
+                    
                 }
             }
         }

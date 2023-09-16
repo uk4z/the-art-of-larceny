@@ -6,7 +6,7 @@ pub fn get_scenery_bundle(level: &Level) -> Option<SceneryBundle> {
             Some(
                 SceneryBundle {
                     bounds: Bounds(Vec::new()),
-                    path: Path("levels/backgrounds/test.png".to_string()),
+                    path: Path("levels/backgrounds/factory.png".to_string()),
                 },
             )
         },
