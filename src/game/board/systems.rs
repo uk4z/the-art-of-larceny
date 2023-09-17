@@ -39,6 +39,54 @@ pub fn despawn_stealth_icon(
     
 }
 
+pub fn update_icon(
+    window_q: Query<&Window, With<PrimaryWindow>>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    stealth_q: Query<&Stealth, With<Player>>,
+    stealth_icon_q: Query<Entity, With<StealthIcon>>,
+) {
+    if let Ok(stealth) = stealth_q.get_single() {
+        if let Ok(icon) = stealth_icon_q.get_single() {
+            commands.entity(icon).despawn();
+
+            let path = match *stealth {
+                Stealth::Begineer => {
+                    "stealth_icon/camera.png"
+                }
+                Stealth::Engineer => {
+                    "stealth_icon/ninja.png"
+                }
+                Stealth::Ghost => {
+                    "stealth_icon/ninja.png"
+                }
+                Stealth::None => {
+                    "stealth_icon/eye.png"
+                }
+            };
+
+            let window = window_q.get_single().unwrap();
+            let width = window.width();
+            let height = window.height();
+            let scale = 0.6; 
+
+            let x = 9.0*width/10.0;
+            let y = 9.0*height/10.0;
+
+            commands.spawn(
+                (SpriteBundle{
+                    texture: asset_server.load(path),
+                    transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                ..default()
+                },
+                StealthIcon,
+                WorldPosition {x: 135.0, y: 125.0},
+            ));
+            
+        }
+    }
+}
+
 pub fn spawn_helper_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>, 
@@ -143,79 +191,4 @@ pub fn unlock_animation (
         } 
     }
     
-}
-
-/* pub fn show_item_found(
-    item_q: Query<(&components::Name, &components::Value, &Visibility), With<Item>>, 
-    mut board_item_q: Query<&mut Text, With<ItemBoard>>,
-) {
-    let mut items: Vec<String> = item_q.iter().map(|(name, value, visibility)| {
-        let data = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".to_string();
-        let mut rng = thread_rng();
-        let mut random_text = "".to_string();
-        for _ in 0..4 {
-            let index: usize = rng.gen_range(0..data.len()-1);
-            random_text.push_str(&data[index..index+1]);
-        }
-        let item = match visibility {
-            Visibility::Hidden => {format!("{}: {}", name.0, value.0)},
-            _ => {format!("{}: {}", name.0, random_text)},
-        };
-        return item
-    }).collect();
-
-    board_item_q.for_each_mut(|mut text| {
-        text.sections[0].value = match items.pop(){
-            Some(item) => {item},
-            None => {"".to_string()},
-        };
-    })
-} */
-
-pub fn update_icon(
-    window_q: Query<&Window, With<PrimaryWindow>>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    stealth_q: Query<&Stealth, With<Player>>,
-    stealth_icon_q: Query<Entity, With<StealthIcon>>,
-) {
-    if let Ok(stealth) = stealth_q.get_single() {
-        if let Ok(icon) = stealth_icon_q.get_single() {
-            commands.entity(icon).despawn();
-
-            let path = match *stealth {
-                Stealth::Begineer => {
-                    "stealth_icon/camera.png"
-                }
-                Stealth::Engineer => {
-                    "stealth_icon/ninja.png"
-                }
-                Stealth::Ghost => {
-                    "stealth_icon/ninja.png"
-                }
-                Stealth::None => {
-                    "stealth_icon/eye.png"
-                }
-            };
-
-            let window = window_q.get_single().unwrap();
-            let width = window.width();
-            let height = window.height();
-            let scale = 0.6; 
-
-            let x = 9.0*width/10.0;
-            let y = 9.0*height/10.0;
-
-            commands.spawn(
-                (SpriteBundle{
-                    texture: asset_server.load(path),
-                    transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
-                ..default()
-                },
-                StealthIcon,
-                WorldPosition {x: 135.0, y: 125.0},
-            ));
-            
-        }
-    }
 }

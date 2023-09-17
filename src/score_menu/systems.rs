@@ -1,6 +1,10 @@
+use rand::prelude::*;
+
 use bevy::prelude::*;
 use crate::components::Layer;
-use crate::game::components::{SimulationState, ItemCount, GameTime, ScoreEvent};
+use crate::game::components::{ItemCount, GameTime, ScoreEvent};
+use crate::game::playground::guard::components::Guard;
+use crate::game::playground::player::components::{Stealth, Player};
 use crate::score_menu::components::*;
 use crate::AppState;
 use bevy_ui_borders::BorderColor;
@@ -8,7 +12,6 @@ use bevy_ui_borders::BorderColor;
 
 pub fn interact_with_leave_button(
     mut app_state_next_state: ResMut<NextState<AppState>>,
-    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<LeaveButton>),
@@ -18,7 +21,6 @@ pub fn interact_with_leave_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::MainMenu);
-                simulation_state_next_state.set(SimulationState::None);
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;
@@ -41,15 +43,16 @@ pub fn despawn_score_menu(mut commands: Commands, score_menu_query: Query<Entity
 pub fn spawn_score_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
-    time: Res<GameTime>,
-    count: Res<ItemCount>,  
+    time: Res<GameTime>, 
     mut score_event: EventReader<ScoreEvent>,
 ) {
     let elapsed_time = format!(" {}:{}:{}", time.0.elapsed().as_secs()/3600, time.0.elapsed().as_secs()/60, (time.0.elapsed().as_secs()%3600)%60);
 
     let mut total_score = "You lost !".to_string(); 
+    let mut value = 0; 
     for ev in score_event.iter() {
         total_score = ev.comment.clone(); 
+        value = ev.value; 
     }
 
     commands.spawn((
@@ -169,110 +172,190 @@ pub fn spawn_score_menu(
                     ..default()
                 },
                 ..default()
-            }).with_children(|category|{
-                category.spawn(NodeBundle {
-                    style: Style {
-                        display: Display::Flex, 
-                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
-                        justify_content: JustifyContent::Start, 
-                        align_items: AlignItems::Center,
+            }).with_children(|node|{
+                node.spawn(
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex, 
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::SpaceEvenly, 
+                            size: Size::new(Val::Percent(100.0), Val::Percent(70.0)),
+                            ..default()
+                        },
                         ..default()
-                    },
-                    ..default()
-                }).with_children(|title_section| {
-                    title_section.spawn(
-                        TextBundle::from_section(
-                            "Time:",
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        )
-                    );
-
-                    title_section.spawn((
-                        TextBundle::from_section(
-                            elapsed_time,
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        ),
-                        TimeBoard, 
-                    ));
+                    }
+                ).with_children(|category|{
+                    for _ in 0..5 {
+                        category.spawn((
+                                TextBundle::from_section(
+                                    "",
+                                    TextStyle {
+                                        font: asset_server.load("FiraMono-Medium.ttf"),
+                                        font_size: 20.0,
+                                        color: Color::WHITE,
+                                    },
+                            ),
+                            SubScores,
+                        ));
+                    }
                 });
-
-                category.spawn(NodeBundle {
-                    style: Style {
-                        display: Display::Flex, 
-                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
-                        justify_content: JustifyContent::Start, 
-                        align_items: AlignItems::Center,
+                
+                node.spawn(
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex, 
+                            flex_direction: FlexDirection::Row,
+                            justify_content: JustifyContent::SpaceEvenly, 
+                            size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                            ..default()
+                        },
                         ..default()
-                    },
-                    ..default()
-                }).with_children(|title_section| {
-                    title_section.spawn(
-                        TextBundle::from_section(
-                            "Gems collected:",
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        )
-                    );
-
-                    title_section.spawn((
-                        TextBundle::from_section(
-                            format!(" {}", count.0),
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        ),
-                        ItemBoard,
-                    ));
-                });
-
-                category.spawn(NodeBundle {
-                    style: Style {
-                        display: Display::Flex, 
-                        size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
-                        justify_content: JustifyContent::Start, 
-                        align_items: AlignItems::Center,
+                    }
+                ).with_children(|category|{
+                    category.spawn(NodeBundle {
+                        style: Style {
+                            display: Display::Flex, 
+                            size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),
+                            justify_content: JustifyContent::Start, 
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
                         ..default()
-                    },
-                    ..default()
-                }).with_children(|title_section| {
-                    title_section.spawn(
-                        TextBundle::from_section(
-                            "Total:",
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        )
-                    );
+                    }).with_children(|title_section| {
+                        title_section.spawn(
+                            TextBundle::from_section(
+                                "Time:",
+                                TextStyle {
+                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                    font_size: 30.0,
+                                    color: Color::WHITE,
+                                },
+                            )
+                        );
 
-                    title_section.spawn((
-                        TextBundle::from_section(
-                            total_score,
-                            TextStyle {
-                                font: asset_server.load("FiraMono-Medium.ttf"),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                        ),
-                        ItemBoard,
-                    ));
+                        title_section.spawn((
+                            TextBundle::from_section(
+                                elapsed_time,
+                                TextStyle {
+                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                    font_size: 30.0,
+                                    color: Color::WHITE,
+                                },
+                            ),
+                            TimeBoard, 
+                            ElapsedTime(time.0.elapsed().as_secs())
+                        ));
+                    });
+
+                    category.spawn(NodeBundle {
+                        style: Style {
+                            display: Display::Flex, 
+                            size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),
+                            justify_content: JustifyContent::Start, 
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        ..default()
+                    }).with_children(|title_section| {
+                        title_section.spawn(
+                            TextBundle::from_section(
+                                "Total:",
+                                TextStyle {
+                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                    font_size: 30.0,
+                                    color: Color::WHITE,
+                                },
+                            )
+                        );
+
+                        title_section.spawn((
+                            TextBundle::from_section(
+                                total_score,
+                                TextStyle {
+                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                    font_size: 30.0,
+                                    color: Color::WHITE,
+                                },
+                            ),
+                            TotalScore,
+                            ScoreValue(value), 
+                        ));
+                    });
                 });
             });
             
         });
     });
 }
+
+pub fn reset_score_timer(
+    mut score_timer: ResMut<ScoreTimer>,
+) {
+    score_timer.timer.reset(); 
+}
+
+pub fn score_animation(
+    mut score_timer: ResMut<ScoreTimer>, 
+    mut score_q: Query<&mut Text, With<SubScores>>,
+    time: Res<Time>, 
+    count: Res<ItemCount>, 
+    guard_q: Query<Entity, With<Guard>>,
+    player_q: Query<&Stealth, With<Player>>,
+    elapsed_time_q: Query<&ElapsedTime, With<TimeBoard>>,
+) {
+    let nb_guards = guard_q.iter().len();
+
+    let mut time_score = 0; 
+
+    if let Ok(elapsed_time) = elapsed_time_q.get_single() {
+        time_score = 100000*(3600-elapsed_time.0) /3600;
+    }
+    
+
+    let stealth = player_q.get_single().unwrap(); 
+    let stealth_message = match *stealth {
+        Stealth::None => {"You have been seen by guards!"},
+        Stealth::Begineer => {"You have been spotted by the security system!"},
+        Stealth::Engineer => {"You have suppressed the footages!"},
+        Stealth::Ghost => {"You have not been seen!"}
+    };
+    
+
+    let scores = vec![
+        format!("Gems collected: + {} x 25 000", count.0), 
+        format!("Guards non alerted: + {} x 25 000", nb_guards), 
+        format!("Target cleared: + 10 000"),
+        format!("Time bonus: + {}", time_score),
+        format!("Stealth: {}", stealth_message),
+    ]; 
+
+    for (index, mut text) in score_q.iter_mut().enumerate() {
+        score_timer.timer.tick(time.delta());
+
+        let score = scores.get(index).unwrap_or(&format!("Unknown")).clone(); 
+
+        if !score_timer.timer.finished() {
+
+            let data = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".to_string();
+            let mut rng = thread_rng();
+    
+            let number = (score_timer.timer.percent()*(score.len() as f32)) as usize;
+
+            let mut random_score = "".to_string();
+            for _ in 0..score.len()-1 {
+                let index: usize = rng.gen_range(0..data.len()-1);
+                random_score.push_str(&data[index..index+1]);
+            }
+    
+            if number <= 0 {
+                text.sections[0].value = score; 
+            } else if number >= score.len() {
+                text.sections[0].value = random_score; 
+            } else {
+                text.sections[0].value = format!("{}{}", &score[..number], &random_score[number..]);
+            }
+        } else {
+            text.sections[0].value = format!("{}", score);
+        }
+    } 
+}   

@@ -250,33 +250,6 @@ pub fn spawn_main_menu(
      },
      MainMenu,
      )).with_children(|root|{
-        /* root.spawn(
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::Start,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::new(Val::Percent(5.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),
-                                                Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
-                    ..default()
-                },
-                ..default()
-        }).with_children(|title_section|{
-                title_section.spawn((
-                    TextBundle::from_section(
-                        "The Art of Larceny: Rogue's Riches",
-                    TextStyle {
-                        font: asset_server.load("FiraMono-Medium.ttf"),
-                        font_size: 80.0,
-                        color: Color::WHITE.into()
-                        }),
-                ));
-        }); */
-
         root.spawn((
             NodeBundle {
                 style: Style {
@@ -565,3 +538,4 @@ pub fn update_main_image_on_resize(
         }
     }
 }
+

@@ -20,6 +20,7 @@ impl Plugin for ItemPlugin {
                 (
                     signal_item, 
                     take_item, 
+                    rotate_item, 
                 ) 
                     .in_set(OnUpdate(SimulationState::Running)),
             )

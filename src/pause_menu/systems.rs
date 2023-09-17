@@ -33,7 +33,6 @@ pub fn interact_with_resume_button(
 
 pub fn interact_with_exit_button(
     mut app_state_next_state: ResMut<NextState<AppState>>,
-    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<ExitButton>),
@@ -43,7 +42,6 @@ pub fn interact_with_exit_button(
         match *interaction {
             Interaction::Clicked => {
                 app_state_next_state.set(AppState::MainMenu);
-                simulation_state_next_state.set(SimulationState::None);
                 println!("Entered AppState::MainMenu");
             }
             Interaction::Hovered => {

@@ -15,6 +15,7 @@ pub enum SimulationState {
 
 pub struct ScoreEvent {
     pub comment: String,
+    pub value: u64, 
 }
 
 #[derive(Resource, Debug)]

@@ -4,7 +4,7 @@ use crate::game::components::{Level, ItemCount};
 use crate::game::bundle::item::get_item_bundle;
 use crate::game::playground::is_visible;
 use super::components::*;
-use crate::game::playground::components::{WorldPosition, ReachDistance};
+use crate::game::playground::components::{WorldPosition, ReachDistance, Orientation};
 use crate::game::playground::player::components::Player;
 use crate::game::board::components::Helper;
 use super::interaction_allowed_for_item;
@@ -15,7 +15,7 @@ pub fn spawn_item (
     asset_server: Res<AssetServer>,
     level: Res<Level>
 ) {
-    let scale = 30.0/850.0; 
+    let scale = 30.0/200.0; 
 
     if let Some(items) = get_item_bundle(&level) {
         for bundle in items {
@@ -77,4 +77,13 @@ pub fn take_item (
             }
         }
     }
+}
+
+pub fn rotate_item(
+    mut orientation_q: Query<&mut Orientation, With<Item>>,
+) {
+
+    orientation_q.for_each_mut(|mut orientation| { 
+        orientation.0 =  orientation.0.mul_quat(Quat::from_rotation_z(0.01)); 
+    }); 
 }

@@ -35,7 +35,7 @@ pub fn handle_game_over(
     mut score_event: EventWriter<ScoreEvent>,
 ) {
     for _ in game_over_event.iter() {
-        score_event.send(ScoreEvent { comment: "You lost !".to_string()});
+        score_event.send(ScoreEvent { comment: "You lost !".to_string(), value: 0});
         simulation_state_next_state.set(SimulationState::Score);
         println!("Entered AppState::ScoreMenu");
     }
@@ -73,9 +73,10 @@ pub fn handle_level_complete(
             }
         };
 
-        let total_score = format!(" {}", (gems_score + time_score + target_score + guard_score)*stealth_coefficient);
+        let value = (gems_score + time_score + target_score + guard_score)*stealth_coefficient; 
+        let total_score = format!(" {}", value);
 
-        score_event.send(ScoreEvent {comment: total_score});
+        score_event.send(ScoreEvent {comment: total_score, value});
         simulation_state_next_state.set(SimulationState::Score);
         println!("Entered AppState::ScoreMenu");
     }
