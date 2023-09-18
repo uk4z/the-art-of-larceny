@@ -33,6 +33,7 @@ impl Plugin for GuardPlugin {
                     disalert_guard,
                     update_chase_stack,
                     catch_player,
+                    bounds_guard, 
                 ) 
                     .in_set(OnUpdate(SimulationState::Running)),
             )
@@ -74,7 +75,7 @@ pub fn obstacle_in_fov (
         for i in 0..1000 {
             let position = Vec3::from(*guard_pos) + (i as f32)*direction*0.001;
             let (x, y) = (position.x as usize, (SCENERY_SIZE.1-position.y) as usize);
-            if bounds.0[y][x] == 1 {
+            if x < SCENERY_SIZE.0 as usize && y < SCENERY_SIZE.1 as usize && bounds.0[y][x] == 1 {
                 return true;
             }
         }

@@ -374,3 +374,40 @@ pub fn guard_motion_handler(
         }
     });
 }
+
+
+pub fn bounds_guard(
+    mut guard_q: Query<(&Orientation, &mut WorldPosition, &GuardState), With<Guard>>,
+    bounds_q: Query<&Bounds, With<Scenery>>,
+) {
+    if let Ok(bounds) = bounds_q.get_single() {
+        guard_q.for_each_mut(|(orientation, mut position, state)| {
+            match *state {
+                GuardState::Chasing => {
+                    let right = orientation.0.mul_quat(Quat::from_rotation_z(-PI/2.0)).normalize().mul_vec3(Vec3::X);
+                    let left = orientation.0.mul_quat(Quat::from_rotation_z(PI/2.0)).normalize().mul_vec3(Vec3::X);
+        
+                    for i in 1..4 {
+                        let rr = orientation.0.mul_quat(Quat::from_rotation_z(-(i as f32)*PI/6.0)).normalize().mul_vec3(Vec3::X)*50.0;  
+                        if obstacle_in_fov(&WorldPosition { x: position.x + rr.x, y: position.y + rr.y }, &position, bounds) {
+                            let projection = rr.project_onto(right).normalize();
+                            position.x += -projection.x; 
+                            position.y +=  -projection.y; 
+                        }
+        
+                        let ll = orientation.0.mul_quat(Quat::from_rotation_z((i as f32)*PI/6.0)).normalize().mul_vec3(Vec3::X)*50.0; 
+        
+                        if obstacle_in_fov(&WorldPosition { x: position.x + ll.x, y: position.y + ll.y }, &position, bounds) {
+                            let projection = ll.project_onto(left).normalize();
+                            position.x += -projection.x; 
+                            position.y +=  -projection.y; 
+                        }
+                        
+                    }
+                },
+                _ => {}
+            }
+        
+        });
+    }
+}
