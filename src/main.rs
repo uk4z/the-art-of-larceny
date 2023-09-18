@@ -23,8 +23,7 @@ fn main() {
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {
             title: "The art of larceny: rogue's riches".to_string(),
-            mode: WindowMode::Windowed,
-            resize_constraints: WindowResizeConstraints { min_width: 2000.0, min_height: 1000.0, max_width: 2440.0, max_height: 1280.0 },
+            mode: WindowMode::Fullscreen,
             resizable: true,
             present_mode: PresentMode::AutoVsync,
             ..default()
