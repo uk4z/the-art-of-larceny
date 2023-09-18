@@ -375,10 +375,12 @@ pub fn get_loaded_score(
 ) {  
     for best in best_q.iter() {
         if let Ok(mut best_time) = best_time_q.get_single_mut() {
-            best_time.sections[0].value = format!("Time: {}", best.time.clone()); 
+            let elapsed_time = 
+                format!(" {}:{}:{}", best.time/3600, best.time/60, (best.time%3600)%60);
+            best_time.sections[0].value = format!("Time: {}", elapsed_time); 
         }
         if let Ok(mut best_score) = best_score_q.get_single_mut() {
-            best_score.sections[0].value = format!("Score: {}", best.score.clone()); 
+            best_score.sections[0].value = format!("Score: {}", best.score); 
         }
     }
 }   

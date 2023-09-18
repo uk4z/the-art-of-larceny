@@ -3,7 +3,7 @@
     0: (
       components: {
         "the_art_of_larceny::main_menu::components::Best": (
-          time: " 0:0:30",
+          time: 27,
           score: 450000,
         ),
       },

@@ -34,7 +34,7 @@ pub struct BestTime;
 #[derive(Component, Reflect, Default, Debug, Clone)]
 #[reflect(Component)] // this tells the reflect derive to also reflect component behaviors
 pub struct Best {
-    pub time: String,
+    pub time: u64,
     pub score: u64,
 }
 

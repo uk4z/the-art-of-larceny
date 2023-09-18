@@ -83,13 +83,11 @@ pub fn save_scene_system(
     best_q: Query<&Best>, 
 ) {
     let mut best_score = 0; 
-    let mut best_time = "None".to_string(); 
+    let mut best_time = 0; 
     if let Ok(best) = best_q.get_single() {
         best_score = best.score; 
-        best_time = best.time.clone(); 
+        best_time = best.time; 
     };
-
-    let elapsed_time = format!(" {}:{}:{}", time.0.elapsed().as_secs()/3600, time.0.elapsed().as_secs()/60, (time.0.elapsed().as_secs()%3600)%60);
 
     let mut new_score = 0; 
     for ev in score_event.iter() {
@@ -101,8 +99,14 @@ pub fn save_scene_system(
     let mut scene_world = World::new();
     if best_score > new_score {
         scene_world.spawn(Best { time: best_time, score: best_score});
+    } else if best_score < new_score {
+        scene_world.spawn(Best { time: time.0.elapsed().as_secs(), score: new_score});
     } else {
-        scene_world.spawn(Best { time: elapsed_time, score: new_score});
+        if time.0.elapsed().as_secs() > best_time {
+            scene_world.spawn(Best { time: best_time, score: best_score});
+        } else {
+            scene_world.spawn(Best { time: time.0.elapsed().as_secs(), score: new_score});
+        }
     }
     
 
