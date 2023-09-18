@@ -241,7 +241,7 @@ pub fn spawn_score_menu(
 
                         title_section.spawn((
                             TextBundle::from_section(
-                                elapsed_time,
+                                elapsed_time.clone(),
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
                                     font_size: 30.0,
@@ -276,7 +276,7 @@ pub fn spawn_score_menu(
 
                         title_section.spawn((
                             TextBundle::from_section(
-                                total_score,
+                                total_score.clone(),
                                 TextStyle {
                                     font: asset_server.load("FiraMono-Medium.ttf"),
                                     font_size: 30.0,

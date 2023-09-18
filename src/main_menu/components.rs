@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::prelude::*;
 
 #[derive(Component, Debug)]
 pub struct MainMenu;
@@ -23,3 +23,20 @@ pub struct MainImage;
 
 #[derive(Component, Debug)]
 pub struct LevelImage;
+
+#[derive(Component, Debug)]
+pub struct BestScore;
+
+#[derive(Component, Debug)]
+pub struct BestTime;
+
+
+#[derive(Component, Reflect, Default, Debug, Clone)]
+#[reflect(Component)] // this tells the reflect derive to also reflect component behaviors
+pub struct Best {
+    pub time: String,
+    pub score: u64,
+}
+
+#[derive(Component, Debug)]
+pub struct LoadedScore;

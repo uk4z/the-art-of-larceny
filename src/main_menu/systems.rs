@@ -8,8 +8,7 @@ use crate::game::components::{SimulationState, Level};
 use crate::game::playground::scenery::components::BoundsResource;
 use crate::main_menu::components::*;
 use bevy_ui_borders::BorderColor;
-
-use super::get_main_scale_from_window;
+use super::{get_main_scale_from_window, SCORE_FILE_PATH};
 
 pub fn interact_with_play_button(
     mut button_query: Query<
@@ -18,7 +17,7 @@ pub fn interact_with_play_button(
     >,
     mut level_q: Query<&mut Visibility, With<LevelMenu>>,
     mut main_q: Query<&mut Visibility, (Without<LevelMenu>, With<MainMenu>)>,
-    mut level: ResMut<Level>,
+    level: ResMut<Level>,
     mut commands: Commands, 
     asset_server: Res<AssetServer>, 
     window_q: Query<&Window, With<PrimaryWindow>>, 
@@ -31,7 +30,6 @@ pub fn interact_with_play_button(
                     if let Ok(mut main_visibility) = main_q.get_single_mut() {
                         *level_visibility = Visibility::Visible;
                         *main_visibility = Visibility::Hidden;
-                        *level = Level::Starting; 
 
                         if let Ok(image) = main_image_q.get_single() {
                             commands.entity(image).despawn(); 
@@ -353,6 +351,38 @@ pub fn spawn_main_menu(
     });
 }
 
+
+pub fn load_score_level(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) {
+
+    // "Spawning" a scene bundle creates a new entity and spawns new instances
+    // of the given scene's entities as children of that entity.
+    commands.spawn((
+        DynamicSceneBundle {
+        // Scenes are loaded just like any other asset.
+        scene: asset_server.load(SCORE_FILE_PATH),
+        ..default()
+        },
+    ));
+}
+
+pub fn get_loaded_score(
+    best_q: Query<&Best>, 
+    mut best_score_q: Query<&mut Text, With<BestScore>>, 
+    mut best_time_q: Query<&mut Text, (Without<BestScore>, With<BestTime>)>, 
+) {  
+    for best in best_q.iter() {
+        if let Ok(mut best_time) = best_time_q.get_single_mut() {
+            best_time.sections[0].value = format!("Time: {}", best.time.clone()); 
+        }
+        if let Ok(mut best_score) = best_score_q.get_single_mut() {
+            best_score.sections[0].value = format!("Score: {}", best.score.clone()); 
+        }
+    }
+}   
+
 pub fn despawn_level_menu(
     mut commands: Commands, 
     level_menu_query: Query<Entity, With<LevelMenu>>,
@@ -462,10 +492,10 @@ pub fn spawn_level_menu(
                             ..default()
                         }
                     ).with_children(|node| {
-                        node.spawn(
+                        node.spawn((
                             TextBundle {
                                 text: Text::from_section(
-                                    "Score:",
+                                    "",
                                     TextStyle {
                                         font: asset_server.load("FiraMono-Medium.ttf"),
                                         font_size: 25.0,
@@ -473,12 +503,13 @@ pub fn spawn_level_menu(
                                     }),
                                     ..default()
                             },
-                        );
+                            BestScore
+                        ));
 
-                        node.spawn(
+                        node.spawn((
                             TextBundle {
                                 text: Text::from_section(
-                                    "Time:",
+                                    "",
                                     TextStyle {
                                         font: asset_server.load("FiraMono-Medium.ttf"),
                                         font_size: 25.0,
@@ -486,7 +517,8 @@ pub fn spawn_level_menu(
                                     }),
                                     ..default()
                             },
-                        );
+                            BestTime
+                        ));
                     });
 
                     menu.spawn((

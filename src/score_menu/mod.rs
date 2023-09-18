@@ -1,6 +1,5 @@
 pub mod components;
 pub mod systems;
-
 use std::time::Duration;
 
 use systems::*;

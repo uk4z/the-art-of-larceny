@@ -33,7 +33,12 @@ fn main() {
 
 
     App::new()
-        .add_plugins(DefaultPlugins.set(window_plugin))
+        .add_plugins(DefaultPlugins.set(AssetPlugin {
+                watch_for_changes: true,
+                ..Default::default()
+                },
+            ).set(window_plugin)
+        )
         .add_state::<AppState>()
         .add_state::<SimulationState>()
         .add_plugin(MainMenuPlugin)
