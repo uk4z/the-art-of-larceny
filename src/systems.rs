@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy::window::{PrimaryWindow, WindowMode, WindowResized};
+use bevy::window::{PrimaryWindow, WindowResized};
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 
 use crate::AppState;
@@ -13,25 +13,6 @@ pub fn debug_window_size(
 ) {
     for window in resize_event.iter() {
         println!("width = {}, height = {}", window.width, window.height);
-    }
-}
-
-pub fn request_resize(
-    keyboard_input: Res<Input<KeyCode>>,
-    mut window_query: Query<&mut Window>,
-) {
-    if let Ok(mut window) = window_query.get_single_mut() {
-        if keyboard_input.just_pressed(KeyCode::F1) {
-            match window.mode {
-                WindowMode::Windowed => { 
-                    window.mode = WindowMode::Fullscreen;
-                },
-                WindowMode::Fullscreen => { 
-                    window.mode = WindowMode::Windowed;
-                }, 
-                _ => {},
-            };
-        }
     }
 }
 

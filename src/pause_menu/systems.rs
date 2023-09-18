@@ -1,9 +1,10 @@
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 
 use crate::components::Layer;
 use crate::game::components::SimulationState;
 use crate::pause_menu::components::*;
-use crate::AppState;
+use crate::{AppState, get_scale_reference};
 use bevy_ui_borders::BorderColor;
 
 pub fn interact_with_resume_button(
@@ -64,8 +65,12 @@ pub fn despawn_pause_menu(mut commands: Commands, pause_menu_query: Query<Entity
 
 pub fn spawn_pause_menu(
     mut commands: Commands, 
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>, 
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height());
+
     commands.spawn((
     NodeBundle {
         style: Style {
@@ -77,7 +82,8 @@ pub fn spawn_pause_menu(
             align_items: AlignItems::Center, 
             ..default()
         },
-        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into())
+                .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
         visibility: Visibility::Visible, 
         ..default()
     },

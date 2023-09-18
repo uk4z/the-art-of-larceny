@@ -10,6 +10,5 @@ pub fn get_scenery_bundle(level: &Level) -> Option<SceneryBundle> {
                 },
             )
         },
-        _ => {None}
     }
 }

@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::{Level, ItemCount};
 use crate::game::bundle::item::get_item_bundle;
@@ -13,8 +15,12 @@ use super::interaction_allowed_for_item;
 pub fn spawn_item (
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
-    level: Res<Level>
+    level: Res<Level>,
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
+
     let scale = 30.0/200.0; 
 
     if let Some(items) = get_item_bundle(&level) {
@@ -22,7 +28,8 @@ pub fn spawn_item (
             commands.spawn((
                 SpriteBundle{
                     texture: asset_server.load(bundle.path.0.clone()),
-                    transform: Transform::from_xyz(500.0, 500.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),       
+                    transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
+                            .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),       
                 ..default()
                 }, 
                 bundle, 

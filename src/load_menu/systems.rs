@@ -1,7 +1,8 @@
 use std::time::Instant;
 
 use bevy::prelude::*;
-use crate::AppState;
+use bevy::window::PrimaryWindow;
+use crate::{AppState, get_scale_reference};
 use crate::components::Layer;
 use crate::game::components::{SimulationState, ItemCount, GameTime};
 use crate::load_menu::components::*;
@@ -55,8 +56,10 @@ pub fn despawn_load_menu(
 pub fn spawn_load_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
-    println!("spawn load menu");
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
     
     commands.spawn((
     NodeBundle {
@@ -102,6 +105,7 @@ pub fn spawn_load_menu(
                         align_items: AlignItems::Center,
                         ..default()
                     },
+                    transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()).with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
                     background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
                     ..default()
                 },

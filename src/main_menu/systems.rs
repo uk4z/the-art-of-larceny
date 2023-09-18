@@ -2,10 +2,10 @@ use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
 
+use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::{SimulationState, Level};
 use crate::game::playground::scenery::components::BoundsResource;
-use crate::game::playground::scenery::get_scenery_scale_from_window;
 use crate::main_menu::components::*;
 use bevy_ui_borders::BorderColor;
 
@@ -18,7 +18,11 @@ pub fn interact_with_play_button(
     >,
     mut level_q: Query<&mut Visibility, With<LevelMenu>>,
     mut main_q: Query<&mut Visibility, (Without<LevelMenu>, With<MainMenu>)>,
-    mut level: ResMut<Level>, 
+    mut level: ResMut<Level>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+    window_q: Query<&Window, With<PrimaryWindow>>, 
+    main_image_q: Query<Entity, With<MainImage>>, 
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
@@ -28,6 +32,28 @@ pub fn interact_with_play_button(
                         *level_visibility = Visibility::Visible;
                         *main_visibility = Visibility::Hidden;
                         *level = Level::Starting; 
+
+                        if let Ok(image) = main_image_q.get_single() {
+                            commands.entity(image).despawn(); 
+                        }
+
+                        let image_path = match *level {
+                            Level::Starting => {
+                                "levels/backgrounds/factory.png"
+                            }, 
+                        };
+                        
+                        let window = window_q.get_single().unwrap(); 
+                        let (width, height) = (window.width(), window.height()); 
+    
+                        commands.spawn((
+                            SpriteBundle{
+                                texture: asset_server.load(image_path),
+                                transform: Transform::from_xyz(width/2.0, height/2.0, Layer::LevelImage.into()),
+                            ..default()
+                            },
+                            LevelImage, 
+                        ));
                     }
                 }
             }
@@ -85,17 +111,11 @@ pub fn switch_level(
                         Level::Starting => {
                             *level = Level::Starting;
                         },
-                        Level::Mock => {
-                            *level = Level::Starting;
-                        }
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
                         Level::Starting => {
-                            *level = Level::Starting;
-                        },
-                        Level::Mock => {
                             *level = Level::Starting;
                         }
                     }
@@ -106,38 +126,65 @@ pub fn switch_level(
     }
 }
 
-pub fn update_main_image(
+pub fn update_level_image(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    main_q: Query<Entity, With<MainImage>>,
+    image_q: Query<Entity, With<LevelImage>>,
     window_q: Query<&Window, With<PrimaryWindow>>,
     level: Res<Level>,
 ) {
-    if let Ok(main) = main_q.get_single() {
+    if let Ok(image) = image_q.get_single() {
         if let Ok(window) = window_q.get_single() {
-            commands.entity(main).despawn();
+            commands.entity(image).despawn(); 
 
             let (width, height) = (window.width(), window.height());
-            let scale = get_scenery_scale_from_window(&window.width(), &window.height());
+            let scale = get_main_scale_from_window(&width, &height); 
 
             let image_path = match *level {
                 Level::Starting => {
                     "levels/backgrounds/factory.png"
                 }, 
-                Level::Mock => {
-                    "test.png"
-                }
             };
 
             commands.spawn((
                 SpriteBundle{
                     texture: asset_server.load(image_path),
-                    transform: Transform::from_xyz(width/2.0, height/2.0, Layer::Scenery.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                    transform: Transform::from_xyz(width/2.0, height/2.0, Layer::LevelImage.into())
+                    .with_scale(Vec3::new(scale, scale, 1.0)),
                 ..default()
                 },
-                MainImage, 
+                LevelImage, 
             ));
         }
+    }
+}
+
+pub fn spawn_main_image(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    window_q: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = window_q.get_single().unwrap(); 
+    let scale = 0.7; 
+    let scale_reference = get_scale_reference(&window.width(), &window.height());
+
+    commands.spawn((
+        SpriteBundle{
+            texture: asset_server.load("test.png"),
+            transform: Transform::from_xyz(window.width()/2.0, window.height()/2.0, Layer::Scenery.into())
+                .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),
+        ..default()
+        },
+        MainImage, 
+    ));
+}
+
+pub fn despawn_level_image(
+    mut commands: Commands, 
+    entity_q: Query<Entity, With<LevelImage>>, 
+) {
+    for entity in entity_q.iter() {
+        commands.entity(entity).despawn(); 
     }
 }
 
@@ -149,9 +196,6 @@ pub fn display_level_title (
         match *level {
             Level::Starting => {
                 text.sections[0].value = "< Starting >".to_string();
-            },
-            Level::Mock => {
-                text.sections[0].value = "< Mock >".to_string();
             },
         }
     }
@@ -201,38 +245,13 @@ pub fn despawn_main_image(
     }
 }
 
-pub fn clear_main_image(
-    mut level: ResMut<Level>, 
-) {
-    *level = Level::Mock; 
-}
-
-pub fn spawn_main_image(
-    mut commands: Commands, 
-    asset_server: Res<AssetServer>,
-    mut level: ResMut<Level>,
-    window_q: Query<&Window, With<PrimaryWindow>>,
-) {
-    *level = Level::Mock; 
-    let window = window_q.get_single().unwrap();
-    let (x, y) = (window.width()/2.0, window.height()/2.0);
-    let scale = get_main_scale_from_window(&window.width(), &window.height());
-    commands.spawn((
-        SpriteBundle{
-            texture: asset_server.load("test.png"),
-            transform: Transform::from_xyz(x, y, Layer::UI.into()).with_scale(Vec3::new(scale, scale, 1.0)),
-            visibility: Visibility::Visible,
-        ..default()
-        },
-        MainImage, 
-    ));
-}
-
 pub fn spawn_main_menu(
     mut commands: Commands, 
-    asset_server: Res<AssetServer>,
+    asset_server: Res<AssetServer>, 
+    window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
-    
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height());
 
     commands.spawn((
     NodeBundle {
@@ -244,7 +263,8 @@ pub fn spawn_main_menu(
             justify_content: JustifyContent::End,
             ..default()
         },
-        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into())
+                .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
         visibility: Visibility::Visible, 
         ..default()
      },
@@ -519,9 +539,9 @@ pub fn spawn_level_menu(
 
 }
 
-pub fn update_main_image_on_resize(
+pub fn update_level_image_on_resize(
     mut resize_event: EventReader<WindowResized>, 
-    mut image_q: Query<&mut Transform, With<MainImage>>,
+    mut image_q: Query<&mut Transform, With<LevelImage>>,
 ) {
     for resized_window in resize_event.iter() {
         if let Ok(mut transform) = image_q.get_single_mut() {
@@ -532,10 +552,47 @@ pub fn update_main_image_on_resize(
 
             let window_position = Vec3::new(new_x, new_y, Layer::UI.into());
 
-            transform.translation = window_position;
+            transform.translation = window_position; 
             transform.scale = Vec3::new(new_scale, new_scale, 1.0);
 
         }
     }
 }
 
+
+
+pub fn update_main_image_on_resize(
+    mut resize_event: EventReader<WindowResized>, 
+    mut image_q: Query<&mut Transform, With<MainImage>>,
+) {
+    for resized_window in resize_event.iter() {
+        if let Ok(mut transform) = image_q.get_single_mut() {
+            let new_width = resized_window.width;
+            let new_height = resized_window.height;
+            let (new_x, new_y) = (new_width/2.0, new_height/2.0);
+
+            let window_position = Vec3::new(new_x, new_y, Layer::UI.into());
+
+            let scale_reference = get_scale_reference(&resized_window.width, &resized_window.height);
+            let scale = 0.7; 
+            
+
+            transform.translation = window_position; 
+            transform.scale = Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)
+
+        }
+    }
+}
+
+pub fn update_main_menu_on_resize(
+    mut menu_q: Query<&mut Transform, With<MainMenu>>,  
+    mut resize_event: EventReader<WindowResized>, 
+) {
+    for resized_window in resize_event.iter() {
+        let scale_reference = get_scale_reference(&resized_window.width, &resized_window.height);
+
+        if let Ok(mut transform) = menu_q.get_single_mut() {
+            transform.scale = Vec3::new(scale_reference, scale_reference, 1.0);
+        }
+    }
+}

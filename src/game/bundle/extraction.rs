@@ -10,6 +10,5 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
-        _ => {None}
     }
 }

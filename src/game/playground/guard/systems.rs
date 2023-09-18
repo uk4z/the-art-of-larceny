@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
+use bevy::window::PrimaryWindow;
 
 use std::f32::consts::PI;
 use super::{components::*, obstacle_in_fov};
 use super::{patrol_direction, chase_direction, search_direction};
+use crate::get_scale_reference;
 use crate::game::components::Level;
 use crate::game::bundle::guard::{get_fov_bundle, get_guard_bundle};
 use crate::game::playground::player::components::{Player, Stealth};
@@ -24,7 +26,10 @@ pub fn spawn_guard(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
 
     //spawn FOV
     if let Some(fovs) = get_fov_bundle(&level) {
@@ -32,7 +37,8 @@ pub fn spawn_guard(
             commands.spawn((
                 MaterialMesh2dBundle {
                     mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(VISION_LENGTH, 3))).into(),
-                    transform: Transform::from_xyz(500.0, 50.0, 4.0),
+                    transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
+                        .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
                     material: materials.add(ColorMaterial::from(Color::YELLOW)), 
                     visibility: Visibility::Hidden,
                     ..default()
@@ -44,13 +50,15 @@ pub fn spawn_guard(
     }
    
 
+    let scale = 1.2; 
     //spawn_guard
     if let Some(guards) = get_guard_bundle(&level) {
         for bundle in guards {
             commands.spawn((
                 SpriteBundle{
                     texture: asset_server.load("guard/static.png"),
-                    transform: Transform::from_xyz(500.0, 50.0, Layer::Interactable.into()).with_scale(Vec3::new(1.2, 1.2, 1.0)),       
+                    transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
+                        .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),       
                 ..default()
                 }, 
                 bundle,

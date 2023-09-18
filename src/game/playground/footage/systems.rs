@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
+use bevy::window::PrimaryWindow;
+use crate::get_scale_reference;
 use crate::game::components::Level;
 use crate::game::bundle::footage::get_footage_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
@@ -13,13 +15,17 @@ pub fn spawn_footage (
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    level: Res<Level>
+    level: Res<Level>,
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
     if let Some(bundle) = get_footage_bundle(&level) {
         commands.spawn((
             MaterialMesh2dBundle {
                 mesh: meshes.add(Mesh::from(shape::Circle::new(40.0))).into(),
-                transform: Transform::from_xyz(2300.0, 817.0, 4.0),
+                transform: Transform::from_xyz(0.0, 0.0, 4.0).with_scale(Vec3::new(scale_reference,  scale_reference, 1.0)),
                 material: materials.add(ColorMaterial::from(Color::FUCHSIA)),
                 visibility: Visibility::Hidden,
                 ..default()

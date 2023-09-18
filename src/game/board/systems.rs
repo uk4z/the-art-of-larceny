@@ -3,6 +3,7 @@ use bevy::window::{Window, PrimaryWindow};
 use rand::prelude::*;
 
 use super::components::*;
+use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::playground::player::components::{Stealth, Player};
 use crate::game::playground::target::components::{UnlockTimer, Target};
@@ -15,12 +16,14 @@ pub fn spawn_stealth_icon(
     window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_q.get_single().unwrap();
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
     let scale = 0.6; 
 
     commands.spawn(
         (SpriteBundle{
             texture: asset_server.load("stealth_icon/ninja.png"),
-            transform: Transform::from_xyz(9.0*window.width()/10.0, 9.0*window.height()/10.0, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+            transform: Transform::from_xyz(9.0*window.width()/10.0, 9.0*window.height()/10.0, Layer::Interactable.into())
+                .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),
         ..default()
         },
         StealthIcon,
@@ -69,6 +72,7 @@ pub fn update_icon(
             let width = window.width();
             let height = window.height();
             let scale = 0.6; 
+            let scale_reference = get_scale_reference(&window.width(), &window.height()); 
 
             let x = 9.0*width/10.0;
             let y = 9.0*height/10.0;
@@ -76,7 +80,8 @@ pub fn update_icon(
             commands.spawn(
                 (SpriteBundle{
                     texture: asset_server.load(path),
-                    transform: Transform::from_xyz(x, y, Layer::Interactable.into()).with_scale(Vec3::new(scale, scale, 1.0)),
+                    transform: Transform::from_xyz(x, y, Layer::Interactable.into())
+                    .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),
                 ..default()
                 },
                 StealthIcon,
@@ -90,7 +95,11 @@ pub fn update_icon(
 pub fn spawn_helper_menu(
     mut commands: Commands, 
     asset_server: Res<AssetServer>, 
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
+    
     commands.spawn((
         NodeBundle {
             style: Style {
@@ -102,7 +111,8 @@ pub fn spawn_helper_menu(
                 align_items: AlignItems::Center,
                 ..default()
             },
-            transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+            transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into())
+                    .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
             ..default()
         },
         HelperMenu,

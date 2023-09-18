@@ -19,6 +19,5 @@ pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
                 },
             )
         },
-        _ => {None}
     }
 }

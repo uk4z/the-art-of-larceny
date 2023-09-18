@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub enum Layer {
     UI, 
     Scenery, 
+    LevelImage, 
     Interactable, 
     Camera,
 }
@@ -14,6 +15,11 @@ impl Into<f32> for Layer {
             Layer::Scenery => {
                 0.0
             },
+
+            Layer::LevelImage => {
+                1.0
+            },
+
             Layer::Interactable => {
                 10.0
             }

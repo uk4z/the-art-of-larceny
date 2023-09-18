@@ -21,7 +21,6 @@ pub struct ScoreEvent {
 #[derive(Resource, Debug)]
 pub enum Level {
     Starting,
-    Mock,
 }
 
 

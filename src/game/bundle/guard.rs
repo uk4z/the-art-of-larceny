@@ -104,7 +104,7 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                     /* ---------------------------------------------------------------------- */
                 
                     GuardBundle { 
-                        position: WorldPosition {x: 1422.0 , y: 2148.0},
+                        position: WorldPosition {x: 1430.0 , y: 2050.0},
                         orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)),
                         pace: GuardPace::Walk,
                         animation: AnimatedMotion {
@@ -114,15 +114,16 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                         reach: ReachDistance(20.0),
                         patrol: Patrol {
                             positions: vec![
-                                WorldPosition {x: 1422.0 , y: 2148.0},
+                                WorldPosition {x: 1430.0 , y: 2050.0},
+                                WorldPosition {x: 1430.0 , y: 2148.0},
                                 WorldPosition {x: 1882.0 , y: 2148.0},
                                 WorldPosition {x: 1931.0 , y: 2043.0},
                                 WorldPosition {x: 1882.0 , y: 2148.0},
-                                WorldPosition {x: 1442.0 , y: 2168.0},
+                                WorldPosition {x: 1430.0 , y: 2148.0},
                             ],
                             waitings: vec![
                                 Waiting {
-                                    position: WorldPosition {x: 1422.0 , y: 2148.0},
+                                    position: WorldPosition {x: 1430.0 , y: 2050.0},
                                     time: Timer::from_seconds(5.0, TimerMode::Repeating),
                                 },
                                 Waiting {
@@ -140,8 +141,8 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                     /* ---------------------------------------------------------------------- */
             
                     GuardBundle { 
-                        position: WorldPosition {x: 2397.0 , y: 1269.0},
-                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        position: WorldPosition {x: 2487.0 , y: 1299.0},
+                        orientation: Orientation(Quat::from_rotation_z(0.0)),
                         pace: GuardPace::Walk,
                         animation: AnimatedMotion {
                             walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
@@ -150,17 +151,16 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                         reach: ReachDistance(20.0),
                         patrol: Patrol {
                             positions: vec![
-                                WorldPosition {x: 2397.0 , y: 1269.0},
-                                WorldPosition {x: 2590.0 , y: 1120.0},
-                                WorldPosition {x: 2730.0 , y: 1120.0},
+                                WorldPosition {x: 2487.0 , y: 1299.0},
+                                WorldPosition {x: 2201.0 , y: 1259.0},
                             ],
                             waitings: vec![
                                 Waiting {
-                                    position: WorldPosition {x: 2397.0 , y: 1269.0},
+                                    position: WorldPosition {x: 2487.0 , y: 1299.0},
                                     time: Timer::from_seconds(5.0, TimerMode::Repeating),
                                 },
                                 Waiting {
-                                    position: WorldPosition{x: 2730.0 , y: 1120.0},
+                                    position: WorldPosition{x: 2201.0 , y: 1259.0},
                                     time: Timer::from_seconds(1.0, TimerMode::Repeating),
                                 },
                             ],
@@ -267,7 +267,6 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                 ]
             )
         },
-        _ => {None}
     }
 }
 
@@ -287,6 +286,5 @@ pub fn get_fov_bundle(level: &Level) -> Option<Vec<FOVBundle>> {
                 ]
             )
         },
-        _ => {None}
     }
 }

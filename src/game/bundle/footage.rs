@@ -7,14 +7,13 @@ pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
             Some(
                 FootageBundle {
                     position: WorldPosition {
-                        x: 2395.0,
-                        y: 1110.0,
+                        x: 2534.0,
+                        y: 1171.0,
                     },
                     reach: ReachDistance(60.0),
                     available: Available(true),
                 }
             )
         },
-        _ => {None}
     }
 }

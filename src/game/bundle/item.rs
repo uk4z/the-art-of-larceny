@@ -37,6 +37,5 @@ pub fn get_item_bundle(level: &Level) -> Option<Vec<ItemBundle>> {
                 ]
             )
         },
-        _ => {None}
     }
 }

@@ -50,14 +50,11 @@ impl Plugin for PlaygroundPlugin {
             .add_plugin(LaserPlugin)
             .add_plugin(FootagePlugin)
             .add_event::<GameOver>()
-            //.add_system(set_scale.in_schedule(OnEnter(SimulationState::Running)))
             .add_systems(
                 (
 
                     confine_position, 
                     world_to_screen,
-                    update_player_transform_on_resize,
-                    //update_scale_on_resize,
                 ).in_set(OnUpdate(SimulationState::Running))
             );
 

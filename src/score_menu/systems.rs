@@ -1,3 +1,4 @@
+use bevy::window::PrimaryWindow;
 use rand::prelude::*;
 
 use bevy::prelude::*;
@@ -6,7 +7,7 @@ use crate::game::components::{ItemCount, GameTime, ScoreEvent};
 use crate::game::playground::guard::components::Guard;
 use crate::game::playground::player::components::{Stealth, Player};
 use crate::score_menu::components::*;
-use crate::AppState;
+use crate::{AppState, get_scale_reference};
 use bevy_ui_borders::BorderColor;
 
 
@@ -45,6 +46,7 @@ pub fn spawn_score_menu(
     asset_server: Res<AssetServer>,
     time: Res<GameTime>, 
     mut score_event: EventReader<ScoreEvent>,
+    window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let elapsed_time = format!(" {}:{}:{}", time.0.elapsed().as_secs()/3600, time.0.elapsed().as_secs()/60, (time.0.elapsed().as_secs()%3600)%60);
 
@@ -54,6 +56,9 @@ pub fn spawn_score_menu(
         total_score = ev.comment.clone(); 
         value = ev.value; 
     }
+
+    let window = window_q.get_single().unwrap(); 
+    let reference_scale = get_scale_reference(&window.width(), &window.height());
 
     commands.spawn((
     NodeBundle {
@@ -66,7 +71,8 @@ pub fn spawn_score_menu(
             align_items: AlignItems::Center,
             ..default()
         },
-        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+        transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into())
+                .with_scale(Vec3::new(reference_scale, reference_scale, 1.0)),
         visibility: Visibility::Visible, 
         //background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
         ..default()

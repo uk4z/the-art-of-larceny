@@ -1,7 +1,10 @@
 use bevy::prelude::*; 
 use bevy::sprite::MaterialMesh2dBundle;
+use bevy::window::PrimaryWindow;
 
 use super::{components::*, laser_extremum, get_extremum_values};
+use crate::get_scale_reference;
+use crate::components::Layer;
 use crate::game::components::Level;
 use crate::game::bundle::laser::get_laser_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
@@ -13,14 +16,19 @@ pub fn spawn_laser(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    level: Res<Level>
+    level: Res<Level>,
+    window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
+
     if let Some(lasers) = get_laser_bundle(&level) {
         for bundle in lasers {
             commands.spawn((
                 MaterialMesh2dBundle {
                     mesh: meshes.add(Mesh::from(shape::Box::new(bundle.length.0, 4.0, 0.0))).into(),
-                    transform: Transform::from_xyz(800.0, 400.0, 4.0),
+                    transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
+                            .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
                     material: materials.add(ColorMaterial::from(Color::rgba(0.0, 1.0, 0.0, 0.6))), 
                     ..default()
                 },

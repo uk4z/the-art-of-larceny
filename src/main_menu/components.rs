@@ -20,3 +20,6 @@ pub struct LevelLabel;
 
 #[derive(Component, Debug)]
 pub struct MainImage;
+
+#[derive(Component, Debug)]
+pub struct LevelImage;

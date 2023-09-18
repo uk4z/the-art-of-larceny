@@ -8,18 +8,17 @@ use bevy::prelude::*;
 
 use crate::{AppState, game::components::Level};
 
-pub const MAIN_SIZE: (f32, f32) = (1920.0, 1440.0);
+pub const MAIN_SIZE: (f32, f32) = (3260.0, 2240.0);
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(BordersPlugin)
-            .insert_resource(Level::Mock)
+            .insert_resource(Level::Starting)
             // OnEnter State Systems
             .add_systems(
                 (
-                    clear_main_image, 
                     spawn_main_menu,
                     spawn_level_menu,
                     spawn_main_image,
@@ -30,10 +29,12 @@ impl Plugin for MainMenuPlugin {
                     interact_with_play_button, 
                     interact_with_quit_button, 
                     interact_with_select_button, 
-                    update_main_image_on_resize, 
+                    //update_level_image_on_resize, 
                     switch_level, 
                     display_level_title,
-                    update_main_image,
+                    update_level_image,
+                    update_main_image_on_resize,
+                    update_main_menu_on_resize,
                 )
                     .in_set(OnUpdate(AppState::MainMenu)),
             )
@@ -41,6 +42,7 @@ impl Plugin for MainMenuPlugin {
             .add_systems(
                 (   
                     despawn_main_image,
+                    despawn_level_image, 
                     despawn_main_menu,
                     despawn_level_menu,
                 ).in_schedule(OnExit(AppState::MainMenu)));

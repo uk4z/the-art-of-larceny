@@ -54,6 +54,5 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
                 ]
             )
         },
-        _ => {None}
     }
 }

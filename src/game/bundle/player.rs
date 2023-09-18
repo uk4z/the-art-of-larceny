@@ -25,6 +25,5 @@ pub fn get_player_bundle(level: &Level) -> Option<PlayerBundle> {
                 },
             )
         },
-        _ => {None}
     }
 }

@@ -3,7 +3,7 @@ use bevy::window::{Window, PrimaryWindow};
 
 
 use super::components::*;
-use super::get_scenery_position_from_window;
+use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::Level;
 use crate::game::bundle::scenery::get_scenery_bundle;
@@ -16,14 +16,15 @@ pub fn spawn_scenery(
     window_q: Query<&Window, With<PrimaryWindow>>,
     level: Res<Level>,
 ) {
-    let window = window_q.get_single().unwrap();
-    let (x, y) = get_scenery_position_from_window(&window.width(), &window.height());
+    let window = window_q.get_single().unwrap(); 
+    let scale_reference = get_scale_reference(&window.width(), &window.height()); 
 
     if let Some(bundle) = get_scenery_bundle(&level) {
         commands.spawn(
             (SpriteBundle{
                 texture: asset_server.load(bundle.path.0.clone()),
-                transform: Transform::from_xyz(x, y, Layer::Interactable.into()),
+                transform: Transform::from_xyz(0.0, 0.0, Layer::Scenery.into())
+                    .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
             ..default()
             },
             Scenery,
