@@ -20,7 +20,7 @@ pub fn spawn_music(
             source: asset_server.load("sounds/tension.ogg"),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Loop, 
-                volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                volume: Volume::Relative(VolumeLevel::new(0.06)), 
                 speed: 1.0, paused: false}
         },
         BackgroundMusic,
