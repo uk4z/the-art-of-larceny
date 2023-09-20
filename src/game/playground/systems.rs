@@ -98,3 +98,11 @@ pub fn despawn_ambiance(
         commands.entity(entity).despawn(); 
     } 
 }
+
+pub fn stop_ambiance(
+    ambiance_q: Query<&AudioSink, With<Ambiance>>, 
+) {
+    for sink in ambiance_q.iter() {
+        sink.stop();
+    }
+}
