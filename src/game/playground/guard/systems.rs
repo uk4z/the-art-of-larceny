@@ -21,6 +21,7 @@ use crate::game::playground::scenery::SCENERY_SIZE;
 
 const FOV_RANGE: f32 = 250.0; 
 const VISION_LENGTH: f32 = 400.0;
+const HEAR_LIMIT: f32 = 400.0; 
 
 pub fn spawn_guard(
     mut commands: Commands,
@@ -65,6 +66,13 @@ pub fn spawn_guard(
                 }, 
                 bundle,
                 Guard,
+                AudioBundle {
+                    source: asset_server.load("sounds/footstep.ogg"),
+                    settings: PlaybackSettings {
+                        mode: PlaybackMode::Loop, 
+                        volume: Volume::Relative(VolumeLevel::new(0.3)), 
+                        speed: 1.0, paused: true}
+                },
             ));
         }
     }
@@ -411,6 +419,57 @@ pub fn guard_motion_handler(
     });
 }
 
+pub fn guard_sound_handler(
+    mut guard_q: Query<(&GuardState, &GuardPace, &mut Patrol, &WorldPosition, &AudioSink), With<Guard>>,
+) {
+    guard_q.for_each_mut(|( 
+        state, 
+        pace, 
+        mut patrol,
+        position,
+        sink,
+    )| { 
+        match *state {
+            GuardState::Waiting(_) => {
+                sink.pause()
+            } 
+            _ => {sink.play()}
+        }
+
+        if !(patrol.is_waiting_position() && patrol.patrol_position_reached(*position)) {
+            match pace {
+                GuardPace::Run => {
+                    sink.set_speed(2.8); 
+                    sink.set_volume(0.5); 
+                },
+                GuardPace::Walk => {
+                    sink.set_speed(1.2); 
+                    sink.set_volume(0.3); 
+                },
+            };
+            sink.play();
+        } else {
+            sink.pause()
+        }
+    });
+}
+
+
+pub fn handle_sound_distance(
+    guard_q: Query<(&AudioSink, &WorldPosition), With<Guard>>,
+    player_q: Query<&WorldPosition, (With<Player>, Without<Guard>)>,
+) {
+    if let Ok(player_pos) = player_q.get_single() {
+        guard_q.for_each(|(sink, guard_pos)| {
+            let distance = Vec3::from(*guard_pos).distance(Vec3::from(*player_pos)); 
+            
+            if distance > HEAR_LIMIT {
+                sink.pause(); 
+            }
+        }); 
+    }
+}
+
 
 pub fn bounds_guard(
     mut guard_q: Query<(&Orientation, &mut WorldPosition, &GuardState), With<Guard>>,
@@ -446,4 +505,12 @@ pub fn bounds_guard(
         
         });
     }
+}
+
+pub fn stop_footsteps(
+    guard_q: Query<&AudioSink, With<Guard>>,
+) {
+    guard_q.for_each(|sink| {
+        sink.stop();
+    }); 
 }

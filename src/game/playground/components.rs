@@ -38,3 +38,6 @@ pub struct GameOver;
 
 #[derive(Event, Debug)]
 pub struct LevelStarted;
+
+#[derive(Component, Debug)]
+pub struct Ambiance; 

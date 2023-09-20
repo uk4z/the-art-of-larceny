@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
+
+
 use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::Level;
@@ -73,11 +76,24 @@ pub fn end_level(
     stealth_q: Query<&Stealth, With<Player>>,
     mut level_event: EventWriter<LevelCompleted>,
     target_q: Query<&UnlockTimer, With<Target>>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
 ) {
     if interaction_allowed_for_extraction(player_q, extraction_q) {
         if let Ok(timer) = target_q.get_single() {
             if is_target_unlock(timer) {
                 if keyboard_input.just_pressed(KeyCode::E) {
+                    commands.spawn((
+                        AudioBundle {
+                            source: asset_server.load("sounds/win.ogg"),
+                            settings: PlaybackSettings { 
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                                speed: 1.0, 
+                                paused: false,}
+                        }, 
+                    ));
+
                     if let Ok(stealth) = stealth_q.get_single() {
                         level_event.send(LevelCompleted {stealth: stealth.clone()})
                     }   

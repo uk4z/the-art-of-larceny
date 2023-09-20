@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::{SimulationState, playground::player::components::Stealth};
 
-use super::{playground::{components::GameOver, extraction::components::LevelCompleted, guard::components::Guard}, ScoreEvent, components::{ItemCount, GameTime}};
+use super::{playground::{components::{GameOver, Ambiance}, extraction::components::LevelCompleted, guard::components::Guard}, ScoreEvent, components::{ItemCount, GameTime}};
 
 pub fn pause_simulation(mut simulation_state_next_state: ResMut<NextState<SimulationState>>) {
     simulation_state_next_state.set(SimulationState::Paused);
@@ -16,8 +16,13 @@ pub fn toggle_simulation(
     keyboard_input: Res<Input<KeyCode>>,
     simulation_state: Res<State<SimulationState>>,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
+    ambiance_sink: Query<&AudioSink, With<Ambiance>>, 
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {
+        if let Ok(sink) = ambiance_sink.get_single() {
+            sink.toggle(); 
+        }
+        
         if *simulation_state.get() == SimulationState::Running {
             simulation_state_next_state.set(SimulationState::Paused);
         }

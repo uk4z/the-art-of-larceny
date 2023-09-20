@@ -27,6 +27,8 @@ impl Plugin for GuardPlugin {
                     move_guard, 
                     update_patrols_positions,
                     guard_motion_handler,
+                    guard_sound_handler,
+                    handle_sound_distance.after(guard_sound_handler),  
                     update_waiting_timer,
                     update_fov,
                     alert_guard,
@@ -36,6 +38,7 @@ impl Plugin for GuardPlugin {
                     bounds_guard, 
             ).run_if(in_state(SimulationState::Running))
             )
+            .add_systems(OnEnter(SimulationState::Score), stop_footsteps)
             .add_systems(OnExit(AppState::Game), despawn_guard);
     }
 }

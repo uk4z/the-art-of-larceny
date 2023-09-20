@@ -27,9 +27,11 @@ use laser::LaserPlugin;
 
 use components::GameOver;
 
-use crate::get_scale_reference;
+use crate::{get_scale_reference, AppState};
 
 use self::{footage::FootagePlugin, components::WorldPosition};
+
+use super::components::SimulationState;
 
 
 
@@ -57,7 +59,9 @@ impl Plugin for PlaygroundPlugin {
             .add_systems(PostUpdate, (
                     confine_position, 
                     world_to_screen,
-            ));
+            ))
+            .add_systems(OnEnter(SimulationState::Running), start_ambiance)
+            .add_systems(OnExit(AppState::Game), despawn_ambiance);
 
     }
 }

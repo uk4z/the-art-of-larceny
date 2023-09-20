@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
-use super::components::WorldPosition;
+use super::components::{WorldPosition, Ambiance};
 use super::player::components::{PlayerPace, Player};
 use super::scenery::{
     components::Scenery,
@@ -69,4 +70,31 @@ pub fn world_to_screen(
         }
         
     }
+}
+
+
+pub fn start_ambiance(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("sounds/ambiance/factory_music.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Loop, 
+                volume: Volume::Relative(VolumeLevel::new(0.05)), 
+                speed: 1.0, paused: false}
+        },
+        Ambiance,
+    ));    
+}
+
+
+pub fn despawn_ambiance(
+    mut commands: Commands, 
+    music_q: Query<Entity, With<Ambiance>>, 
+) {
+    if let Ok(entity) = music_q.get_single() {
+        commands.entity(entity).despawn(); 
+    } 
 }
