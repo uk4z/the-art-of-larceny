@@ -1,3 +1,4 @@
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
@@ -17,7 +18,8 @@ pub fn spawn_target (
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,     
-    window_q: Query<&Window, With<PrimaryWindow>>, 
+    window_q: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,  
 ) {
     let window = window_q.get_single().unwrap(); 
     let scale_reference = get_scale_reference(&window.width(), &window.height()); 
@@ -34,6 +36,13 @@ pub fn spawn_target (
             },
             bundle,
             Target,
+            AudioBundle {
+                source: asset_server.load("sounds/hacking.ogg"),
+                settings: PlaybackSettings { 
+                    mode: PlaybackMode::Loop, 
+                    volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                    speed: 1.0, paused: true }
+            },
         ));
     }
     
@@ -75,15 +84,35 @@ pub fn load_target_unlock (
 ) {
     if interaction_allowed_for_target(player_q, target_q) {
         if let Ok(mut timer) = timer_q.get_single_mut() {
-            if keyboard_input.just_pressed(KeyCode::E) && !timer.0.finished() {
+            if keyboard_input.just_pressed(KeyCode::E) && !timer.0.finished() { 
                 timer.0.reset();
             } else if keyboard_input.pressed(KeyCode::E) {
                 timer.0.tick(time.delta());
-            } else if keyboard_input.just_released(KeyCode::E) {
-                if !timer.0.finished() {
-                    timer.0.reset(); 
-                } 
-            }
+            } 
         }
     }
+}
+
+pub fn animate_sound(
+    audio_q: Query<&AudioSink, With<Target>>,
+    timer_q: Query<&UnlockTimer, With<Target>>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
+    if let Ok(timer) = timer_q.get_single() {
+        if let Ok(sink) = audio_q.get_single() {
+            if timer.0.finished() {
+                sink.stop(); 
+            }
+            if timer.0.percent() > 0.0  {
+                if keyboard_input.pressed(KeyCode::E) {
+                    sink.play();
+                }
+                if keyboard_input.just_released(KeyCode::E) {
+                    sink.pause(); 
+                }
+            }
+            
+        }
+    }
+
 }

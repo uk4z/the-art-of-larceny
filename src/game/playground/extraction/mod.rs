@@ -4,6 +4,7 @@ pub mod components;
 use bevy::prelude::*;
 use crate::AppState;
 use crate::game::SimulationState;
+use crate::game::board::systems::clean_helper;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 use crate::game::playground::extraction::components::Extraction;
@@ -16,16 +17,14 @@ impl Plugin for ExtractionPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<LevelCompleted>()
-            .add_system(spawn_extraction.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
-                    signal_extraction, 
-                    end_level, 
-                    reveal_extraction,
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+            .add_systems(OnEnter(SimulationState::Loading), spawn_extraction)
+            .add_systems(Update, (
+                signal_extraction.after(clean_helper), 
+                end_level, 
+                reveal_extraction,
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_system(despawn_extraction.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(AppState::Game), despawn_extraction);
     }
 }
 

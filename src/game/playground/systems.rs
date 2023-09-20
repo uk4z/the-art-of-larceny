@@ -13,6 +13,8 @@ use super::CHARACTER_SIZE;
 use crate::get_scale_reference;
 use crate::components::Layer;
 use super::components::Orientation;
+
+
 pub fn confine_position(
     mut positions_q: Query<(&mut WorldPosition, &PlayerPace)>,
 ) {
@@ -42,7 +44,7 @@ pub fn world_to_screen(
     mut interactable_q: Query<(&mut Transform, &WorldPosition, Option<&Orientation>), (Without<Scenery>, Without<Player>)>,
     mut player_q: Query<(&mut Transform, &WorldPosition, &Orientation), With<Player>>,
     mut scenery_q: Query<&mut Transform, (With<Scenery>, Without<Player>)>,
-    window_q: Query<&Window, With<PrimaryWindow>>, 
+    window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_q.get_single().unwrap(); 
     let scale_reference = get_scale_reference(&window.width(), &window.height()); 

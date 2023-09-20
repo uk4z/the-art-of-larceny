@@ -25,13 +25,20 @@ impl Plugin for GamePlugin {
             .add_event::<ScoreEvent>()
             .insert_resource(ItemCount(0))
             .insert_resource(GameTime(Instant::now()))
-            .add_plugin(PlaygroundPlugin)
-            .add_plugin(BoardPlugin)
+            .add_plugins(
+                (
+                    PlaygroundPlugin,
+                    BoardPlugin,
+            ))
             // Systems
-            .add_system(toggle_simulation.run_if(in_state(AppState::Game)))
-            .add_system(handle_game_over.run_if(in_state(AppState::Game)))
-            .add_system(handle_level_complete.run_if(in_state(AppState::Game)))
+            .add_systems(Update,(
+                    toggle_simulation, 
+                    handle_game_over, 
+                    handle_level_complete
+            ).run_if(in_state(AppState::Game))
+            )
             // Exit State Systems
-            .add_system(resume_simulation.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(AppState::Game), resume_simulation);
     }
 }
+

@@ -6,24 +6,27 @@ use systems::*;
 
 use crate::AppState;
 use crate::game::SimulationState;
+use crate::game::board::systems::clean_helper;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
-use components::Security; 
+use components::Security;
+
+use self::components::Intrusion; 
 pub struct SecurityPlugin;
 
 impl Plugin for SecurityPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_security.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
-                    signal_security, 
+            .add_event::<Intrusion>()
+            .add_systems(OnEnter(SimulationState::Loading), spawn_security)
+            .add_systems(Update, (
+                    signal_security.after(clean_helper), 
                     update_visibility,
-                    desactivate_security,  
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+                    toggle_security,  
+                    //intrusion_sound_effect, 
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_system(despawn_security.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(AppState::Game), despawn_security);
     }
 }
 

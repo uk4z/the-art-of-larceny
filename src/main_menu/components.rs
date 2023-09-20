@@ -40,3 +40,6 @@ pub struct Best {
 
 #[derive(Component, Debug)]
 pub struct LoadedScore;
+
+#[derive(Component, Debug)]
+pub struct BackgroundMusic;

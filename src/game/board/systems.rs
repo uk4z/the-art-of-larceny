@@ -27,9 +27,7 @@ pub fn spawn_stealth_icon(
         ..default()
         },
         StealthIcon,
-        WorldPosition {x: 135.0, y: 125.0},
     ));
-
 }
 
 pub fn despawn_stealth_icon(
@@ -85,7 +83,6 @@ pub fn update_icon(
                 ..default()
                 },
                 StealthIcon,
-                WorldPosition {x: 135.0, y: 125.0},
             ));
             
         }
@@ -106,7 +103,8 @@ pub fn spawn_helper_menu(
                 display: Display::Flex,
                 flex_direction: FlexDirection::Column, 
                 position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::End, 
                 align_items: AlignItems::Center,
                 ..default()
@@ -122,7 +120,8 @@ pub fn spawn_helper_menu(
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(10.0),
                 ..default()
             },
             visibility: Visibility::Visible,

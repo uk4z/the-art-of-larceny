@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
+
+
 use crate::get_scale_reference;
 use crate::game::components::Level;
 use crate::game::bundle::footage::get_footage_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
+
 
 use super::components::{Footage, Available};
 use crate::game::playground::player::components::{Player, Stealth};
@@ -16,7 +20,8 @@ pub fn spawn_footage (
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,
-    window_q: Query<&Window, With<PrimaryWindow>>, 
+    window_q: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,  
 ) {
 
     let window = window_q.get_single().unwrap(); 
@@ -32,6 +37,13 @@ pub fn spawn_footage (
             },
             bundle,
             Footage,
+            AudioBundle {
+                source: asset_server.load("sounds/rewind.ogg"),
+                settings: PlaybackSettings { 
+                    mode: PlaybackMode::Once, 
+                    volume: Volume::Relative(VolumeLevel::new(0.5)), 
+                    speed: 1.0, paused: true}
+            },
         ));
     }
 }
@@ -66,6 +78,7 @@ pub fn suppress_footage(
     keyboard_input: Res<Input<KeyCode>>, 
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Footage>)>,
     footage_q: Query<(&WorldPosition, &ReachDistance), (With<Footage>, Without<Player>)>,
+    sink_q: Query<&AudioSink, With<Footage>>, 
     mut available_q: Query<&mut Available, With<Footage>>,
     mut stealth_q: Query<&mut Stealth, With<Player>>,
 ) {
@@ -74,6 +87,9 @@ pub fn suppress_footage(
             if let Ok(mut available) = available_q.get_single_mut() {
                 if let Ok(mut stealth) = stealth_q.get_single_mut() {
                     available.0 = false;
+                    if let Ok(sink) = sink_q.get_single() {
+                        sink.play(); 
+                    } 
                     match *stealth {
                         Stealth::Begineer => {
                             *stealth = Stealth::Engineer;

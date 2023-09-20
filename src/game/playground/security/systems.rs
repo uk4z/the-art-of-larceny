@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
@@ -72,15 +73,38 @@ pub fn signal_security (
     };
 }
 
-pub fn desactivate_security (
+pub fn toggle_security (
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Security>)>,
     security_q: Query<(&WorldPosition, &ReachDistance), (With<Security>, Without<Player>)>, 
     mut active_q: Query<&mut Active, With<Security>>,
     keyboard_input: Res<Input<KeyCode>>, 
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
 ) {
     if interaction_allowed_for_security(&player_q, &security_q) {
         if keyboard_input.just_pressed(KeyCode::E) {
             if let Ok(mut active) = active_q.get_single_mut() {
+                if active.0 {
+                    commands.spawn(
+                        AudioBundle {
+                            source: asset_server.load("sounds/security_off.ogg"),
+                            settings: PlaybackSettings { 
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                                speed: 1.5, paused: false }
+                        },
+                    );
+                } else {
+                    commands.spawn(
+                        AudioBundle {
+                            source: asset_server.load("sounds/security_on.ogg"),
+                            settings: PlaybackSettings { 
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                                speed: 1.5, paused: false}
+                        },
+                    );
+                }
                 active.0 = !active.0; 
                 
             }

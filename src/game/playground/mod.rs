@@ -27,9 +27,10 @@ use laser::LaserPlugin;
 
 use components::GameOver;
 
-use self::footage::FootagePlugin;
+use crate::get_scale_reference;
 
-use super::SimulationState; 
+use self::{footage::FootagePlugin, components::WorldPosition};
+
 
 
 pub const WORLD_SCALE: f32 = 80.0; //80 pixels = 1 m 
@@ -39,24 +40,24 @@ pub struct PlaygroundPlugin;
 
 impl Plugin for PlaygroundPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(PlayerPlugin)
-            .add_plugin(SceneryPlugin)
-            .add_plugin(TargetPlugin)
-            .add_plugin(ExtractionPlugin)
-            .add_plugin(ItemPlugin)
-            .add_plugin(GuardPlugin)
-            .add_plugin(CameraPlugin)
-            .add_plugin(SecurityPlugin)
-            .add_plugin(LaserPlugin)
-            .add_plugin(FootagePlugin)
-            .add_event::<GameOver>()
-            .add_systems(
+        app.add_plugins(
                 (
-
+                    PlayerPlugin,
+                    SceneryPlugin,
+                    TargetPlugin,
+                    ExtractionPlugin, 
+                    ItemPlugin,
+                    GuardPlugin,
+                    SecurityPlugin,
+                    CameraPlugin,
+                    LaserPlugin,
+                    FootagePlugin,
+            ))
+            .add_event::<GameOver>()
+            .add_systems(PostUpdate, (
                     confine_position, 
                     world_to_screen,
-                ).in_set(OnUpdate(SimulationState::Running))
-            );
+            ));
 
     }
 }
@@ -92,4 +93,18 @@ pub fn orientate_angle_with_vector(angle: f32, vector: Vec3) -> f32 {
     } else  {
         -angle
     }
+}
+
+
+pub fn get_translation_from_world_position(
+    position: &WorldPosition, 
+    player_position: &WorldPosition, 
+    window_size: &(f32, f32), 
+) -> Vec3 {
+    let center_window = Vec3::new(window_size.0/2.0, window_size.1/2.0, 0.0); 
+    let scale_reference = get_scale_reference(&window_size.0, &window_size.1);
+
+    let direction = Vec3::from(*position) - Vec3::from(*player_position)*scale_reference;
+
+    center_window + direction
 }

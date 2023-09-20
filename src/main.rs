@@ -6,6 +6,9 @@ pub mod pause_menu;
 pub mod load_menu;
 pub mod score_menu; 
 
+use std::time::Duration;
+
+use bevy::asset::ChangeWatcher;
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
 
@@ -34,22 +37,28 @@ fn main() {
 
     App::new()
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-                watch_for_changes: true,
+                watch_for_changes: Some(ChangeWatcher{delay: Duration::from_secs(1)}),
                 ..Default::default()
                 },
             ).set(window_plugin)
         )
         .add_state::<AppState>()
         .add_state::<SimulationState>()
-        .add_plugin(MainMenuPlugin)
-        .add_plugin(LoadMenuPlugin)
-        .add_plugin(GamePlugin)
-        .add_plugin(PauseMenuPlugin)
-        .add_plugin(ScoreMenuPlugin)
-        .add_startup_system(spawn_setup)
-        .add_system(debug_window_size) //To close the window when pressing 'ESC' key
-        .add_system(update_camera_position)
-        .add_system(start_level)
+        .add_plugins(
+            (   
+                MainMenuPlugin,
+                LoadMenuPlugin,
+                GamePlugin,
+                PauseMenuPlugin,
+                ScoreMenuPlugin
+        ))
+        .add_systems(Startup, spawn_setup)
+        //.add_startup_system(start_bgm_music)
+        .add_systems(Update, (
+            debug_window_size,
+            update_camera_position,
+            start_level
+        )) //To close the window when pressing 'ESC' key
         .run();
 }
 

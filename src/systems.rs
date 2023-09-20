@@ -54,13 +54,13 @@ pub fn start_level(
     mut visibility_q: Query<&mut Visibility, With<MainMenu>>,
 ) {
 
-    if keyboard_input.just_pressed(KeyCode::Return) {
-        if app_state.0 != AppState::Game {
+    if keyboard_input.just_pressed(KeyCode::Return) { 
+        if *app_state.get() != AppState::Game {
             if let Ok(mut visibility) = visibility_q.get_single_mut() {
                 app_state_next_state.set(AppState::Game);
-                println!("Entered AppState::Game");
                 *visibility = Visibility::Hidden;
             }
         }
     }   
 }
+

@@ -12,6 +12,7 @@ pub  struct ExtractionBundle {
     pub reach: ReachDistance,
 }
 
+#[derive(Event, Debug)]
 pub struct LevelCompleted {
     pub stealth: Stealth
 }

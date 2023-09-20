@@ -1,3 +1,4 @@
+use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
 use bevy::prelude::*; 
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
@@ -10,7 +11,7 @@ use crate::game::bundle::laser::get_laser_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
 use crate::game::playground::footage::components::{Available, Footage};
 use crate::game::playground::player::components::{Player, Stealth};
-use crate::game::playground::security::components::{Security, Intrusion, Active};
+use crate::game::playground::security::components::{Security, Intrusion, Active, Device};
 
 pub fn spawn_laser(
     mut commands: Commands,
@@ -18,6 +19,7 @@ pub fn spawn_laser(
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,
     window_q: Query<&Window, With<PrimaryWindow>>, 
+    asset_server: Res<AssetServer>, 
 ) {
     let window = window_q.get_single().unwrap(); 
     let scale_reference = get_scale_reference(&window.width(), &window.height()); 
@@ -33,7 +35,14 @@ pub fn spawn_laser(
                     ..default()
                 },
                 bundle, 
-                Laser
+                Laser,
+                AudioBundle {
+                    source: asset_server.load("sounds/laser.ogg"),
+                    settings: PlaybackSettings { 
+                        mode: PlaybackMode::Once, 
+                        volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                        speed: 1.0, paused: true }
+                },
             ));
         }
     }
@@ -50,14 +59,14 @@ pub fn despawn_laser(
 
 
 pub fn alert_security (
-    lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength), With<Laser>>, 
+    lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength, &AudioSink), With<Laser>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
-    mut security_q: Query<&mut Intrusion, With<Security>>, 
+    mut intrusion_event: EventWriter<Intrusion>,
     active_q: Query<&Active, With<Security>>, 
     footage_q: Query<&Available, With<Footage>>, 
 ){
-    if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
-        for (laser_pos, orientation, length) in lasers_q.iter() {
+    if let Ok((player_pos, stealth)) = player_q.get_single_mut() {
+        for (laser_pos, orientation, length, sink) in lasers_q.iter() {
             let extremum = laser_extremum(laser_pos, orientation, length);
             
             let x_axis: Vec<f32> = extremum.iter().map(|point| {point.x}).collect();
@@ -69,15 +78,13 @@ pub fn alert_security (
             if player_pos.x >= min_x && player_pos.x <= max_x && player_pos.y >= min_y && player_pos.y <= max_y {
                 if let Ok(active) = active_q.get_single() {
                     if let Ok(available) = footage_q.get_single() {
-                        if active.0 && available.0 {
-                            if let Ok(mut intrusion) = security_q.get_single_mut() {
-                                intrusion.0 = true; 
-                                match *stealth {
-                                    Stealth::Ghost => {
-                                     *stealth = Stealth::Begineer;
-                                    }
-                                    _ => {}
+                        if active.0 && available.0 { 
+                            match *stealth {
+                                Stealth::Ghost => {
+                                    intrusion_event.send(Intrusion(Device::Laser));
+                                    sink.play(); 
                                 }
+                                _ => {}
                             }
                         }
                     }

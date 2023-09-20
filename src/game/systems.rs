@@ -18,13 +18,11 @@ pub fn toggle_simulation(
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        if simulation_state.0 == SimulationState::Running {
+        if *simulation_state.get() == SimulationState::Running {
             simulation_state_next_state.set(SimulationState::Paused);
-            println!("Simulation Paused.");
         }
-        if simulation_state.0 == SimulationState::Paused {
+        if *simulation_state.get() == SimulationState::Paused {
             simulation_state_next_state.set(SimulationState::Running);
-            println!("Simulation Running.");
         }
     }
 }
@@ -37,7 +35,6 @@ pub fn handle_game_over(
     for _ in game_over_event.iter() {
         score_event.send(ScoreEvent { comment: "You lost !".to_string(), value: 0});
         simulation_state_next_state.set(SimulationState::Score);
-        println!("Entered AppState::ScoreMenu");
     }
 }
 
@@ -78,6 +75,5 @@ pub fn handle_level_complete(
 
         score_event.send(ScoreEvent {comment: total_score, value});
         simulation_state_next_state.set(SimulationState::Score);
-        println!("Entered AppState::ScoreMenu");
     }
 }

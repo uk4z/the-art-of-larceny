@@ -9,7 +9,7 @@ use crate::AppState;
 
 use self::components::CurrencyLocked;
 
-use super::SimulationState;
+use super::{SimulationState, playground::target::systems::signal_target_zone};
 
 #[derive(Debug)]
 pub struct BoardPlugin;
@@ -18,24 +18,15 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(CurrencyLocked(false))
-            .add_systems(
-                (
-                    spawn_helper_menu,
-                ).in_schedule(OnEnter(SimulationState::Running))
-            )
-            .add_system(spawn_stealth_icon.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
+            .add_systems(OnEnter(SimulationState::Running),spawn_helper_menu)
+            .add_systems(OnEnter(SimulationState::Loading), spawn_stealth_icon)
+            .add_systems(Update, (
                     clean_helper,
-                    unlock_animation,
+                    unlock_animation.after(signal_target_zone),
                     update_icon,
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_systems(
-                (
-                    despawn_helper_menu,
-                ).in_schedule(OnExit(SimulationState::Running)))
-            .add_system(despawn_stealth_icon.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(SimulationState::Running),despawn_helper_menu)
+            .add_systems(OnExit(AppState::Game), despawn_stealth_icon);
     }
 }

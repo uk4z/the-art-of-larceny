@@ -1,6 +1,9 @@
+use bevy::audio::{PlaybackMode, VolumeLevel};
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
+use bevy::audio::Volume; 
+
 
 use crate::get_scale_reference;
 use crate::components::Layer;
@@ -9,7 +12,7 @@ use crate::game::bundle::camera::get_camera_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation};
 use crate::game::playground::footage::components::{Available, Footage};
 use crate::game::playground::player::components::{Player, Stealth};
-use crate::game::playground::security::components::{Intrusion, Security, Active};
+use crate::game::playground::security::components::{Intrusion, Security, Active, Device};
 use super::components::Camera;
 
 use super::components::*;
@@ -24,6 +27,7 @@ pub fn spawn_camera(
     mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,
     window_q: Query<&Window, With<PrimaryWindow>>, 
+    asset_server: Res<AssetServer>, 
 ) {
     let window = window_q.get_single().unwrap(); 
     let scale_reference = get_scale_reference(&window.width(), &window.height()); 
@@ -40,6 +44,14 @@ pub fn spawn_camera(
                 },
                 bundle, 
                 Camera,
+                AudioBundle {
+                    source: asset_server.load("sounds/camera.ogg"),
+                    settings: PlaybackSettings { 
+                        mode: PlaybackMode::Once, 
+                        volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                        speed: 1.0, paused: true }
+                },
+        
             ));
         }
     }
@@ -56,14 +68,14 @@ pub fn despawn_camera(
 }
 
 pub fn alert_security (
-    cameras_q: Query<(&CameraPosition, &Orientation, &FOVLength), With<Camera>>, 
+    cameras_q: Query<(&CameraPosition, &Orientation, &FOVLength, &AudioSink), With<Camera>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
-    mut security_q: Query<&mut Intrusion, With<Security>>, 
+    mut intrustion_event: EventWriter<Intrusion>, 
     active_q: Query<&Active, With<Security>>, 
     footage_q: Query<&Available, With<Footage>>, 
 ){
-    if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
-        for (camera_pos, orientation, length) in cameras_q.iter() {
+    if let Ok((player_pos, stealth)) = player_q.get_single_mut() {
+        for (camera_pos, orientation, length, sink) in cameras_q.iter() {
             let target_vector = Vec3::from(*player_pos)-Vec3::new(camera_pos.x, camera_pos.y, 0.0);
             let fov_vector = orientation.0.mul_quat(Quat::from_rotation_z(-ROTATION_CORRECTION)).mul_vec3(Vec3::X*length.0);
             let angle = target_vector.angle_between(fov_vector);
@@ -73,14 +85,12 @@ pub fn alert_security (
                 if let Ok(active) = active_q.get_single() {
                     if let Ok(available) = footage_q.get_single() {
                         if active.0 && available.0 {
-                            if let Ok(mut intrusion) = security_q.get_single_mut() {
-                                intrusion.0 = true; 
-                                match *stealth {
-                                    Stealth::Ghost => {
-                                     *stealth = Stealth::Begineer;
-                                    }
-                                    _ => {}
+                            match *stealth {
+                                Stealth::Ghost => {
+                                    intrustion_event.send(Intrusion(Device::Camera));
+                                    sink.play(); 
                                 }
+                                _ => {}
                             }
                         }
                     }

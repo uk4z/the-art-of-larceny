@@ -1,5 +1,6 @@
 use bevy::window::PrimaryWindow;
 use rand::prelude::*;
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use bevy::prelude::*;
 use crate::components::Layer;
@@ -8,7 +9,23 @@ use crate::game::playground::guard::components::Guard;
 use crate::game::playground::player::components::{Stealth, Player};
 use crate::score_menu::components::*;
 use crate::{AppState, get_scale_reference};
-use bevy_ui_borders::BorderColor;
+
+
+pub fn enter_score_menu_sound(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("sounds/score.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn, 
+                volume: Volume::Relative(VolumeLevel::new(0.8)), 
+                speed: 1.0, paused: false}
+        },
+        SoundScore, 
+    ));
+}
 
 
 pub fn interact_with_leave_button(
@@ -17,11 +34,28 @@ pub fn interact_with_leave_button(
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<LeaveButton>),
     >,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+    sink_q: Query<&AudioSink, With<SoundScore>>, 
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 app_state_next_state.set(AppState::MainMenu);
+
+                commands.spawn(
+                    AudioBundle {
+                        source: asset_server.load("sounds/confirmation.ogg"),
+                        settings: PlaybackSettings {
+                            mode: PlaybackMode::Despawn, 
+                            volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                            speed: 1.0, paused: false}
+                    }
+                );
+
+                if let Ok(sink) = sink_q.get_single() {
+                    sink.stop()
+                }
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;
@@ -65,7 +99,8 @@ pub fn spawn_score_menu(
         style: Style {
             display: Display::Flex,
             position_type: PositionType::Absolute,
-            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::SpaceEvenly,
             align_items: AlignItems::Center,
@@ -90,7 +125,8 @@ pub fn spawn_score_menu(
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),),
-                    size: Size::new(Val::Percent(30.0), Val::Percent(100.0)),
+                    width: Val::Percent(30.0),
+                    height: Val::Percent(100.0),
                     ..default()
                 },
                 ..default()
@@ -102,7 +138,8 @@ pub fn spawn_score_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(80.0), Val::Px(100.0)),
+                        width: Val::Percent(80.0),
+                        height: Val::Px(100.0),
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -111,9 +148,9 @@ pub fn spawn_score_menu(
                         ..default()
                     },
                     background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                    border_color: Color::WHITE.into(), 
                     ..default()
                 },
-                BorderColor(Color::WHITE),
                 LeaveButton,
 
             )).with_children(|button| {
@@ -135,20 +172,22 @@ pub fn spawn_score_menu(
                     display: Display::Flex, 
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Center,
-                    size: Size { width: Val::Percent(40.0), height: Val::Percent(60.0) },
+                    width: Val::Percent(40.0),
+                    height: Val::Percent(60.0),
                     justify_content: JustifyContent::Start,
                     border: UiRect::all(Val::Px(3.0)),
                     ..default()
                 },
                 background_color: Color::rgba(0.18, 0.20, 0.25, 0.8).into(),
+                border_color: Color::WHITE.into(), 
                 ..default()
             },
-            BorderColor(Color::WHITE),
         )).with_children(|node|{
             node.spawn(NodeBundle {
                 style: Style {
                     display: Display::Flex, 
-                    size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(30.0),
                     justify_content: JustifyContent::Center, 
                     align_items: AlignItems::Center,
                     ..default()
@@ -171,10 +210,11 @@ pub fn spawn_score_menu(
                 style: Style {
                     display: Display::Flex, 
                     flex_direction: FlexDirection::Column,
-                    size: Size::new(Val::Percent(90.0), Val::Percent(70.0)),
+                    width: Val::Percent(90.0),
+                    height: Val::Percent(70.0),
                     justify_content: JustifyContent::SpaceBetween, 
                     align_items: AlignItems::Center,
-                    padding: UiRect::new(Val::Px(20.0), Val::Undefined, Val::Undefined, Val::Undefined),
+                    padding: UiRect::new(Val::Px(20.0), Val::Auto, Val::Auto, Val::Auto),
                     ..default()
                 },
                 ..default()
@@ -185,7 +225,8 @@ pub fn spawn_score_menu(
                             display: Display::Flex, 
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::SpaceEvenly, 
-                            size: Size::new(Val::Percent(100.0), Val::Percent(70.0)),
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(70.0),
                             ..default()
                         },
                         ..default()
@@ -212,7 +253,8 @@ pub fn spawn_score_menu(
                             display: Display::Flex, 
                             flex_direction: FlexDirection::Row,
                             justify_content: JustifyContent::SpaceEvenly, 
-                            size: Size::new(Val::Percent(100.0), Val::Percent(30.0)),
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
                             ..default()
                         },
                         ..default()
@@ -221,7 +263,8 @@ pub fn spawn_score_menu(
                     category.spawn(NodeBundle {
                         style: Style {
                             display: Display::Flex, 
-                            size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),
+                            width: Val::Percent(50.0),
+                            height: Val::Percent(100.0),
                             justify_content: JustifyContent::Start, 
                             align_items: AlignItems::Center,
                             ..default()
@@ -256,7 +299,8 @@ pub fn spawn_score_menu(
                     category.spawn(NodeBundle {
                         style: Style {
                             display: Display::Flex, 
-                            size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),
+                            width: Val::Percent(50.0),
+                            height: Val::Percent(100.0),
                             justify_content: JustifyContent::Start, 
                             align_items: AlignItems::Center,
                             ..default()
@@ -318,13 +362,15 @@ pub fn score_animation(
     }
     
 
-    let stealth = player_q.get_single().unwrap(); 
-    let stealth_message = match *stealth {
-        Stealth::None => {"You have been seen by guards!"},
-        Stealth::Begineer => {"You have been spotted by the security system!"},
-        Stealth::Engineer => {"You have suppressed the footages!"},
-        Stealth::Ghost => {"You have not been seen!"}
-    };
+    let mut stealth_message = "Unknown stealth"; 
+    if let Ok(stealth) = player_q.get_single() {
+        stealth_message = match *stealth {
+            Stealth::None => {"You have been seen by guards!"},
+            Stealth::Begineer => {"You have been spotted by the security system!"},
+            Stealth::Engineer => {"You have suppressed the footages!"},
+            Stealth::Ghost => {"You have not been seen!"}
+        };
+    } 
     
 
     let scores = vec![

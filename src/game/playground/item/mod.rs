@@ -4,6 +4,7 @@ pub mod systems;
 use bevy::prelude::*;
 use crate::AppState;
 use crate::game::SimulationState;
+use crate::game::board::systems::clean_helper;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 
@@ -15,16 +16,14 @@ pub struct ItemPlugin;
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_item.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
-                    signal_item, 
-                    take_item, 
-                    rotate_item, 
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+            .add_systems(OnEnter(SimulationState::Loading), spawn_item)
+            .add_systems(Update, (
+                signal_item.after(clean_helper), 
+                take_item, 
+                rotate_item, 
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_system(despawn_item.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(AppState::Game), despawn_item);
     }
 }
 

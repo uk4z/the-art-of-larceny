@@ -29,3 +29,7 @@ pub struct SubScores;
 
 #[derive(Component, Debug)]
 pub struct ElapsedTime(pub u64);
+
+
+#[derive(Component, Debug)]
+pub struct SoundScore;

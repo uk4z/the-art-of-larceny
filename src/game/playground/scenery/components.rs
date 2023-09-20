@@ -16,5 +16,5 @@ pub struct SceneryBundle {
 
 #[derive(Resource, Debug)]
 pub struct BoundsResource{
-    pub handle: Handle<Image>,
+    pub handle: Option<Handle<Image>>,
 }

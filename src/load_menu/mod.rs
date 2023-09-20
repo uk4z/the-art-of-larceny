@@ -13,10 +13,10 @@ impl Plugin for LoadMenuPlugin {
     fn build(&self, app: &mut App) {
         app
             // OnEnter State Systems
-            .add_system(spawn_load_menu.in_schedule(OnEnter(SimulationState::Loading)))
+            .add_systems(OnEnter(SimulationState::Loading), spawn_load_menu)
             // Systems
-            .add_system(interact_with_start_button.in_set(OnUpdate(SimulationState::Loading)))
+            .add_systems(Update, interact_with_start_button)
             // OnExit State System
-            .add_system(despawn_load_menu.in_schedule(OnExit(SimulationState::Loading)));
+            .add_systems(OnExit(SimulationState::Loading), despawn_load_menu);
     }
 }

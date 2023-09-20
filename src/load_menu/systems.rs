@@ -1,4 +1,5 @@
 use std::time::Instant;
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -6,7 +7,6 @@ use crate::{AppState, get_scale_reference};
 use crate::components::Layer;
 use crate::game::components::{SimulationState, ItemCount, GameTime};
 use crate::load_menu::components::*;
-use bevy_ui_borders::BorderColor;
 
 pub fn interact_with_start_button(
     mut button_query: Query<
@@ -18,15 +18,29 @@ pub fn interact_with_start_button(
     state: Res<State<AppState>>, 
     mut count: ResMut<ItemCount>, 
     mut time: ResMut<GameTime>, 
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Clicked => {
-                match state.0 {
+            Interaction::Pressed => {
+                match *state.get() {
                     AppState::MainMenu => {
                         count.0 = 0; 
                         time.0 = Instant::now(); 
                         app_state_next_state.set(AppState::Game);
+
+                        commands.spawn(
+                            AudioBundle {
+                                source: asset_server.load("sounds/confirmation.ogg"),
+                                settings: PlaybackSettings {
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                    speed: 1.0, paused: false}
+                            }
+                        );
+
                     }
                     _ => {}
                 }
@@ -66,7 +80,8 @@ pub fn spawn_load_menu(
         style: Style {
             display: Display::Flex,
             position_type: PositionType::Absolute,
-            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            width: Val::Percent(100.0), 
+            height: Val::Percent(100.0),
             flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::Center,
             ..default()
@@ -85,7 +100,8 @@ pub fn spawn_load_menu(
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    width: Val::Percent(100.0), 
+                    height: Val::Percent(100.0),
                     ..default()
                 },
                 ..default()
@@ -97,7 +113,8 @@ pub fn spawn_load_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
+                        width: Val::Percent(30.0), 
+                        height: Val::Px(100.0), 
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -107,9 +124,9 @@ pub fn spawn_load_menu(
                     },
                     transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()).with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
                     background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                    border_color: Color::WHITE.into(), 
                     ..default()
                 },
-                BorderColor(Color::WHITE),
                 StartButton,
             )).with_children(|button| {
                 button.spawn((

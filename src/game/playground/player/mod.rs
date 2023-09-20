@@ -14,21 +14,19 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_player.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
+            .add_systems(OnEnter(SimulationState::Loading), spawn_player)
+            .add_systems(Update, (
                     motion_handler, 
                     set_player_pace,
                     move_player, 
                     neutralise_guard, 
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+                    update_stealth_on_intrusion,
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_systems(
-                (
+            .add_systems(OnExit(AppState::Game), (
                     despawn_player,
                     despawn_corpse,
-                ).in_schedule(OnExit(AppState::Game)));
+            ));
     }
 }
 

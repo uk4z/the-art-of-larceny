@@ -1,14 +1,41 @@
 use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
+use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::{SimulationState, Level};
 use crate::game::playground::scenery::components::BoundsResource;
 use crate::main_menu::components::*;
-use bevy_ui_borders::BorderColor;
-use super::{get_main_scale_from_window, SCORE_FILE_PATH};
+use super::get_main_scale_from_window;
+
+
+pub fn spawn_music(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) {
+    commands.spawn((
+        AudioBundle {
+            source: asset_server.load("sounds/tension.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Loop, 
+                volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                speed: 1.0, paused: false}
+        },
+        BackgroundMusic,
+    ));    
+}
+
+pub fn despawn_music(
+    mut commands: Commands, 
+    music_q: Query<Entity, With<BackgroundMusic>>, 
+) {
+    if let Ok(entity) = music_q.get_single() {
+        commands.entity(entity).despawn(); 
+    } 
+}
+
 
 pub fn interact_with_play_button(
     mut button_query: Query<
@@ -25,7 +52,7 @@ pub fn interact_with_play_button(
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 if let Ok(mut level_visibility) = level_q.get_single_mut() {
                     if let Ok(mut main_visibility) = main_q.get_single_mut() {
                         *level_visibility = Visibility::Visible;
@@ -52,6 +79,16 @@ pub fn interact_with_play_button(
                             },
                             LevelImage, 
                         ));
+
+                        commands.spawn(
+                            AudioBundle {
+                                source: asset_server.load("sounds/confirmation.ogg"),
+                                settings: PlaybackSettings {
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                    speed: 1.0, paused: false}
+                            }
+                        );
                     }
                 }
             }
@@ -69,19 +106,32 @@ pub fn interact_with_play_button(
 
 pub fn interact_with_select_button(
     asset_server: Res<AssetServer>,
-    mut commands: Commands,
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<SelectButton>),
     >,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
+    mut bounds_resource: ResMut<BoundsResource>,  
+    mut commands: Commands,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 let asset: Handle<Image> = asset_server.load("levels/backgrounds/bounds.png");
-                commands.insert_resource(BoundsResource{handle: asset});
+                bounds_resource.handle = Some(asset); 
+                
                 simulation_state_next_state.set(SimulationState::Loading);
+
+                commands.spawn(
+                    AudioBundle {
+                        source: asset_server.load("sounds/confirmation.ogg"),
+                        settings: PlaybackSettings {
+                            mode: PlaybackMode::Despawn, 
+                            volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                            speed: 1.0, paused: false}
+                    }
+                );
+
             }
             Interaction::Hovered => {
                 border.0 = Color::WHITE;
@@ -208,7 +258,7 @@ pub fn interact_with_quit_button(
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 app_exit_event_writer.send(AppExit);
             }
             Interaction::Hovered => {
@@ -256,7 +306,8 @@ pub fn spawn_main_menu(
         style: Style {
             display: Display::Flex,
             position_type: PositionType::Absolute,
-            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
             flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::End,
             ..default()
@@ -279,7 +330,8 @@ pub fn spawn_main_menu(
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),
                                                 Val::Px(0.0),),
-                    size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(50.0),
                     ..default()
                 },
                 ..default()
@@ -291,7 +343,8 @@ pub fn spawn_main_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
+                        width: Val::Percent(30.0),
+                        height: Val::Px(100.0),
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -300,9 +353,9 @@ pub fn spawn_main_menu(
                         ..default()
                     },
                     background_color: Color::rgba(0.18, 0.20, 0.25, 0.4).into(),
+                    border_color: Color::WHITE.into(), 
                     ..default()
                 },
-                BorderColor(Color::WHITE),
                 PlayButton,
             )).with_children(|button| {
                 button.spawn((
@@ -322,7 +375,8 @@ pub fn spawn_main_menu(
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
-                        size: Size::new(Val::Percent(30.0), Val::Px(100.0)),
+                        width: Val::Percent(30.0),
+                        height: Val::Px(100.0),
                         border: UiRect::all(Val::Px(2.0)),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -331,9 +385,9 @@ pub fn spawn_main_menu(
                         ..default()
                     },
                     background_color: Color::rgba(0.18, 0.20, 0.25, 0.4).into(),
+                    border_color: Color::WHITE.into(), 
                     ..default()
                 },
-                BorderColor(Color::WHITE),
                 QuitButton,
 
             )).with_children(|button| {
@@ -350,40 +404,6 @@ pub fn spawn_main_menu(
         });
     });
 }
-
-
-pub fn load_score_level(
-    mut commands: Commands, 
-    asset_server: Res<AssetServer>, 
-) {
-
-    // "Spawning" a scene bundle creates a new entity and spawns new instances
-    // of the given scene's entities as children of that entity.
-    commands.spawn((
-        DynamicSceneBundle {
-        // Scenes are loaded just like any other asset.
-        scene: asset_server.load(SCORE_FILE_PATH),
-        ..default()
-        },
-    ));
-}
-
-pub fn get_loaded_score(
-    best_q: Query<&Best>, 
-    mut best_score_q: Query<&mut Text, With<BestScore>>, 
-    mut best_time_q: Query<&mut Text, (Without<BestScore>, With<BestTime>)>, 
-) {  
-    for best in best_q.iter() {
-        if let Ok(mut best_time) = best_time_q.get_single_mut() {
-            let elapsed_time = 
-                format!(" {}:{}:{}", best.time/3600, best.time/60, (best.time%3600)%60);
-            best_time.sections[0].value = format!("Time: {}", elapsed_time); 
-        }
-        if let Ok(mut best_score) = best_score_q.get_single_mut() {
-            best_score.sections[0].value = format!("Score: {}", best.score); 
-        }
-    }
-}   
 
 pub fn despawn_level_menu(
     mut commands: Commands, 
@@ -405,7 +425,8 @@ pub fn spawn_level_menu(
             style: Style {
                 display: Display::Flex,
                 position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..default()
@@ -424,14 +445,15 @@ pub fn spawn_level_menu(
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
-                        size: Size::new(Val::Percent(50.0), Val::Percent(50.0)),
+                        width: Val::Percent(50.0),
+                        height: Val::Percent(50.0),
                         border: UiRect::all(Val::Px(2.0)),
                         ..default()
                     },
                     background_color: Color::rgba(0.18, 0.20, 0.25, 0.4).into(),
+                    border_color: Color::WHITE.into(), 
                     ..default()
                 },
-                BorderColor(Color::WHITE),
             ))
             .with_children(|intel|{
                 intel.spawn((
@@ -439,7 +461,8 @@ pub fn spawn_level_menu(
                         style: Style {
                             display: Display::Flex,
                             flex_direction: FlexDirection::Column,
-                            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
                             ..default()
                         },
                         background_color: Color::rgba(0.18, 0.20, 0.25, 0.8).into(),
@@ -455,7 +478,8 @@ pub fn spawn_level_menu(
                                 flex_direction: FlexDirection::Column,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(10.0),    
                                 ..default()
                             },
                             ..default()
@@ -485,10 +509,11 @@ pub fn spawn_level_menu(
                                 align_items: AlignItems::Start,
                                 margin: UiRect { 
                                     left: Val::Percent(10.0), 
-                                    right: Val::Undefined, 
-                                    top: Val::Undefined, 
-                                    bottom: Val::Undefined },
-                                size: Size::new(Val::Percent(90.0), Val::Percent(70.0)),
+                                    right: Val::Auto, 
+                                    top: Val::Auto, 
+                                    bottom: Val::Auto },
+                                    width: Val::Percent(90.0),
+                                    height: Val::Percent(70.0),
                                 ..default()
                             },
                             ..default()
@@ -530,7 +555,8 @@ pub fn spawn_level_menu(
                                 flex_direction: FlexDirection::Column,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                size: Size::new(Val::Percent(100.0), Val::Percent(20.0)),
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(20.0),        
                                 ..default()
                             },
                             ..default()
@@ -542,7 +568,8 @@ pub fn spawn_level_menu(
                                 style: Style {
                                     display: Display::Flex,
                                     flex_direction: FlexDirection::Column,
-                                    size: Size::new(Val::Percent(30.0), Val::Px(50.0)),
+                                    width: Val::Percent(30.0),
+                                    height: Val::Px(50.0),
                                     border: UiRect::all(Val::Px(2.0)),
                                     // horizontally center child text
                                     justify_content: JustifyContent::Center,
@@ -551,9 +578,9 @@ pub fn spawn_level_menu(
                                     ..default()
                                 },
                                 background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                border_color: Color::WHITE.into(), 
                                 ..default()
                             },
-                            BorderColor(Color::WHITE),
                             SelectButton,
                         )).with_children(|button| {
                             button.spawn((

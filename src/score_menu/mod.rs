@@ -6,7 +6,7 @@ use systems::*;
 
 use bevy::prelude::*;
 
-use crate::{game::components::SimulationState, AppState};
+use crate::game::components::SimulationState;
 
 use self::components::ScoreTimer;
 
@@ -20,18 +20,17 @@ impl Plugin for ScoreMenuPlugin {
                 timer: Timer::new(Duration::from_secs(15), TimerMode::Once),
                 index: 0,
             },)
-            .add_systems(
-                (
+            .add_systems(OnEnter(SimulationState::Score),(
                     spawn_score_menu,
                     reset_score_timer, 
-                ).in_schedule(OnEnter(SimulationState::Score)))
+                    enter_score_menu_sound,
+            ))
             // Systems
-            .add_systems(
-                (interact_with_leave_button, score_animation )
-                    .in_set(OnUpdate(SimulationState::Score))
-                    .in_set(OnUpdate(AppState::Game)),
-            )
+            .add_systems(Update, (
+                    interact_with_leave_button, 
+                    score_animation
+            ))
             // OnExit State System
-            .add_system(despawn_score_menu.in_schedule(OnExit(SimulationState::Score)));
+            .add_systems(OnExit(SimulationState::Score), despawn_score_menu);
     }
 }

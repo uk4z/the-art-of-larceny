@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
+
 
 use std::f32::consts::PI;
 use super::{components::*, obstacle_in_fov};
@@ -92,6 +94,8 @@ pub fn alert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
     bounds_q: Query<&Bounds, With<Scenery>>,
+    asset_server: Res<AssetServer>, 
+    mut commands: Commands,
 ){
     if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
         if let Ok(bounds) = bounds_q.get_single() {
@@ -108,6 +112,16 @@ pub fn alert_guard (
                                 *state = GuardState::Chasing;
                                 *pace = GuardPace::Run;
                                 *stealth = Stealth::None;
+
+                                commands.spawn(
+                                    AudioBundle {
+                                        source: asset_server.load("sounds/scream.ogg"),
+                                        settings: PlaybackSettings {
+                                            mode: PlaybackMode::Despawn, 
+                                            volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                                            speed: 1.0, paused: false}
+                                    }
+                                );
                             }
                         }
                     }
@@ -131,8 +145,10 @@ pub fn disalert_guard (
                 let distance = target_vector.length();
                 match *state {
                     GuardState::Chasing => {
+
                         if !(angle < PI/4.0 && FOV_RANGE >= distance) || obstacle_in_fov(player_pos, guard_pos, bounds) {
                             *state = GuardState::Searching(*player_pos);
+
                         }
                     },
                     _ => {}
@@ -143,17 +159,29 @@ pub fn disalert_guard (
 }
 
 pub fn catch_player (
-    player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
+    player_q: Query<(&AudioSink, &WorldPosition, &ReachDistance), (With<Player>, Without<Guard>)>,
     mut guard_q: Query<(&WorldPosition, &ReachDistance, &GuardState), (With<Guard>, Without<Player>)>,
     mut game_over: EventWriter<GameOver>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
 ) {
-    if let Ok((player_position, player_reach)) = player_q.get_single() {
+    if let Ok((sink, player_position, player_reach)) = player_q.get_single() {
         guard_q.for_each_mut(|(guard_position, guard_reach, state)| {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*guard_position));
             if distance <= player_reach.0+guard_reach.0 {
                 match *state {
                     GuardState::Chasing => {
                         game_over.send(GameOver);
+                        sink.pause();
+                        commands.spawn(
+                            AudioBundle {
+                                source: asset_server.load("sounds/guard_punch.ogg"),
+                                settings: PlaybackSettings { 
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.5)), 
+                                    speed: 1.0, paused: false}
+                            }
+                        );
                     }, 
                     _ => {}
                 }
@@ -362,7 +390,6 @@ pub fn guard_motion_handler(
         position,
     )| { 
         if !(patrol.is_waiting_position() && patrol.patrol_position_reached(*position)) {
-            *texture = asset_server.load("guard/motion.png");
             match pace {
                 GuardPace::Run => {
                     animated.run_timer.tick(time.delta());
@@ -376,9 +403,10 @@ pub fn guard_motion_handler(
                         transform.scale.y = -transform.scale.y;
                     }
                 },
-            }
+            };
+            *texture = asset_server.load("guard/motion.png");
         } else {
-            *texture = asset_server.load("guard/static.png")
+            *texture = asset_server.load("guard/static.png"); 
         }
     });
 }

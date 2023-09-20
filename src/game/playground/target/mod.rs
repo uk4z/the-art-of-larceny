@@ -7,6 +7,7 @@ use systems::*;
 use components::*;
 use crate::AppState;
 use crate::game::SimulationState;
+use crate::game::board::systems::clean_helper;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::player::components::Player;
 
@@ -15,15 +16,14 @@ pub struct TargetPlugin;
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(spawn_target.in_schedule(OnEnter(SimulationState::Loading)))
-            .add_systems(
-                (
-                    signal_target_zone, 
+            .add_systems(OnEnter(SimulationState::Loading), spawn_target)
+            .add_systems(Update, (
+                    signal_target_zone.after(clean_helper), 
+                    animate_sound.before(load_target_unlock), 
                     load_target_unlock, 
-                ) 
-                    .in_set(OnUpdate(SimulationState::Running)),
+            ).run_if(in_state(SimulationState::Running))
             )
-            .add_system(despawn_target.in_schedule(OnExit(AppState::Game)));
+            .add_systems(OnExit(AppState::Game), despawn_target);
     }
 }
 

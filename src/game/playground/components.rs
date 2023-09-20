@@ -33,6 +33,8 @@ pub struct Value(pub f32);
 #[derive(Debug, Component)]
 pub struct Path(pub String);
 
+#[derive(Event, Debug)]
 pub struct GameOver; 
 
+#[derive(Event, Debug)]
 pub struct LevelStarted;

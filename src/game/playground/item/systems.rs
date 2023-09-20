@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
+
+
 use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::{Level, ItemCount};
@@ -73,7 +76,7 @@ pub fn take_item (
     mut count: ResMut<ItemCount>, 
     keyboard_input: ResMut<Input<KeyCode>>,
     mut commands: Commands,
-
+    asset_server: Res<AssetServer>,
 ) {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
         for (entity, item_position, item_reach) in item_q.iter() {
@@ -81,6 +84,16 @@ pub fn take_item (
             if distance <= player_reach.0+item_reach.0 && keyboard_input.pressed(KeyCode::E)  {
                     commands.entity(entity).despawn(); 
                     count.0 += 1; 
+
+                    commands.spawn(
+                        AudioBundle {
+                            source: asset_server.load("sounds/success.ogg"),
+                            settings: PlaybackSettings { 
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                                speed: 1.0, paused: false}
+                        }
+                    );
             }
         }
     }

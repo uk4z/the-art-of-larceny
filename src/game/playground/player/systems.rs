@@ -1,9 +1,11 @@
+use bevy::audio::{VolumeLevel, PlaybackMode, Volume};
 use bevy::prelude::*;
 use bevy::window::{Window, PrimaryWindow};
 
 use super::components::*;
 use super::{get_player_direction, DISTANCE_PER_SECOND};
 
+use crate::game::playground::security::components::Intrusion;
 use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::Level;
@@ -32,6 +34,13 @@ pub fn spawn_player(
             }, 
             bundle,
             Player, 
+            AudioBundle {
+                source: asset_server.load("sounds/footstep.ogg"),
+                settings: PlaybackSettings {
+                    mode: PlaybackMode::Loop, 
+                    volume: Volume::Relative(VolumeLevel::new(0.1)), 
+                    speed: 1.0, paused: true}
+            },
         ));
     }
     
@@ -107,7 +116,7 @@ pub fn set_player_pace(
 ) {
     if let Ok(mut player_pace) = player_q.get_single_mut() {
         let pace = player_pace.as_mut();
-        if keyboard_input.pressed(KeyCode::LShift) {
+        if keyboard_input.pressed(KeyCode::ShiftLeft) {
             *pace = PlayerPace::Run;
         } else {
             *pace = PlayerPace::Walk;
@@ -116,32 +125,39 @@ pub fn set_player_pace(
 }
 
 pub fn motion_handler(
-    mut player_q: Query<(&mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &PlayerPace), With<Player>>,
+    mut player_q: Query<(&AudioSink, &mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &PlayerPace), With<Player>>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
     keyboard_input: Res<Input<KeyCode>>
 ) {
-    if let Ok((mut texture, mut animated, mut transform, pace)) 
+    if let Ok((sink, mut texture, mut animated, mut transform, pace)) 
             = player_q.get_single_mut() {
 
         if keyboard_input.any_pressed([KeyCode::Z, KeyCode::Q, KeyCode::S, KeyCode::D]) {
-            *texture = asset_server.load("player/motion.png");
             match pace {
                 PlayerPace::Run => {
                     animated.run_timer.tick(time.delta());
                     if animated.run_timer.finished() {
                         transform.scale.y = -transform.scale.y;
                     }
+                    sink.set_speed(3.0);
+                    sink.set_volume(0.2)
                 },
                 PlayerPace::Walk => {
                     animated.walk_timer.tick(time.delta());
                     if animated.walk_timer.finished() {
                         transform.scale.y = -transform.scale.y;
                     }
+                    sink.set_speed(1.5);
+                    sink.set_volume(0.1)
                 },
-            }
+            };
+            sink.play();
+            *texture = asset_server.load("player/motion.png");
+
         } else {
-            *texture = asset_server.load("player/static.png")
+            sink.pause();
+            *texture = asset_server.load("player/static.png");
         }
     }
 }
@@ -178,6 +194,18 @@ pub fn neutralise_guard (
                             WorldPosition {x: guard_position.x, y: guard_position.y}, 
                             Corpse, 
                         ));
+
+                        commands.spawn((
+                            AudioBundle {
+                                source: asset_server.load("sounds/punch.ogg"),
+                                settings: PlaybackSettings { 
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                    speed: 1.0, 
+                                    paused: false,}
+                            }, 
+                        ));
+
                     }
                 }
             }
@@ -192,5 +220,21 @@ pub fn despawn_corpse(
 ) {
     for entity in entity_q.iter() {
         commands.entity(entity).despawn();
+    }
+}
+
+pub fn update_stealth_on_intrusion(
+    mut player_q: Query<&mut Stealth, With<Player>>, 
+    ev: EventReader<Intrusion>
+) {
+    if !ev.is_empty() {
+        if let Ok(mut stealth) = player_q.get_single_mut() {
+            match *stealth {
+                Stealth::Ghost => {
+                    *stealth = Stealth::Begineer;
+                }
+                _ => {}, 
+            }
+        }
     }
 }
