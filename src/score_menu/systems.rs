@@ -84,7 +84,8 @@ pub fn spawn_score_menu(
 ) {
     let elapsed_time = format!(" {}:{}:{}", time.0.elapsed().as_secs()/3600, time.0.elapsed().as_secs()/60, (time.0.elapsed().as_secs()%3600)%60);
 
-    let mut total_score = "You lost !".to_string(); 
+    let mut total_score = "You lost !".to_string();
+
     let mut value = 0; 
     for ev in score_event.iter() {
         total_score = ev.comment.clone(); 
@@ -358,7 +359,7 @@ pub fn score_animation(
     let mut time_score = 0; 
 
     if let Ok(elapsed_time) = elapsed_time_q.get_single() {
-        time_score = 100000*(3600-elapsed_time.0) /3600;
+        time_score = 50000*(3600-elapsed_time.0) /3600;
     }
     
 
@@ -375,8 +376,8 @@ pub fn score_animation(
 
     let scores = vec![
         format!("Gems collected: + {} x 25 000", count.0), 
-        format!("Guards non alerted: + {} x 25 000", nb_guards), 
-        format!("Target cleared: + 10 000"),
+        format!("Guards non alerted: + {} x 50 000", nb_guards), 
+        format!("Target cleared: + 100 000"),
         format!("Time bonus: + {}", time_score),
         format!("Stealth: {}", stealth_message),
     ]; 

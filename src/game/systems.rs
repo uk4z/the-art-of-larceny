@@ -57,11 +57,13 @@ pub fn handle_level_complete(
 
         let gems_score = count.0 as u64 * 25000;
         let nb_guards = guard_q.iter().len() as u64; 
-        let guard_score = nb_guards * 25000; 
+        let guard_score = nb_guards * 50000; 
 
         let target_score: u64 = 100000; 
 
-        let time_score = 100000*((3600-time.0.elapsed().as_secs())/3600);
+
+        let elapsed_time = time.0.elapsed().as_secs();
+        let time_score = 50000*(3600-elapsed_time) /3600;
 
         let stealth_coefficient = match stealth {
             Stealth::None => {

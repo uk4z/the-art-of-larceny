@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use std::f32::consts::PI;
 use crate::game::{playground::{
-    camera::{components::{CameraBundle, CameraPosition, Rotate, CameraPattern, FOVLength}, systems::ROTATION_CORRECTION}, 
+    camera::{components::{CameraBundle, CameraPosition, CameraPattern, FOVLength}, systems::ROTATION_CORRECTION}, 
     components::{WorldPosition, Orientation}}, components::Level};
 
 
@@ -48,7 +48,7 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
                         position: CameraPosition {x: 745.0, y: 970.0},
                         fov_position: WorldPosition {x:745.0, y: 970.0},
                         orientation: Orientation(Quat::from_rotation_z(0.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
-                        pattern: CameraPattern::Arc((PI/4.0, 0.0, Rotate::Trigo)),
+                        pattern: CameraPattern::Static,
                         fov_length: FOVLength(200.0),
                     },
                 ]

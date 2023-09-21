@@ -40,7 +40,7 @@ pub fn spawn_target (
                 source: asset_server.load("sounds/hacking.ogg"),
                 settings: PlaybackSettings { 
                     mode: PlaybackMode::Loop, 
-                    volume: Volume::Relative(VolumeLevel::new(1.0)), 
+                    volume: Volume::Relative(VolumeLevel::new(0.5)), 
                     speed: 1.0, paused: true }
             },
         ));
