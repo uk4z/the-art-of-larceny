@@ -75,7 +75,7 @@ impl Into<f32> for GuardPace {
                 1.2
             },
             GuardPace::Walk => {
-                0.5
+                0.6
             },
         }
     }

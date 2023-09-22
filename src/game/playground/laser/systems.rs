@@ -8,9 +8,9 @@ use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::components::Level;
 use crate::game::bundle::laser::get_laser_bundle;
-use crate::game::playground::components::{WorldPosition, Orientation};
+use crate::game::playground::components::{WorldPosition, Orientation, GameOver};
 use crate::game::playground::footage::components::{Available, Footage};
-use crate::game::playground::player::components::{Player, Stealth};
+use crate::game::playground::player::components::Player;
 use crate::game::playground::security::components::{Security, Intrusion, Active, Device};
 
 pub fn spawn_laser(
@@ -58,14 +58,15 @@ pub fn despawn_laser(
 }
 
 
-pub fn alert_security (
+pub fn burn_player(
+    mut game_over: EventWriter<GameOver>,
     lasers_q: Query<(&WorldPosition, &Orientation, &LaserLength, &AudioSink), With<Laser>>, 
-    mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
+    mut player_q: Query<&WorldPosition, With<Player>>,
     mut intrusion_event: EventWriter<Intrusion>,
     active_q: Query<&Active, With<Security>>, 
     footage_q: Query<&Available, With<Footage>>, 
 ){
-    if let Ok((player_pos, stealth)) = player_q.get_single_mut() {
+    if let Ok(player_pos) = player_q.get_single_mut() {
         for (laser_pos, orientation, length, sink) in lasers_q.iter() {
             let extremum = laser_extremum(laser_pos, orientation, length);
             
@@ -79,13 +80,9 @@ pub fn alert_security (
                 if let Ok(active) = active_q.get_single() {
                     if let Ok(available) = footage_q.get_single() {
                         if active.0 && available.0 { 
-                            match *stealth {
-                                Stealth::Ghost => {
-                                    intrusion_event.send(Intrusion(Device::Laser));
-                                    sink.play(); 
-                                }
-                                _ => {}
-                            }
+                            intrusion_event.send(Intrusion(Device::Laser));
+                            sink.play(); 
+                            game_over.send(GameOver); 
                         }
                     }
                     

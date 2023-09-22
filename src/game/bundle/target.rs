@@ -31,5 +31,17 @@ pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
                 },
             )
         },
+        Level::Warehouse => {
+            Some(
+                TargetBundle {
+                    position: WorldPosition {
+                        x: 1423.0,
+                        y: 1306.0,
+                    },
+                    reach: ReachDistance(40.0),
+                    unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),
+                },
+            )
+        },
     }
 }

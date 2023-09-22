@@ -73,5 +73,47 @@ pub fn get_item_bundle(level: &Level) -> Option<Vec<ItemBundle>> {
                 ]
             )
         },
+        Level::Warehouse => {
+            Some(
+                vec![
+                    ItemBundle { 
+                        position: WorldPosition {x: 614.0, y: 1050.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition {x: 2099.0, y: 1653.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition {x: 2899.0, y: 513.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition {x: 3218.0, y: 2008.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition {x: 1862.0, y: 350.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition {x: 1806.0, y: 961.0,},
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                ]
+            )
+        },
     }
 }

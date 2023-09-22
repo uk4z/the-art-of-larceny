@@ -31,5 +31,21 @@ pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
                 ]
             )
         },
+        Level::Warehouse => {
+            Some(
+                vec![
+                    LaserBundle {
+                        position: WorldPosition {x: 2510.0, y: 1120.0},
+                        orientation: Orientation(Quat::from_rotation_z(Direction::Horizontal.into())), //angle is 0.0 or PI/2.0 ; 
+                        length: LaserLength(311.0),
+                    },
+                    LaserBundle {
+                        position: WorldPosition {x: 1574.0, y: 731.0},
+                        orientation: Orientation(Quat::from_rotation_z(Direction::Horizontal.into())), //angle is 0.0 or PI/2.0 ; 
+                        length: LaserLength(118.0),
+                    },
+                ]
+            )
+        },
     }
 }

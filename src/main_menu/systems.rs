@@ -68,7 +68,10 @@ pub fn interact_with_play_button(
                             }, 
                             Level::Tutorial => {
                                 "levels/backgrounds/tutorial.png"
-                            }
+                            },
+                            Level::Warehouse => {
+                                "levels/backgrounds/warehouse.png"
+                            },
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -124,6 +127,7 @@ pub fn interact_with_select_button(
                 let asset_path = match *level {
                     Level::Factory => {"levels/bounds/factory_bounds.png"}, 
                     Level::Tutorial => {"levels/bounds/tutorial_bounds.png"},
+                    Level::Warehouse => {"levels/bounds/warehouse_bounds.png"},
                 };
                 
                 let asset: Handle<Image> = asset_server.load(asset_path);
@@ -165,22 +169,28 @@ pub fn switch_level(
             Visibility::Visible => {
                 if keyboard_input.just_pressed(KeyCode::Right) {
                     match *level {
-                        Level::Factory => {
-                            *level = Level::Tutorial;
-                        },
                         Level::Tutorial => {
                             *level = Level::Factory
-                        }
+                        },
+                        Level::Factory => {
+                            *level = Level::Warehouse;
+                        },
+                        Level::Warehouse => {
+                            *level = Level::Tutorial;
+                        },
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
+                        Level::Tutorial => {
+                            *level = Level::Warehouse; 
+                        },
+                        Level::Warehouse => {
+                            *level = Level::Factory
+                        },
                         Level::Factory => {
                             *level = Level::Tutorial;
                         }, 
-                        Level::Tutorial => {
-                            *level = Level::Factory; 
-                        }
                     }
                 }
             },
@@ -209,7 +219,10 @@ pub fn update_level_image(
                 }, 
                 Level::Tutorial => {
                     "levels/backgrounds/tutorial.png"
-                }
+                },
+                Level::Warehouse => {
+                    "levels/backgrounds/warehouse.png"
+                },
             };
 
             commands.spawn((
@@ -265,7 +278,10 @@ pub fn display_level_title (
             },
             Level::Tutorial => {
                 text.sections[0].value = "< Tutorial >".to_string(); 
-            }
+            },
+            Level::Warehouse => {
+                text.sections[0].value = "< Warehouse >".to_string(); 
+            },
         }
     }
 }

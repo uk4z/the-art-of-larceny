@@ -20,5 +20,14 @@ pub fn get_scenery_bundle(level: &Level) -> Option<SceneryBundle> {
                 },
             )
         },
+        Level::Warehouse => {
+            Some(
+                SceneryBundle {
+                    bounds: Bounds(Vec::new()),
+                    path: Path("levels/backgrounds/warehouse.png".to_string()),
+                    size: ScenerySize{width: 3360.0, height: 2240.0}
+                },
+            )
+        },
     }
 }

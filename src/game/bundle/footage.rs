@@ -27,5 +27,17 @@ pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
                 }
             )
         },
+        Level::Warehouse => {
+            Some(
+                FootageBundle {
+                    position: WorldPosition {
+                        x: 1423.0,
+                        y: 791.0,
+                    },
+                    reach: ReachDistance(40.0),
+                    available: Available(true),
+                }
+            )
+        },
     }
 }

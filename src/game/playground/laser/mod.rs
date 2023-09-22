@@ -19,7 +19,7 @@ impl Plugin for LaserPlugin {
         app
             .add_systems(OnEnter(SimulationState::Loading), spawn_laser)
             .add_systems(Update, (
-                    alert_security,  
+                    burn_player,  
             ).run_if(in_state(SimulationState::Running))
             )
             .add_systems(OnExit(AppState::Game), despawn_laser);
@@ -32,7 +32,7 @@ pub fn laser_extremum(
     length: &LaserLength,
 ) -> Vec<Vec3> {
     let ref_vector = orientation.0.mul_vec3(Vec3::X*length.0/2.0);
-    let up_vector = orientation.0.mul_quat(Quat::from_rotation_z(PI/2.0)).normalize().mul_vec3(Vec3::X*2.0);
+    let up_vector = orientation.0.mul_quat(Quat::from_rotation_z(PI/2.0)).normalize().mul_vec3(Vec3::X*35.0);
 
     
     vec![Vec3::from(*position)+(ref_vector+up_vector), 

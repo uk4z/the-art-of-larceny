@@ -21,5 +21,14 @@ pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
                 },
             )
         },
+        Level::Warehouse => {
+            Some(
+                SecurityBundle {
+                    position: WorldPosition {x: 2892.0, y: 449.0}, 
+                    active: Active(true),
+                    reach: ReachDistance(40.0),
+                },
+            )
+        },
     }
 }

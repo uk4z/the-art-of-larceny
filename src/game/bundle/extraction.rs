@@ -18,5 +18,13 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
+        Level::Warehouse => {
+            Some(
+                ExtractionBundle {
+                    position: WorldPosition {x: 290.0, y: 220.0},
+                    reach: ReachDistance(40.0),
+                }
+            )
+        },
     }
 }

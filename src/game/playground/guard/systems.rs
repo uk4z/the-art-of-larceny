@@ -17,7 +17,7 @@ use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMo
 use crate::game::playground::scenery::components::{Bounds, Scenery, ScenerySize};
 
 
-const FOV_RANGE: f32 = 250.0; 
+const FOV_RANGE: f32 = 350.0; 
 const HEAR_LIMIT: f32 = 400.0; 
 
 pub fn spawn_guard(

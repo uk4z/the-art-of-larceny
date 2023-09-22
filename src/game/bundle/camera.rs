@@ -74,5 +74,32 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
                 ]
             )
         },
+        Level::Warehouse => {
+            Some(
+                vec![
+                    CameraBundle {
+                        position: CameraPosition {x: 2105.0, y: 742.0},
+                        fov_position: WorldPosition {x:2105.0, y: 742.0},
+                        orientation: Orientation(Quat::from_rotation_z(PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition {x: 2355.0, y: 1682.0},
+                        fov_position: WorldPosition {x:2355.0, y: 1682.0},
+                        orientation: Orientation(Quat::from_rotation_z(0.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition {x: 3314.0, y: 850.0},
+                        fov_position: WorldPosition {x:3314.0, y: 850.0},
+                        orientation: Orientation(Quat::from_rotation_z(PI)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                ]
+            )
+        },
     }
 }
