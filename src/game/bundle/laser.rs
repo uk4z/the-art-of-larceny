@@ -4,7 +4,7 @@ use crate::game::{playground::{laser::components::{LaserBundle, LaserLength, Dir
 
 pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
     match level {
-        Level::Starting => {
+        Level::Factory => {
             Some(
                 vec![
                     LaserBundle {
@@ -16,6 +16,17 @@ pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
                         position: WorldPosition {x: 736.0, y: 172.0},
                         orientation: Orientation(Quat::from_rotation_z(Direction::Vertical.into())), //angle is 0.0 or PI/2.0 ; 
                         length: LaserLength(114.0),
+                    },
+                ]
+            )
+        },
+        Level::Tutorial => {
+            Some(
+                vec![
+                    LaserBundle {
+                        position: WorldPosition {x: 1575.0, y: 1230.0},
+                        orientation: Orientation(Quat::from_rotation_z(Direction::Horizontal.into())), //angle is 0.0 or PI/2.0 ; 
+                        length: LaserLength(284.0),
                     },
                 ]
             )

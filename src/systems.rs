@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy::window::{PrimaryWindow, WindowResized};
 use bevy::core_pipeline::clear_color::ClearColorConfig;
-
 use crate::AppState;
 use crate::main_menu::components::MainMenu;
 
@@ -22,7 +21,6 @@ pub fn spawn_setup(
     window_q: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_q.get_single().unwrap();
-
     commands.spawn((Camera2dBundle {
         transform: Transform::from_xyz(window.width()/2.0, window.height()/2.0, Layer::Camera.into()), //Origin-Bottom left;Y-Up;X-right
         camera_2d: Camera2d {
@@ -53,7 +51,6 @@ pub fn start_level(
     mut app_state_next_state: ResMut<NextState<AppState>>,
     mut visibility_q: Query<&mut Visibility, With<MainMenu>>,
 ) {
-
     if keyboard_input.just_pressed(KeyCode::Return) { 
         if *app_state.get() != AppState::Game {
             if let Ok(mut visibility) = visibility_q.get_single_mut() {
@@ -63,4 +60,3 @@ pub fn start_level(
         }
     }   
 }
-

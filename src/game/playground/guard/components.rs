@@ -59,15 +59,6 @@ pub enum GuardState {
     Waiting(Timer),
 }
 
-#[derive(Bundle, Debug)]
-pub struct FOVBundle {
-    pub position: WorldPosition, 
-    pub orientation: Orientation, 
-}
-
-#[derive(Component, Debug)]
-pub struct FOV;
-
 #[derive(Component, Debug)]
 pub struct ChaseStack(pub Vec<(WorldPosition, Orientation)>);
 

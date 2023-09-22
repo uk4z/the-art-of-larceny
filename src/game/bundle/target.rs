@@ -7,12 +7,24 @@ use crate::game::{playground::{target::components::{TargetBundle, UnlockTimer}, 
 
 pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
     match level {
-        Level::Starting => {
+        Level::Factory => {
             Some(
                 TargetBundle {
                     position: WorldPosition {
                         x: 600.0,
                         y: 702.0,
+                    },
+                    reach: ReachDistance(40.0),
+                    unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),
+                },
+            )
+        },
+        Level::Tutorial => {
+            Some(
+                TargetBundle {
+                    position: WorldPosition {
+                        x: 1402.0,
+                        y: 176.0,
                     },
                     reach: ReachDistance(40.0),
                     unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),

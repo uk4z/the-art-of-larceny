@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
 use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
 
@@ -9,49 +8,26 @@ use super::{components::*, obstacle_in_fov};
 use super::{patrol_direction, chase_direction, search_direction};
 use crate::get_scale_reference;
 use crate::game::components::Level;
-use crate::game::bundle::guard::{get_fov_bundle, get_guard_bundle};
+use crate::game::bundle::guard::get_guard_bundle;
 use crate::game::playground::player::components::{Player, Stealth};
 use crate::game::playground::player::DISTANCE_PER_SECOND;
 
 use crate::components::Layer;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance, GameOver};
-use crate::game::playground::scenery::components::{Bounds, Scenery};
-use crate::game::playground::scenery::SCENERY_SIZE;
+use crate::game::playground::scenery::components::{Bounds, Scenery, ScenerySize};
 
 
 const FOV_RANGE: f32 = 250.0; 
-const VISION_LENGTH: f32 = 400.0;
 const HEAR_LIMIT: f32 = 400.0; 
 
 pub fn spawn_guard(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     level: Res<Level>,
     window_q: Query<&Window, With<PrimaryWindow>>, 
 ) {
     let window = window_q.get_single().unwrap(); 
     let scale_reference = get_scale_reference(&window.width(), &window.height()); 
-
-    //spawn FOV
-    if let Some(fovs) = get_fov_bundle(&level) {
-        for bundle in fovs {
-            commands.spawn((
-                MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::RegularPolygon::new(VISION_LENGTH, 3))).into(),
-                    transform: Transform::from_xyz(0.0, 0.0, Layer::Interactable.into())
-                        .with_scale(Vec3::new(scale_reference, scale_reference, 1.0)),
-                    material: materials.add(ColorMaterial::from(Color::YELLOW)), 
-                    visibility: Visibility::Hidden,
-                    ..default()
-                },
-                bundle,
-                FOV,
-            ));
-        }
-    }
-   
 
     let scale = 1.2; 
     //spawn_guard
@@ -89,26 +65,17 @@ pub fn despawn_guard(
     }
 }
 
-pub fn despawn_fov(
-    mut commands: Commands,
-    entity_q: Query<Entity, With<FOV>>,
-) {
-    for entity in entity_q.iter() {
-        commands.entity(entity).despawn();
-    }
-}
-
 pub fn alert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation, &mut GuardPace), With<Guard>>, 
     mut player_q: Query<(&WorldPosition, &mut Stealth), With<Player>>,
-    bounds_q: Query<&Bounds, With<Scenery>>,
+    bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
     asset_server: Res<AssetServer>, 
     mut commands: Commands,
 ){
     if let Ok((player_pos, mut stealth)) = player_q.get_single_mut() {
-        if let Ok(bounds) = bounds_q.get_single() {
+        if let Ok((bounds, size)) = bounds_q.get_single() {
             for (mut state, guard_pos, orientation, mut pace) in guards_q.iter_mut() {
-                if !obstacle_in_fov(player_pos, guard_pos, bounds) {
+                if !obstacle_in_fov(player_pos, guard_pos, bounds, size) {
                     let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
                     let fov_vector = orientation.0.mul_vec3(Vec3::X);
                     let angle = Quat::from_rotation_arc(target_vector, fov_vector).angle_between(Quat::IDENTITY);
@@ -142,10 +109,10 @@ pub fn alert_guard (
 pub fn disalert_guard (
     mut guards_q: Query<(&mut GuardState, &WorldPosition, &Orientation), With<Guard>>, 
     player_q: Query<&WorldPosition, With<Player>>,
-    bounds_q: Query<&Bounds, With<Scenery>>,
+    bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
 ){
     if let Ok(player_pos) = player_q.get_single() {
-        if let Ok(bounds) = bounds_q.get_single() {
+        if let Ok((bounds, size)) = bounds_q.get_single() {
             for (mut state, guard_pos, orientation,) in guards_q.iter_mut() {
                 let target_vector = Vec3::from(*player_pos)-Vec3::from(*guard_pos);
                 let fov_vector = orientation.0.mul_vec3(Vec3::X);
@@ -154,7 +121,7 @@ pub fn disalert_guard (
                 match *state {
                     GuardState::Chasing => {
 
-                        if !(angle < PI/4.0 && FOV_RANGE >= distance) || obstacle_in_fov(player_pos, guard_pos, bounds) {
+                        if !(angle < PI/4.0 && FOV_RANGE >= distance) || obstacle_in_fov(player_pos, guard_pos, bounds, size) {
                             *state = GuardState::Searching(*player_pos);
 
                         }
@@ -198,30 +165,11 @@ pub fn catch_player (
     }
 }
 
-pub fn update_fov(
-    mut fov_q: Query<(&mut Orientation, &mut WorldPosition), (With<FOV>, Without<Guard>)>, 
-    guard_q: Query<(&Orientation, &WorldPosition), (With<Guard>, Without<FOV>)>, 
-) {
-    let mut guard_items: Vec<(&Orientation, &WorldPosition)> = guard_q.iter().collect();
-
-    fov_q.for_each_mut(|(mut orientation, mut position)| {
-        if let Some((guard_orientation, guard_position)) = guard_items.pop() {
-            orientation.0 = guard_orientation.0; 
-            let origin = Vec3::from(*guard_position);
-            let fov_position = origin + guard_orientation.0.mul_vec3(Vec3::X*VISION_LENGTH);
-            *position = WorldPosition {x: fov_position.x, y:fov_position.y};
-            orientation.0 = Quat::from_rotation_z(PI/2.0).mul_quat(guard_orientation.0);  
-        }
-    });
-}
-
-
-
 pub fn move_guard(
     time: Res<Time>,
     player_q: Query<&WorldPosition, (With<Player>, Without<Guard>)>,
     mut guard_q: Query<(&mut WorldPosition, &mut Patrol, &mut Orientation, &GuardPace, &mut GuardState), (With<Guard>, Without<Player>)>,
-    bounds_q: Query<&Bounds, With<Scenery>>,
+    bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
 ) { 
     guard_q.for_each_mut(|
         (mut position, mut patrol, mut orientation, 
@@ -264,8 +212,8 @@ pub fn move_guard(
         let translation: Vec3 = direction*speed;
 
         if (!(patrol.is_waiting_position() && patrol.patrol_position_reached(*position))) || is_chasing {
-            if let Ok(bounds) = bounds_q.get_single() {
-                let (x, y) = ((position.x+translation.x) as usize, (SCENERY_SIZE.1-(position.y+translation.y)) as usize);
+            if let Ok((bounds, size)) = bounds_q.get_single() {
+                let (x, y) = ((position.x+translation.x) as usize, (size.height-(position.y+translation.y)) as usize);
                             
                 let mut move_guard = true; 
                 if !bounds.0.is_empty() {
@@ -473,9 +421,9 @@ pub fn handle_sound_distance(
 
 pub fn bounds_guard(
     mut guard_q: Query<(&Orientation, &mut WorldPosition, &GuardState), With<Guard>>,
-    bounds_q: Query<&Bounds, With<Scenery>>,
+    bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
 ) {
-    if let Ok(bounds) = bounds_q.get_single() {
+    if let Ok((bounds, size)) = bounds_q.get_single() {
         guard_q.for_each_mut(|(orientation, mut position, state)| {
             match *state {
                 GuardState::Chasing => {
@@ -484,7 +432,7 @@ pub fn bounds_guard(
         
                     for i in 1..4 {
                         let rr = orientation.0.mul_quat(Quat::from_rotation_z(-(i as f32)*PI/6.0)).normalize().mul_vec3(Vec3::X)*50.0;  
-                        if obstacle_in_fov(&WorldPosition { x: position.x + rr.x, y: position.y + rr.y }, &position, bounds) {
+                        if obstacle_in_fov(&WorldPosition { x: position.x + rr.x, y: position.y + rr.y }, &position, bounds, size) {
                             let projection = rr.project_onto(right).normalize();
                             position.x += -projection.x; 
                             position.y +=  -projection.y; 
@@ -492,7 +440,7 @@ pub fn bounds_guard(
         
                         let ll = orientation.0.mul_quat(Quat::from_rotation_z((i as f32)*PI/6.0)).normalize().mul_vec3(Vec3::X)*50.0; 
         
-                        if obstacle_in_fov(&WorldPosition { x: position.x + ll.x, y: position.y + ll.y }, &position, bounds) {
+                        if obstacle_in_fov(&WorldPosition { x: position.x + ll.x, y: position.y + ll.y }, &position, bounds, size) {
                             let projection = ll.project_onto(left).normalize();
                             position.x += -projection.x; 
                             position.y +=  -projection.y; 

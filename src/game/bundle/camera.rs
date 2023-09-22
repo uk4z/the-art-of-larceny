@@ -9,7 +9,7 @@ use crate::game::{playground::{
 
 pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
     match level {
-        Level::Starting => {
+        Level::Factory => {
             Some(
                 vec![
                     CameraBundle {
@@ -50,6 +50,26 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
                         orientation: Orientation(Quat::from_rotation_z(0.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
                         pattern: CameraPattern::Static,
                         fov_length: FOVLength(200.0),
+                    },
+                ]
+            )
+        },
+        Level::Tutorial => {
+            Some(
+                vec![
+                    CameraBundle {
+                        position: CameraPosition {x: 1181.0, y: 1413.0},
+                        fov_position: WorldPosition {x:1181.0, y: 1413.0},
+                        orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(200.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition {x: 1967.0, y: 172.0},
+                        fov_position: WorldPosition {x:1967.0, y: 172.0},
+                        orientation: Orientation(Quat::from_rotation_z(PI)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
                     },
                 ]
             )

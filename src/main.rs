@@ -25,7 +25,7 @@ fn main() {
 
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {
-            title: "The art of larceny: rogue's riches".to_string(),
+            title: "The Art of Larceny".to_string(),
             mode: WindowMode::Fullscreen,
             resizable: true,
             present_mode: PresentMode::AutoVsync,

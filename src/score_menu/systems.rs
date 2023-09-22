@@ -91,7 +91,7 @@ pub fn spawn_score_menu(
         total_score = ev.comment.clone(); 
         value = ev.value; 
     }
-
+    
     let window = window_q.get_single().unwrap(); 
     let reference_scale = get_scale_reference(&window.width(), &window.height());
 

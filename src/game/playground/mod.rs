@@ -16,7 +16,7 @@ use bevy::prelude::*;
 
 use systems::*;
 use player::PlayerPlugin;
-use scenery::{SceneryPlugin, SCENERY_SIZE};
+use scenery::SceneryPlugin;
 use target::TargetPlugin;
 use extraction::ExtractionPlugin;
 use item::ItemPlugin;
@@ -64,17 +64,6 @@ impl Plugin for PlaygroundPlugin {
             .add_systems(OnExit(SimulationState::Running), despawn_ambiance);
 
     }
-}
-
-
-pub fn get_world_origin(
-    resolution_scale: f32, 
-    scenery_center: (f32, f32)
-) -> Vec3 {
-    let height = resolution_scale*SCENERY_SIZE.1;
-    let width = resolution_scale*SCENERY_SIZE.0;
-
-    Vec3::new(scenery_center.0-width/2.0, scenery_center.1-height/2.0, 0.0)
 }
 
 pub fn is_visible(

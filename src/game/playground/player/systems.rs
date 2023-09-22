@@ -12,8 +12,7 @@ use crate::game::components::Level;
 use crate::game::bundle::player::get_player_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::guard::components::{GuardState, Guard};
-use crate::game::playground::scenery::components::{Bounds, Scenery};
-use crate::game::playground::scenery::SCENERY_SIZE;
+use crate::game::playground::scenery::components::{Bounds, Scenery, ScenerySize};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -59,7 +58,7 @@ pub fn move_player(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut player_q: Query<(&mut WorldPosition, &mut Orientation, &PlayerPace), With<Player>>,
-    bounds_q: Query<&Bounds, With<Scenery>>,
+    bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
 
 ) {
     if let Ok((mut position, mut orientation, pace)) = player_q.get_single_mut() { 
@@ -76,8 +75,8 @@ pub fn move_player(
         };
         let translation: Vec3 = direction*speed;
 
-        if let Ok(bounds) = bounds_q.get_single() {
-            let (x, y) = ((position.x+translation.x) as usize, (SCENERY_SIZE.1-(position.y+translation.y)) as usize);
+        if let Ok((bounds, size)) = bounds_q.get_single() {
+            let (x, y) = ((position.x+translation.x) as usize, (size.height-(position.y+translation.y)) as usize);
             
             let mut move_player = true; 
             if !bounds.0.is_empty() {

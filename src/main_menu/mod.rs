@@ -14,7 +14,7 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(Level::Starting)
+            .insert_resource(Level::Tutorial)
             //.register_type::<Best>()
             .insert_resource(BoundsResource{handle: None})
 

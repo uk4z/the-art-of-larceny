@@ -20,7 +20,8 @@ pub struct ScoreEvent {
 
 #[derive(Resource, Debug)]
 pub enum Level {
-    Starting,
+    Tutorial,
+    Factory,
 }
 
 #[derive(Resource, Debug)]

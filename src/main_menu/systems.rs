@@ -63,9 +63,12 @@ pub fn interact_with_play_button(
                         }
 
                         let image_path = match *level {
-                            Level::Starting => {
+                            Level::Factory => {
                                 "levels/backgrounds/factory.png"
                             }, 
+                            Level::Tutorial => {
+                                "levels/backgrounds/tutorial.png"
+                            }
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -112,12 +115,18 @@ pub fn interact_with_select_button(
     >,
     mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
     mut bounds_resource: ResMut<BoundsResource>,  
+    level: ResMut<Level>,
     mut commands: Commands,
 ) {
     if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Pressed => {
-                let asset: Handle<Image> = asset_server.load("levels/backgrounds/bounds.png");
+                let asset_path = match *level {
+                    Level::Factory => {"levels/bounds/factory_bounds.png"}, 
+                    Level::Tutorial => {"levels/bounds/tutorial_bounds.png"},
+                };
+                
+                let asset: Handle<Image> = asset_server.load(asset_path);
                 bounds_resource.handle = Some(asset); 
                 
                 simulation_state_next_state.set(SimulationState::Loading);
@@ -156,15 +165,21 @@ pub fn switch_level(
             Visibility::Visible => {
                 if keyboard_input.just_pressed(KeyCode::Right) {
                     match *level {
-                        Level::Starting => {
-                            *level = Level::Starting;
+                        Level::Factory => {
+                            *level = Level::Tutorial;
                         },
+                        Level::Tutorial => {
+                            *level = Level::Factory
+                        }
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
-                        Level::Starting => {
-                            *level = Level::Starting;
+                        Level::Factory => {
+                            *level = Level::Tutorial;
+                        }, 
+                        Level::Tutorial => {
+                            *level = Level::Factory; 
                         }
                     }
                 }
@@ -189,9 +204,12 @@ pub fn update_level_image(
             let scale = get_main_scale_from_window(&width, &height); 
 
             let image_path = match *level {
-                Level::Starting => {
+                Level::Factory => {
                     "levels/backgrounds/factory.png"
                 }, 
+                Level::Tutorial => {
+                    "levels/backgrounds/tutorial.png"
+                }
             };
 
             commands.spawn((
@@ -218,7 +236,7 @@ pub fn spawn_main_image(
 
     commands.spawn((
         SpriteBundle{
-            texture: asset_server.load("test.png"),
+            texture: asset_server.load("menu_image.png"),
             transform: Transform::from_xyz(window.width()/2.0, window.height()/2.0, Layer::Scenery.into())
                 .with_scale(Vec3::new(scale*scale_reference, scale*scale_reference, 1.0)),
         ..default()
@@ -242,9 +260,12 @@ pub fn display_level_title (
 ) {
     if let Ok(mut text) = text_q.get_single_mut() {
         match *level {
-            Level::Starting => {
-                text.sections[0].value = "< Starting >".to_string();
+            Level::Factory => {
+                text.sections[0].value = "< Factory >".to_string();
             },
+            Level::Tutorial => {
+                text.sections[0].value = "< Tutorial >".to_string(); 
+            }
         }
     }
 }

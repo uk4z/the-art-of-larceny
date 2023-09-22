@@ -3,10 +3,19 @@ use crate::game::{playground::{security::components::{Active, SecurityBundle}, c
 
 pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
     match level {
-        Level::Starting => {
+        Level::Factory => {
             Some(
                 SecurityBundle {
                     position: WorldPosition {x: 2534.0, y: 1411.0}, 
+                    active: Active(true),
+                    reach: ReachDistance(40.0),
+                },
+            )
+        },
+        Level::Tutorial => {
+            Some(
+                SecurityBundle {
+                    position: WorldPosition {x: 1199.0, y: 767.0}, 
                     active: Active(true),
                     reach: ReachDistance(40.0),
                 },
