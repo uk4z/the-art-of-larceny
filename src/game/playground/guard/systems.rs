@@ -455,10 +455,48 @@ pub fn bounds_guard(
     }
 }
 
+pub fn avoid_guard_collisions(
+    mut guard_q: Query<&mut WorldPosition, With<Guard>>, 
+) {
+    let positions: Vec<Mut<'_, WorldPosition>> = guard_q.iter_mut().collect();
+    let length = positions.len();
+    let mut mirror = Vec::new();
+    let mut mutable_mirror = Vec::new();
+
+    for position in positions {
+        mirror.push(position.clone()); 
+        mutable_mirror.push(position);
+    }  
+    
+    for ref_index in 0..length {
+        let ref_pos = mirror.get(ref_index).unwrap();
+        for i in (ref_index+1)..length {
+            let pos = mutable_mirror.get_mut(i).unwrap(); 
+
+            let direction = Vec3::from(**pos) - Vec3::from(*ref_pos);
+
+            let ratio = 80.0 /*hitbox length*/ / direction.length();  
+            if ratio > 1.0  {
+                let new_direction = direction + direction.normalize(); 
+                **pos = WorldPosition {x: ref_pos.x+new_direction.x, y: ref_pos.y+new_direction.y};
+            }
+        }
+    }
+    
+}
+
 pub fn stop_footsteps(
     guard_q: Query<&AudioSink, With<Guard>>,
 ) {
     guard_q.for_each(|sink| {
         sink.stop();
+    }); 
+}
+
+pub fn pause_footsteps(
+    guard_q: Query<&AudioSink, With<Guard>>,
+) {
+    guard_q.for_each(|sink| {
+        sink.pause();
     }); 
 }

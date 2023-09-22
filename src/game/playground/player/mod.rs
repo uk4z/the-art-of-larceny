@@ -23,6 +23,8 @@ impl Plugin for PlayerPlugin {
                     update_stealth_on_intrusion,
             ).run_if(in_state(SimulationState::Running))
             )
+            .add_systems(OnEnter(SimulationState::Score), stop_player_footsteps)
+            .add_systems(OnEnter(SimulationState::Paused), pause_player_footsteps)
             .add_systems(OnExit(AppState::Game), (
                     despawn_player,
                     despawn_corpse,

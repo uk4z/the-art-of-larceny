@@ -36,7 +36,9 @@ impl Plugin for GuardPlugin {
                     bounds_guard, 
             ).run_if(in_state(SimulationState::Running))
             )
+            .add_systems(PostUpdate, avoid_guard_collisions.run_if(in_state(SimulationState::Running)))
             .add_systems(OnEnter(SimulationState::Score), stop_footsteps)
+            .add_systems(OnEnter(SimulationState::Paused), pause_footsteps)
             .add_systems(OnExit(AppState::Game), despawn_guard);
     }
 }

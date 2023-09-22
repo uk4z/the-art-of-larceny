@@ -237,3 +237,19 @@ pub fn update_stealth_on_intrusion(
         }
     }
 }
+
+pub fn stop_player_footsteps(
+    player_q: Query<&AudioSink, With<Player>>,
+) {
+    if let Ok(sink) = player_q.get_single() {
+        sink.stop(); 
+    }
+}
+
+pub fn pause_player_footsteps(
+    player_q: Query<&AudioSink, With<Player>>,
+) {
+    if let Ok(sink) = player_q.get_single() {
+        sink.pause(); 
+    }
+}
