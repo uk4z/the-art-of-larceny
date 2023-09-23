@@ -23,7 +23,8 @@ pub enum Level {
     Tutorial,
     MillerHouse, 
     Factory,
-    Warehouse, 
+    Warehouse,
+    Maze, 
 }
 
 #[derive(Resource, Debug)]

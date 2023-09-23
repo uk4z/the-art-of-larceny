@@ -79,5 +79,20 @@ pub fn get_player_bundle(level: &Level) -> Option<PlayerBundle> {
                 },
             )
         },
+        Level::Maze => {
+            Some(
+                PlayerBundle { 
+                    position: WorldPosition { x: 35.0, y: 1886.0 },
+                    orientation: Orientation(Quat::from_rotation_z(0.0)),
+                    pace: PlayerPace::Walk,
+                    animation: AnimatedMotion {
+                        walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                        run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                    },
+                    reach: ReachDistance(40.0),
+                    stealth: Stealth::Ghost,
+                },
+            )
+        },
     }
 }

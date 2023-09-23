@@ -42,5 +42,17 @@ pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
         Level::MillerHouse => {
             None
         },
+        Level::Maze => {
+            Some(
+                FootageBundle {
+                    position: WorldPosition {
+                        x: -100.0,
+                        y: -100.0,
+                    },
+                    reach: ReachDistance(40.0),
+                    available: Available(true),
+                }
+            )
+        },
     }
 }

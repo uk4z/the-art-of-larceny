@@ -33,5 +33,14 @@ pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
         Level::MillerHouse => {
             None
         },
+        Level::Maze => {
+            Some(
+                SecurityBundle {
+                    position: WorldPosition {x: -100.0 ,y: -100.0}, 
+                    active: Active(true),
+                    reach: ReachDistance(40.0),
+                },
+            )
+        },
     }
 }

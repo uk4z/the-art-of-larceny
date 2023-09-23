@@ -50,5 +50,8 @@ pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
         Level::MillerHouse => {
             None
         },
+        Level::Maze => {
+            None
+        },
     }
 }

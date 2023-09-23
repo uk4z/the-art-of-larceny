@@ -75,6 +75,9 @@ pub fn interact_with_play_button(
                             Level::MillerHouse => {
                                 "levels/backgrounds/millerhouse.png"
                             },
+                            Level::Maze => {
+                                "levels/backgrounds/maze.png"
+                            },
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -132,6 +135,7 @@ pub fn interact_with_select_button(
                     Level::Tutorial => {"levels/bounds/tutorial_bounds.png"},
                     Level::Warehouse => {"levels/bounds/warehouse_bounds.png"},
                     Level::MillerHouse => {"levels/bounds/millerhouse_bounds.png"},
+                    Level::Maze => {"levels/bounds/maze_bounds.png"},
                 };
                 
                 let asset: Handle<Image> = asset_server.load(asset_path);
@@ -174,7 +178,10 @@ pub fn switch_level(
                 if keyboard_input.just_pressed(KeyCode::Right) {
                     match *level {
                         Level::Tutorial => {
-                            *level = Level::MillerHouse
+                            *level = Level::Maze
+                        },
+                        Level::Maze => {
+                            *level = Level::MillerHouse;
                         },
                         Level::MillerHouse => {
                             *level = Level::Factory;
@@ -183,14 +190,14 @@ pub fn switch_level(
                             *level = Level::Warehouse;
                         },
                         Level::Warehouse => {
-                            *level = Level::Tutorial;
+                            *level = Level::Maze;
                         },
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
                         Level::Tutorial => {
-                            *level = Level::Warehouse; 
+                            *level = Level::Maze; 
                         },
                         Level::Warehouse => {
                             *level = Level::Factory
@@ -199,6 +206,9 @@ pub fn switch_level(
                             *level = Level::MillerHouse;
                         }, 
                         Level::MillerHouse => {
+                            *level = Level::Maze;
+                        },
+                        Level::Maze => {
                             *level = Level::Tutorial;
                         },
                     }
@@ -235,6 +245,9 @@ pub fn update_level_image(
                 },
                 Level::MillerHouse => {
                     "levels/backgrounds/millerhouse.png"
+                },
+                Level::Maze => {
+                    "levels/backgrounds/maze.png"
                 },
             };
 
@@ -297,6 +310,9 @@ pub fn display_level_title (
             },
             Level::MillerHouse => {
                 text.sections[0].value = "< Mr. Miller House >".to_string(); 
+            },
+            Level::Maze => {
+                text.sections[0].value = "< Maze >".to_string(); 
             },
         }
     }

@@ -104,5 +104,18 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
         Level::MillerHouse => {
             None
         },
+        Level::Maze => {
+            Some(
+                vec![
+                    CameraBundle {
+                        position: CameraPosition { x:  279.0 , y:  955.0 },
+                        fov_position: WorldPosition { x:  279.0 , y:  955.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                ]
+            )
+        },
     }
 }

@@ -925,5 +925,280 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                 ]
             )
         },
+        Level::Maze => {
+            Some(
+                vec![ 
+                    GuardBundle { 
+                        position: WorldPosition { x:  666.0 , y:  1367.0 },
+                        orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  666.0 , y:  1367.0 },
+                                WorldPosition { x:  813.0 , y:  1666.0 },
+                                WorldPosition { x:  1198.0 , y:  1987.0 },
+                                WorldPosition { x:  573.0 , y:  1936.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  666.0 , y:  1367.0 },
+                                    time: Timer::from_seconds(1.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  1198.0 , y:  1987.0 },
+                                    time: Timer::from_seconds(1.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    },
+                
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  1206.0 , y:  1670.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI/2.0)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  1206.0 , y:  1670.0 },
+                                WorldPosition { x:  1190.0 , y:  1374.0 },
+                                WorldPosition { x:  944.0 , y:  1380.0 },
+                                WorldPosition { x:  953.0 , y:  1007.0 },
+                                WorldPosition { x:  600.0 , y:  1002.0 },
+                                WorldPosition { x:  953.0 , y:  1007.0 },
+                                WorldPosition { x:  1190.0 , y:  1374.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  1206.0 , y:  1670.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  944.0 , y:  1380.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  600.0 , y:  1002.0 },
+                                    time: Timer::from_seconds(1.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    },
+
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  1374.0 , y:  2056.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  1374.0 , y:  2056.0 },
+                                WorldPosition { x:  1502.0 , y:  2057.0 },
+                                WorldPosition { x:  1501.0 , y:  1993.0 },
+                                WorldPosition { x:  1645.0 , y:  1994.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  1374.0 , y:  2056.0 },
+                                    time: Timer::from_seconds(4.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  1645.0 , y:  1994.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    },
+
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  3084.0 , y:  2031.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  3084.0 , y:  2031.0 },
+                                WorldPosition { x:  3123.0 , y:  1999.0 },
+                                WorldPosition { x:  3129.0 , y:  1856.0 },  
+                                WorldPosition { x:  3193.0 , y:  1842.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  3084.0 , y:  2031.0 },
+                                    time: Timer::from_seconds(4.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  3193.0 , y:  1842.0 },
+                                    time: Timer::from_seconds(4.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    }, 
+
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  2827.0 , y:  718.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  2827.0 , y:  718.0 },
+                                WorldPosition { x:  2346.0 , y:  718.0 },
+                                WorldPosition { x:  2271.0 , y:  827.0 },
+                                WorldPosition { x:  1870.0 , y:  837.0 },
+                                WorldPosition { x:  1765.0 , y:  729.0 },
+                                WorldPosition { x:  1637.0 , y:  729.0 },
+                                WorldPosition { x:  1765.0 , y:  729.0 },
+                                WorldPosition { x:  1870.0 , y:  837.0 },
+                                WorldPosition { x:  2271.0 , y:  827.0 },
+                                WorldPosition { x:  2346.0 , y:  718.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  2827.0 , y:  718.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  1637.0 , y:  729.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    },   
+
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  2132.0 , y:  461.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  2132.0 , y:  461.0 },
+                                WorldPosition { x:  2132.0 , y:  378.0 },
+                                WorldPosition { x:  1775.0 , y:  247.0 }, 
+                                WorldPosition { x:  1647.0 , y:  247.0 },
+                                WorldPosition { x:  1775.0 , y:  247.0 }, 
+                                WorldPosition { x:  2132.0 , y:  378.0 },
+                                WorldPosition { x:  2132.0 , y:  461.0 },
+                                WorldPosition { x:  2132.0 , y:  378.0 },
+                                WorldPosition { x:  2354.0 , y:  235.0 },
+                                WorldPosition { x:  2483.0 , y:  235.0 },
+                                WorldPosition { x:  2354.0 , y:  235.0 },
+                                WorldPosition { x:  2132.0 , y:  378.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  2132.0 , y:  461.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  1647.0 , y:  247.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  2132.0 , y:  461.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                                Waiting {
+                                    position: WorldPosition { x:  2483.0 , y:  235.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    }, 
+
+                    /* ---------------------------------------------------------------------- */
+
+                    GuardBundle { 
+                        position: WorldPosition { x:  1296.0 , y:  202.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI)),
+                        pace: GuardPace::Walk,
+                        animation: AnimatedMotion {
+                            walk_timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+                            run_timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+                        },
+                        reach: ReachDistance(20.0),
+                        patrol: Patrol {
+                            positions: vec![
+                                WorldPosition { x:  1296.0 , y:  202.0 },
+                                WorldPosition { x:  1183.0 , y:  301.0 },
+                                WorldPosition { x:  883.0 , y:  304.0 },
+                                WorldPosition { x:  730.0 , y:  464.0 },
+                                WorldPosition { x:  550.0 , y:  263.0 },
+                                WorldPosition { x:  1183.0 , y:  301.0 },
+                            ],
+                            waitings: vec![
+                                Waiting {
+                                    position: WorldPosition { x:  1296.0 , y:  202.0 },
+                                    time: Timer::from_seconds(2.0, TimerMode::Repeating),
+                                },
+                            ],
+                            position_index: 0, 
+                            waiting_index: 0,
+                        },
+                        state: GuardState::Patrolling,
+                        chase_stack: ChaseStack(Vec::<(WorldPosition, Orientation)>::new()),
+                    }, 
+                ]
+            )
+        },
     }
 }

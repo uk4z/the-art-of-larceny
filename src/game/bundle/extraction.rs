@@ -34,5 +34,13 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
+        Level::Maze => {
+            Some(
+                ExtractionBundle {
+                    position: WorldPosition { x:  204.0 , y:  122.0 },
+                    reach: ReachDistance(40.0),
+                }
+            )
+        },
     }
 }
