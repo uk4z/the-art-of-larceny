@@ -229,7 +229,85 @@ pub fn get_item_bundle(level: &Level) -> Option<Vec<ItemBundle>> {
                         path: Path("items/diamond.png".to_string()),
                     },
                 ]
-                
+            )
+        },
+        Level::Office => {
+            Some(
+                vec![
+                    ItemBundle { 
+                        position: WorldPosition { x:  2206.0 , y:  2161.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1592.0 , y:  1762.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1147.0 , y:  1652.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  923.0 , y:  1326.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: 
+                        WorldPosition { x:  258.0 , y:  1233.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  3112.0 , y:  1050.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  927.0 , y:  767.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1993.0 , y:  571.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  3286.0 , y:  251.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  78.0 , y:  209.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  338.0 , y:  80.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  2447.0 , y:  76.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                ]
             )
         },
     }

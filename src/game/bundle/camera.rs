@@ -117,5 +117,39 @@ pub fn get_camera_bundle(level: &Level) -> Option<Vec<CameraBundle>> {
                 ]
             )
         },
+        Level::Office => {
+            Some(
+                vec![
+                    CameraBundle {
+                        position: CameraPosition { x:  1406.0 , y:  1654.0 },
+                        fov_position: WorldPosition { x:  1406.0 , y:  1654.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition { x:  1712.0 , y:  1565.0 },
+                        fov_position: WorldPosition { x:  1712.0 , y:  1565.0 },
+                        orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition { x:  1600.0 , y:  513.0 },
+                        fov_position: WorldPosition { x:  1600.0 , y:  513.0 },
+                        orientation: Orientation(Quat::from_rotation_z(3.0*PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                    CameraBundle {
+                        position: CameraPosition { x:  3077.0 , y:  46.0 },
+                        fov_position: WorldPosition { x:  3077.0 , y:  46.0 },
+                        orientation: Orientation(Quat::from_rotation_z(PI/2.0)*Quat::from_rotation_z(ROTATION_CORRECTION)),
+                        pattern: CameraPattern::Static,
+                        fov_length: FOVLength(300.0),
+                    },
+                ]
+            )
+        },
     }
 }

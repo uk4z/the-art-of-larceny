@@ -78,6 +78,9 @@ pub fn interact_with_play_button(
                             Level::Maze => {
                                 "levels/backgrounds/maze.png"
                             },
+                            Level::Office => {
+                                "levels/backgrounds/office.png"
+                            },
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -136,6 +139,7 @@ pub fn interact_with_select_button(
                     Level::Warehouse => {"levels/bounds/warehouse_bounds.png"},
                     Level::MillerHouse => {"levels/bounds/millerhouse_bounds.png"},
                     Level::Maze => {"levels/bounds/maze_bounds.png"},
+                    Level::Office => {"levels/bounds/office_bounds.png"},
                 };
                 
                 let asset: Handle<Image> = asset_server.load(asset_path);
@@ -190,14 +194,17 @@ pub fn switch_level(
                             *level = Level::Warehouse;
                         },
                         Level::Warehouse => {
-                            *level = Level::Maze;
+                            *level = Level::Office;
                         },
+                        Level::Office => {
+                            *level = Level::Tutorial;
+                        },      
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
-                        Level::Tutorial => {
-                            *level = Level::Maze; 
+                        Level::Office => {
+                            *level = Level::Warehouse;
                         },
                         Level::Warehouse => {
                             *level = Level::Factory
@@ -210,6 +217,9 @@ pub fn switch_level(
                         },
                         Level::Maze => {
                             *level = Level::Tutorial;
+                        },
+                        Level::Tutorial => {
+                            *level = Level::Office; 
                         },
                     }
                 }
@@ -248,6 +258,9 @@ pub fn update_level_image(
                 },
                 Level::Maze => {
                     "levels/backgrounds/maze.png"
+                },
+                Level::Office => {
+                    "levels/backgrounds/office.png"
                 },
             };
 
@@ -313,6 +326,9 @@ pub fn display_level_title (
             },
             Level::Maze => {
                 text.sections[0].value = "< Maze >".to_string(); 
+            },
+            Level::Office => {
+                text.sections[0].value = "< Office >".to_string(); 
             },
         }
     }

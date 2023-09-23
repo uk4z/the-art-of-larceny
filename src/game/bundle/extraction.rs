@@ -42,5 +42,13 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
+        Level::Office => {
+            Some(
+                ExtractionBundle {
+                    position: WorldPosition { x:  1640.0 , y: 2210.0 },
+                    reach: ReachDistance(40.0),
+                }
+            )
+        },
     }
 }

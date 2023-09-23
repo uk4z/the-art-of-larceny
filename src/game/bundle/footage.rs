@@ -54,5 +54,14 @@ pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
                 }
             )
         },
+        Level::Office => {
+            Some(
+                FootageBundle {
+                    position: WorldPosition { x:  2913.0 , y:  1642.0 },
+                    reach: ReachDistance(40.0),
+                    available: Available(true),
+                }
+            )
+        },
     }
 }

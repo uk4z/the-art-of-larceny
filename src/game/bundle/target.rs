@@ -64,5 +64,14 @@ pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
                 },
             )
         },
+        Level::Office => {
+            Some(
+                TargetBundle {
+                    position: WorldPosition { x:  2909.0 , y:  389.0 },
+                    reach: ReachDistance(40.0),
+                    unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),
+                },
+            )
+        },
     }
 }

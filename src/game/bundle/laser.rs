@@ -53,5 +53,21 @@ pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
         Level::Maze => {
             None
         },
+        Level::Office => {
+            Some(
+                vec![
+                    LaserBundle {
+                        position: WorldPosition { x:  2764.0 , y:  244.0 },
+                        orientation: Orientation(Quat::from_rotation_z(Direction::Vertical.into())), //angle is 0.0 or PI/2.0 ; 
+                        length: LaserLength(114.0),
+                    },
+                    LaserBundle {
+                        position: WorldPosition { x:  592.0 , y:  1434.0 },
+                        orientation: Orientation(Quat::from_rotation_z(Direction::Vertical.into())), //angle is 0.0 or PI/2.0 ; 
+                        length: LaserLength(114.0),
+                    },
+                ]
+            )
+        },
     }
 }

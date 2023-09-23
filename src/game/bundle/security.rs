@@ -42,5 +42,15 @@ pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
                 },
             )
         },
+        Level::Office => {
+            Some(
+                SecurityBundle {
+                    position: WorldPosition { x:  362.0 , y:  856.0 },
+                    active: Active(true),
+                    reach: ReachDistance(40.0),
+                },
+            )
+        },
+        
     }
 }
