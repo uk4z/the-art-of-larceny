@@ -26,5 +26,13 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
+        Level::MillerHouse => {
+            Some(
+                ExtractionBundle {
+                    position: WorldPosition {x: 946.0, y: 102.0},
+                    reach: ReachDistance(40.0),
+                }
+            )
+        },
     }
 }

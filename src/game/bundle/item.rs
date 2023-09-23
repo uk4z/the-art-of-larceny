@@ -115,5 +115,54 @@ pub fn get_item_bundle(level: &Level) -> Option<Vec<ItemBundle>> {
                 ]
             )
         },
+        Level::MillerHouse => {
+            Some(
+                vec![
+                    ItemBundle { 
+                        position: WorldPosition { x:  3117.0 , y:  1897.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  178.0 , y:  1629.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1585.0 , y:  1519.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  89.0 , y:  1270.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1105.0 , y:  1270.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1267.0 , y:  397.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                    ItemBundle { 
+                        position: WorldPosition { x:  1822.0 , y:  80.0 },
+                        orientation: Orientation(Quat::IDENTITY),
+                        reach: ReachDistance(40.0),
+                        path: Path("items/diamond.png".to_string()),
+                    },
+                ]
+                
+            )
+        },
     }
 }

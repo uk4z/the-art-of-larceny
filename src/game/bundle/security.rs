@@ -30,5 +30,8 @@ pub fn get_security_bundle(level: &Level) -> Option<SecurityBundle> {
                 },
             )
         },
+        Level::MillerHouse => {
+            None
+        },
     }
 }

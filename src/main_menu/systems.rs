@@ -72,6 +72,9 @@ pub fn interact_with_play_button(
                             Level::Warehouse => {
                                 "levels/backgrounds/warehouse.png"
                             },
+                            Level::MillerHouse => {
+                                "levels/backgrounds/millerhouse.png"
+                            },
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -128,6 +131,7 @@ pub fn interact_with_select_button(
                     Level::Factory => {"levels/bounds/factory_bounds.png"}, 
                     Level::Tutorial => {"levels/bounds/tutorial_bounds.png"},
                     Level::Warehouse => {"levels/bounds/warehouse_bounds.png"},
+                    Level::MillerHouse => {"levels/bounds/millerhouse_bounds.png"},
                 };
                 
                 let asset: Handle<Image> = asset_server.load(asset_path);
@@ -170,7 +174,10 @@ pub fn switch_level(
                 if keyboard_input.just_pressed(KeyCode::Right) {
                     match *level {
                         Level::Tutorial => {
-                            *level = Level::Factory
+                            *level = Level::MillerHouse
+                        },
+                        Level::MillerHouse => {
+                            *level = Level::Factory;
                         },
                         Level::Factory => {
                             *level = Level::Warehouse;
@@ -189,8 +196,11 @@ pub fn switch_level(
                             *level = Level::Factory
                         },
                         Level::Factory => {
-                            *level = Level::Tutorial;
+                            *level = Level::MillerHouse;
                         }, 
+                        Level::MillerHouse => {
+                            *level = Level::Tutorial;
+                        },
                     }
                 }
             },
@@ -222,6 +232,9 @@ pub fn update_level_image(
                 },
                 Level::Warehouse => {
                     "levels/backgrounds/warehouse.png"
+                },
+                Level::MillerHouse => {
+                    "levels/backgrounds/millerhouse.png"
                 },
             };
 
@@ -281,6 +294,9 @@ pub fn display_level_title (
             },
             Level::Warehouse => {
                 text.sections[0].value = "< Warehouse >".to_string(); 
+            },
+            Level::MillerHouse => {
+                text.sections[0].value = "< Mr. Miller House >".to_string(); 
             },
         }
     }

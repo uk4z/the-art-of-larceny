@@ -31,13 +31,16 @@ pub fn get_footage_bundle(level: &Level) -> Option<FootageBundle> {
             Some(
                 FootageBundle {
                     position: WorldPosition {
-                        x: 1423.0,
-                        y: 791.0,
+                        x: 1443.0,
+                        y: 1449.0,
                     },
                     reach: ReachDistance(40.0),
                     available: Available(true),
                 }
             )
+        },
+        Level::MillerHouse => {
+            None
         },
     }
 }
