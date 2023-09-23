@@ -901,9 +901,9 @@ pub fn get_guard_bundle(level: &Level) -> Option<Vec<GuardBundle>> {
                             positions: vec![
                                 WorldPosition {x: 1901.0 , y: 600.0},
                                 WorldPosition {x: 2339.0, y: 806.0},
-                                WorldPosition {x: 2339.0, y: 1304.0},
+                                WorldPosition {x: 2339.0, y: 1004.0},
                                 WorldPosition {x: 2280.0, y: 1045.0},
-                                WorldPosition {x: 2339.0, y: 1304.0},
+                                WorldPosition {x: 2339.0, y: 1004.0},
                                 WorldPosition {x: 2339.0, y: 806.0},
                             ],
                             waitings: vec![
