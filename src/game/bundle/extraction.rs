@@ -50,5 +50,13 @@ pub fn get_extraction_bundle(level: &Level) -> Option<ExtractionBundle> {
                 }
             )
         },
+        Level::Canyon => {
+            Some(
+                ExtractionBundle {
+                    position: WorldPosition { x:  2274.0 , y:  64.0 },
+                    reach: ReachDistance(40.0),
+                }
+            )
+        },
     }
 }

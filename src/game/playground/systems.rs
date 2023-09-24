@@ -9,6 +9,7 @@ use super::scenery::components::Scenery;
 
 use super::CHARACTER_SIZE;
 
+use crate::game::components::Level;
 use crate::get_scale_reference;
 use crate::components::Layer;
 use super::components::Orientation;
@@ -78,10 +79,21 @@ pub fn world_to_screen(
 pub fn start_ambiance(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    level: Res<Level>,
 ) {
+    let path = match *level {
+        Level::Factory =>  {"sounds/ambiance/factory_music.ogg"}, 
+        Level::Canyon => {"sounds/ambiance/canyon_music.ogg"},
+        Level::Maze => {"sounds/ambiance/maze_music.ogg"},
+        Level::MillerHouse => {"sounds/ambiance/millerhouse_music.ogg"},
+        Level::Office => {"sounds/ambiance/office_music.ogg"},
+        Level::Tutorial => {"sounds/ambiance/factory_music.ogg"}, 
+        Level::Warehouse => {"sounds/ambiance/factory_music.ogg"}, 
+    };
+
     commands.spawn((
         AudioBundle {
-            source: asset_server.load("sounds/ambiance/factory_music.ogg"),
+            source: asset_server.load(path),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Loop, 
                 volume: Volume::Relative(VolumeLevel::new(0.05)), 

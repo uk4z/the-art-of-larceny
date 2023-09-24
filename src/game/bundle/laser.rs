@@ -69,5 +69,8 @@ pub fn get_laser_bundle(level: &Level) -> Option<Vec<LaserBundle>> {
                 ]
             )
         },
+        Level::Canyon => {
+            None
+        },
     }
 }

@@ -81,6 +81,9 @@ pub fn interact_with_play_button(
                             Level::Office => {
                                 "levels/backgrounds/office.png"
                             },
+                            Level::Canyon => {
+                                "levels/backgrounds/canyon.png"
+                            },
                         };
                         
                         let window = window_q.get_single().unwrap(); 
@@ -140,6 +143,7 @@ pub fn interact_with_select_button(
                     Level::MillerHouse => {"levels/bounds/millerhouse_bounds.png"},
                     Level::Maze => {"levels/bounds/maze_bounds.png"},
                     Level::Office => {"levels/bounds/office_bounds.png"},
+                    Level::Canyon => {"levels/bounds/canyon_bounds.png"},
                 };
                 
                 let asset: Handle<Image> = asset_server.load(asset_path);
@@ -197,12 +201,18 @@ pub fn switch_level(
                             *level = Level::Office;
                         },
                         Level::Office => {
-                            *level = Level::Tutorial;
+                            *level = Level::Canyon;
                         },      
+                        Level::Canyon => {
+                            *level = Level::Tutorial;
+                        },  
                     }
                 }
                 if keyboard_input.just_pressed(KeyCode::Left) {
                     match *level {
+                        Level::Canyon => {
+                            *level = Level::Office;
+                        }, 
                         Level::Office => {
                             *level = Level::Warehouse;
                         },
@@ -219,7 +229,7 @@ pub fn switch_level(
                             *level = Level::Tutorial;
                         },
                         Level::Tutorial => {
-                            *level = Level::Office; 
+                            *level = Level::Canyon; 
                         },
                     }
                 }
@@ -261,6 +271,9 @@ pub fn update_level_image(
                 },
                 Level::Office => {
                     "levels/backgrounds/office.png"
+                },
+                Level::Canyon => {
+                    "levels/backgrounds/canyon.png"
                 },
             };
 
@@ -329,6 +342,9 @@ pub fn display_level_title (
             },
             Level::Office => {
                 text.sections[0].value = "< Office >".to_string(); 
+            },
+            Level::Canyon => {
+                text.sections[0].value = "< Canyon >".to_string(); 
             },
         }
     }

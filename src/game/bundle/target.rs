@@ -73,5 +73,14 @@ pub fn get_target_bundle(level: &Level) -> Option<TargetBundle> {
                 },
             )
         },
+        Level::Canyon => {
+            Some(
+                TargetBundle {
+                    position: WorldPosition { x:  240.0 , y:  461.0 },
+                    reach: ReachDistance(40.0),
+                    unlock_timer: UnlockTimer(Timer::new(Duration::from_secs(2), TimerMode::Once)),
+                },
+            )
+        },
     }
 }

@@ -25,7 +25,8 @@ pub enum Level {
     Factory,
     Warehouse,
     Maze, 
-    Office, 
+    Office,
+    Canyon, 
 }
 
 #[derive(Resource, Debug)]
