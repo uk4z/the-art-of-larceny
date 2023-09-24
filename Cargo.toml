@@ -1,7 +1,14 @@
 [package]
-name = "the_art_of_larceny"
+name = "The Art of Larceny"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.70"
+description = "This is a Rust game!"
+readme = "README.md"
+authors = ["uk4z"]
+repository = "https://github.com/uk4z/the-art-of-larceny-bevy-version.git"
+license = "MIT OR Apache-2.0"
+keywords = ["gamedev", "graphics", "stealthgame", "bevy", "bevygame"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,6 +16,9 @@ edition = "2021"
 bevy = "0.11.2"
 image = "0.24"
 rand = "0.8.5"
+bevy_embedded_assets = "0.8.0"
+
+
 # Enable max optimizations for dependencies, but not for our code:
 [profile.dev.package."*"]
 opt-level = 3

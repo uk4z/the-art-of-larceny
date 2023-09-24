@@ -11,6 +11,7 @@ use std::time::Duration;
 use bevy::asset::ChangeWatcher;
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 
 use game::GamePlugin;
 use game::components::SimulationState;
@@ -36,11 +37,14 @@ fn main() {
 
 
     App::new()
-        .add_plugins(DefaultPlugins.set(AssetPlugin {
+        .add_plugins(DefaultPlugins
+                .set(AssetPlugin {
                 watch_for_changes: Some(ChangeWatcher{delay: Duration::from_secs(1)}),
                 ..Default::default()
                 },
-            ).set(window_plugin)
+                )
+                .set(window_plugin)
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
         )
         .add_state::<AppState>()
         .add_state::<SimulationState>()
