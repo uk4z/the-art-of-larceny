@@ -9,6 +9,7 @@ pub mod score_menu;
 use std::time::Duration;
 
 use bevy::asset::ChangeWatcher;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::{Window, WindowMode, PresentMode}; 
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -37,14 +38,19 @@ fn main() {
 
 
     App::new()
-        .add_plugins(DefaultPlugins
+        .add_plugins(
+            (
+            DefaultPlugins
                 .set(AssetPlugin {
                 watch_for_changes: Some(ChangeWatcher{delay: Duration::from_secs(1)}),
-                ..Default::default()
-                },
+                    ..Default::default()
+                    },
                 )
                 .set(window_plugin)
-                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
+                LogDiagnosticsPlugin::default(),
+                FrameTimeDiagnosticsPlugin::default(),
+            )
         )
         .add_state::<AppState>()
         .add_state::<SimulationState>()
