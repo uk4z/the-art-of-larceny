@@ -63,7 +63,7 @@ pub fn signal_item (
         if is_visible(visibility) {
             if let Ok(mut text) = help_q.get_single_mut() {
                 if interaction_allowed_for_item(&player_q, &item_q) {
-                    text.sections[0].value = "Press E to take the item".to_string();
+                    text.sections[0].value = "Interact to take the item".to_string();
                 }
             }
         }

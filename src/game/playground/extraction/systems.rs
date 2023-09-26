@@ -62,7 +62,7 @@ pub fn signal_extraction (
         if interaction_allowed_for_extraction(player_q, extraction_q) {
             if let Ok(timer) = timer_q.get_single() {
                 if is_target_unlock(timer) {
-                    text.sections[0].value = "Press E to extract the target".to_string();
+                    text.sections[0].value = "Interact to extract the target".to_string();
                 }
             }
         }
