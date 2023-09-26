@@ -9,11 +9,21 @@ pub struct PlayButton;
 #[derive(Component)]
 pub struct SelectButton;
 
+#[derive(Component)]
+pub struct SettingsButton;
+
+#[derive(Component)]
+pub struct CloseButton;
+
+
 #[derive(Component, Debug)]
 pub struct QuitButton;
 
 #[derive(Component, Debug)]
 pub struct LevelMenu;
+
+#[derive(Component)]
+pub struct SettingsMenu;
 
 #[derive(Component, Debug)]
 pub struct LevelLabel;
@@ -43,3 +53,34 @@ pub struct LoadedScore;
 
 #[derive(Component, Debug)]
 pub struct BackgroundMusic;
+
+#[derive(Component, Debug)]
+pub struct UpField;
+
+#[derive(Component, Debug)]
+pub struct DownField;
+
+#[derive(Component, Debug)]
+pub struct RightField;
+
+#[derive(Component, Debug)]
+pub struct LeftField;
+
+#[derive(Component, Debug)]
+pub struct RunField;
+
+#[derive(Component, Debug)]
+pub struct InteractField;
+
+#[derive(Component, Debug)]
+pub enum SettingKeyButton{
+    Up, 
+    Down, 
+    Right, 
+    Left, 
+    Run, 
+    Interact,
+}
+
+#[derive(Component, Debug)]
+pub struct SelectValue;

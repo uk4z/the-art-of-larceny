@@ -5,7 +5,7 @@ use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
-use crate::game::components::{Level, ItemCount};
+use crate::game::components::{Level, ItemCount, KeyBoard};
 use crate::game::bundle::item::get_item_bundle;
 use crate::game::playground::is_visible;
 use super::components::*;
@@ -75,13 +75,14 @@ pub fn take_item (
     item_q: Query<(Entity, &WorldPosition, &ReachDistance), (With<Item>, Without<Player>)>,
     mut count: ResMut<ItemCount>, 
     keyboard_input: ResMut<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     if let Ok((player_position, player_reach)) = player_q.get_single() {
         for (entity, item_position, item_reach) in item_q.iter() {
             let distance = Vec3::from(*player_position).distance(Vec3::from(*item_position));
-            if distance <= player_reach.0+item_reach.0 && keyboard_input.pressed(KeyCode::E)  {
+            if distance <= player_reach.0+item_reach.0 && keyboard_input.pressed(keyboard.interact.unwrap())  {
                     commands.entity(entity).despawn(); 
                     count.0 += 1; 
 

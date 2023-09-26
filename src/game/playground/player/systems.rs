@@ -8,7 +8,7 @@ use super::{get_player_direction, DISTANCE_PER_SECOND};
 use crate::game::playground::security::components::Intrusion;
 use crate::get_scale_reference;
 use crate::components::Layer;
-use crate::game::components::Level;
+use crate::game::components::{Level, KeyBoard};
 use crate::game::bundle::player::get_player_bundle;
 use crate::game::playground::components::{WorldPosition, Orientation, AnimatedMotion, ReachDistance};
 use crate::game::playground::guard::components::{GuardState, Guard};
@@ -59,10 +59,10 @@ pub fn move_player(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_q: Query<(&mut WorldPosition, &mut Orientation, &PlayerPace), With<Player>>,
     bounds_q: Query<(&Bounds, &ScenerySize), With<Scenery>>,
-
+    keyboard: Res<KeyBoard>,
 ) {
     if let Ok((mut position, mut orientation, pace)) = player_q.get_single_mut() { 
-        let direction = get_player_direction(keyboard_input);
+        let direction = get_player_direction(keyboard_input, keyboard);
 
         //update position
         let speed = match pace {
@@ -112,10 +112,11 @@ pub fn move_player(
 pub fn set_player_pace(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_q: Query<&mut PlayerPace, With<Player>>,
+    keyboard: Res<KeyBoard>, 
 ) {
     if let Ok(mut player_pace) = player_q.get_single_mut() {
         let pace = player_pace.as_mut();
-        if keyboard_input.pressed(KeyCode::ShiftLeft) {
+        if keyboard_input.pressed(keyboard.run.unwrap()) {
             *pace = PlayerPace::Run;
         } else {
             *pace = PlayerPace::Walk;
@@ -127,12 +128,13 @@ pub fn motion_handler(
     mut player_q: Query<(&AudioSink, &mut Handle<Image> ,&mut AnimatedMotion, &mut Transform, &PlayerPace), With<Player>>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
-    keyboard_input: Res<Input<KeyCode>>
+    keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
 ) {
     if let Ok((sink, mut texture, mut animated, mut transform, pace)) 
             = player_q.get_single_mut() {
 
-        if keyboard_input.any_pressed([KeyCode::Z, KeyCode::Q, KeyCode::S, KeyCode::D]) {
+        if keyboard_input.any_pressed([keyboard.down.unwrap(), keyboard.up.unwrap(), keyboard.right.unwrap(), keyboard.left.unwrap()]) {
             match pace {
                 PlayerPace::Run => {
                     animated.run_timer.tick(time.delta());

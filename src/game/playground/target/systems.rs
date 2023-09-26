@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy::window::PrimaryWindow;
 use crate::get_scale_reference;
-use crate::game::components::Level;
+use crate::game::components::{Level, KeyBoard};
 use crate::game::bundle::target::get_target_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 
@@ -67,7 +67,7 @@ pub fn signal_target_zone (
         if interaction_allowed_for_target(player_q, target_q) {
             if let Ok(timer) = timer_q.get_single() {
                 if !is_target_unlock(timer) {
-                    text.sections[0].value = "Press E to unlock the target".to_string();
+                    text.sections[0].value = "Interact to unlock the target".to_string();
                 }
             }
         }
@@ -78,15 +78,16 @@ pub fn signal_target_zone (
 pub fn load_target_unlock (
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Target>)>,
     target_q: Query<(&WorldPosition, &ReachDistance), (With<Target>, Without<Player>)>,
     mut timer_q: Query<&mut UnlockTimer, With<Target>>,
 ) {
     if interaction_allowed_for_target(player_q, target_q) {
         if let Ok(mut timer) = timer_q.get_single_mut() {
-            if keyboard_input.just_pressed(KeyCode::E) && !timer.0.finished() { 
+            if keyboard_input.just_pressed(keyboard.interact.unwrap()) && !timer.0.finished() { 
                 timer.0.reset();
-            } else if keyboard_input.pressed(KeyCode::E) {
+            } else if keyboard_input.pressed(keyboard.interact.unwrap()) {
                 timer.0.tick(time.delta());
             } 
         }
@@ -97,6 +98,7 @@ pub fn animate_sound(
     audio_q: Query<&AudioSink, With<Target>>,
     timer_q: Query<&UnlockTimer, With<Target>>,
     keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
 ) {
     if let Ok(timer) = timer_q.get_single() {
         if let Ok(sink) = audio_q.get_single() {
@@ -104,10 +106,10 @@ pub fn animate_sound(
                 sink.stop(); 
             }
             if timer.0.percent() > 0.0  {
-                if keyboard_input.pressed(KeyCode::E) {
+                if keyboard_input.pressed(keyboard.interact.unwrap()) {
                     sink.play();
                 }
-                if keyboard_input.just_released(KeyCode::E) {
+                if keyboard_input.just_released(keyboard.interact.unwrap()) {
                     sink.pause(); 
                 }
             }

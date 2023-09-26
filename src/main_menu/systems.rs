@@ -5,7 +5,7 @@ use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
-use crate::game::components::{SimulationState, Level};
+use crate::game::components::{SimulationState, Level, KeyBoard};
 use crate::game::playground::scenery::components::BoundsResource;
 use crate::main_menu::components::*;
 use super::get_main_scale_from_window;
@@ -97,6 +97,235 @@ pub fn interact_with_play_button(
                             },
                             LevelImage, 
                         ));
+
+                        commands.spawn(
+                            AudioBundle {
+                                source: asset_server.load("sounds/confirmation.ogg"),
+                                settings: PlaybackSettings {
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                    speed: 1.0, paused: false}
+                            }
+                        );
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                border.0 = Color::WHITE;
+                color.0 = Color::RED.into();
+            }
+            Interaction::None => {
+                border.0 = Color::WHITE;
+                color.0 = Color::rgba(0.18, 0.20, 0.25, 0.8).into();
+            }
+        }
+    }
+}
+
+pub fn interact_with_settings_button(
+    mut button_query: Query<
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<SettingsButton>),
+    >,
+    mut settings_q: Query<&mut Visibility, With<SettingsMenu>>,
+    mut main_q: Query<&mut Visibility, (Without<SettingsMenu>, With<MainMenu>)>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) {
+    if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
+        match *interaction {
+            Interaction::Pressed => {
+                if let Ok(mut level_visibility) = settings_q.get_single_mut() {
+                    if let Ok(mut main_visibility) = main_q.get_single_mut() {
+                        *level_visibility = Visibility::Visible;
+                        *main_visibility = Visibility::Hidden;
+
+                        commands.spawn(
+                            AudioBundle {
+                                source: asset_server.load("sounds/confirmation.ogg"),
+                                settings: PlaybackSettings {
+                                    mode: PlaybackMode::Despawn, 
+                                    volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                    speed: 1.0, paused: false}
+                            }
+                        );
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                border.0 = Color::WHITE;
+                color.0 = Color::RED.into();
+            }
+            Interaction::None => {
+                border.0 = Color::WHITE;
+                color.0 = Color::rgba(0.18, 0.20, 0.25, 0.8).into();
+            }
+        }
+    }
+}
+
+pub fn despawn_select_value(
+    mut commands: Commands,  
+    value_q: Query<Entity, With<SelectValue>>, 
+) { 
+    for entity in value_q.iter() {
+        commands.entity(entity).despawn(); 
+    }
+}
+
+pub fn spawn_select_value(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) { 
+    commands.spawn((
+        NodeBundle {
+            style: Style {
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column, 
+                position_type: PositionType::Absolute,
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::End, 
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            visibility: Visibility::Hidden, 
+            transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+            ..default()
+        },
+        SelectValue,
+    )).with_children(|helper|{
+        helper.spawn(NodeBundle {
+            style: Style {
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                width: Val::Percent(100.0),
+                height: Val::Percent(10.0),
+                ..default()
+            },
+            ..default()
+        }).with_children(|text_division|{
+            text_division.spawn((TextBundle {
+                text: Text::from_section(
+                    "Press any key.",
+                    TextStyle {
+                        font: asset_server.load("FiraMono-Medium.ttf"),
+                        font_size: 30.0,
+                        color: Color::WHITE,
+                    }),
+                    background_color: Color::BLACK.into(),
+                    ..default()
+            },
+            ));
+        });
+    });
+}
+
+pub fn handle_key_selection (
+    mut visibility_q: Query<&mut Visibility, With<SelectValue>>, 
+    keyboard_input: Res<Input<KeyCode>>, 
+    mut keyboard: ResMut<KeyBoard>, 
+) {
+    if let Ok(mut visibility) = visibility_q.get_single_mut() {
+        match *visibility {
+            Visibility::Visible => {
+                for keycode in keyboard_input.get_just_pressed() {
+                    match keyboard.down {
+                        None => {keyboard.down = Some(*keycode)}
+                        _ => {}
+                    }
+                    match keyboard.up {
+                        None => {keyboard.up = Some(*keycode)}
+                        _ => {}
+                    }
+                    match keyboard.right {
+                        None => {keyboard.right = Some(*keycode)}
+                        _ => {}
+                    }
+                    match keyboard.left {
+                        None => {keyboard.left = Some(*keycode)}
+                        _ => {}
+                    }
+                    match keyboard.run {
+                        None => {keyboard.run = Some(*keycode)}
+                        _ => {}
+                    }
+                    match keyboard.interact {
+                        None => {keyboard.interact = Some(*keycode)}
+                        _ => {}
+                    }
+                    *visibility = Visibility::Hidden; 
+                } 
+            }
+            _ => {}
+        }
+    }
+}
+
+
+pub fn interact_with_settings_key_button(
+    mut button_query: Query<(&Interaction, &mut BackgroundColor, &mut BorderColor, &SettingKeyButton),Changed<Interaction>>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+    mut select_value_q: Query<&mut Visibility, With<SelectValue>>,
+    mut keyboard: ResMut<KeyBoard>, 
+) {
+    button_query.for_each_mut(|(interaction, mut color, mut border, key_button)| {
+        match *interaction {
+            Interaction::Pressed => {
+                if let Ok(mut visibility) = select_value_q.get_single_mut() {
+                    *visibility = Visibility::Visible; 
+                    
+                    match *key_button {
+                        SettingKeyButton::Down => {keyboard.down = None},
+                        SettingKeyButton::Interact => {keyboard.interact = None}, 
+                        SettingKeyButton::Left => {keyboard.left = None}, 
+                        SettingKeyButton::Right => {keyboard.right = None}, 
+                        SettingKeyButton::Run =>  {keyboard.run = None}, 
+                        SettingKeyButton::Up => {keyboard.up = None},
+                    }
+
+                    commands.spawn(
+                        AudioBundle {
+                            source: asset_server.load("sounds/confirmation.ogg"),
+                            settings: PlaybackSettings {
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                speed: 1.0, paused: false}
+                        }
+                    );
+                }
+            }
+            Interaction::Hovered => {
+                border.0 = Color::WHITE;
+                color.0 = Color::RED.into();
+            }
+            Interaction::None => {
+                border.0 = Color::WHITE;
+                color.0 = Color::rgba(0.18, 0.20, 0.25, 0.8).into();
+            }
+        }
+    });
+}
+
+pub fn interact_with_close_button(
+    mut button_query: Query<
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<CloseButton>),
+    >,
+    mut settings_q: Query<&mut Visibility, With<SettingsMenu>>,
+    mut main_q: Query<&mut Visibility, (Without<SettingsMenu>, With<MainMenu>)>,
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>, 
+) {
+    if let Ok((interaction, mut color, mut border)) = button_query.get_single_mut() {
+        match *interaction {
+            Interaction::Pressed => {
+                if let Ok(mut level_visibility) = settings_q.get_single_mut() {
+                    if let Ok(mut main_visibility) = main_q.get_single_mut() {
+                        *level_visibility = Visibility::Hidden;
+                        *main_visibility = Visibility::Visible;
 
                         commands.spawn(
                             AudioBundle {
@@ -489,6 +718,38 @@ pub fn spawn_main_menu(
                     border_color: Color::WHITE.into(), 
                     ..default()
                 },
+                SettingsButton,
+            )).with_children(|button| {
+                button.spawn((
+                    TextBundle::from_section(
+                        "Settings",
+                    TextStyle {
+                        font: asset_server.load("FiraMono-Medium.ttf"),
+                        font_size: 20.0,
+                        color: Color::WHITE.into()
+                        }),
+                ));
+            });
+            
+            values_section.spawn((
+                //button
+                ButtonBundle { 
+                    style: Style {
+                        display: Display::Flex,
+                        flex_direction: FlexDirection::Column,
+                        width: Val::Percent(30.0),
+                        height: Val::Px(100.0),
+                        border: UiRect::all(Val::Px(2.0)),
+                        // horizontally center child text
+                        justify_content: JustifyContent::Center,
+                        // vertically center child text
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: Color::rgba(0.18, 0.20, 0.25, 0.4).into(),
+                    border_color: Color::WHITE.into(), 
+                    ..default()
+                },
                 QuitButton,
 
             )).with_children(|button| {
@@ -504,6 +765,478 @@ pub fn spawn_main_menu(
             });
         });
     });
+}
+
+pub fn despawn_settings_menu(
+    mut commands: Commands, 
+    settings_menu_query: Query<Entity, With<SettingsMenu>>,
+) {
+    if let Ok(settings_menu_entity) = settings_menu_query.get_single() {
+        commands.entity(settings_menu_entity).despawn_recursive();
+    }
+}
+
+pub fn spawn_settings_menu(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+) {
+    commands
+        //root node
+        .spawn((NodeBundle {
+            style: Style {
+                display: Display::Flex,
+                position_type: PositionType::Absolute,
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            visibility: Visibility::Hidden,
+            transform: Transform::from_xyz(0.0, 0.0, Layer::UI.into()),
+            ..default()
+        },
+        SettingsMenu,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        display: Display::Flex,
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        width: Val::Percent(50.0),
+                        height: Val::Percent(50.0),
+                        border: UiRect::all(Val::Px(2.0)),
+                        ..default()
+                    },
+                    background_color: Color::rgba(0.18, 0.20, 0.25, 0.4).into(),
+                    border_color: Color::WHITE.into(), 
+                    ..default()
+                },
+            ))
+            .with_children(|intel|{
+                intel.spawn((
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Column,
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
+                            ..default()
+                        },
+                        background_color: Color::rgba(0.18, 0.20, 0.25, 0.8).into(),
+                        ..default()
+                    },
+
+                )).with_children(|menu|{
+                    menu.spawn((
+                        //label
+                        NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(10.0),    
+                                ..default()
+                            },
+                            ..default()
+                        },
+                    )).with_children(|label_section|{
+                        label_section.spawn((
+                            TextBundle {
+                                text: Text::from_section(
+                                    "Settings",
+                                    TextStyle {
+                                        font: asset_server.load("FiraMono-Medium.ttf"),
+                                        font_size: 30.0,
+                                        color: Color::WHITE,
+                                    }),
+                                    ..default()
+                            },
+                        )); 
+                    });
+
+                    menu.spawn(
+                        NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                flex_direction: FlexDirection::Row,
+                                justify_content: JustifyContent::Start,
+                                align_items: AlignItems::Center,
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(70.0),
+                                ..default()
+                            },
+                            ..default()
+                        }
+                    ).with_children(|node| {
+                        node.spawn(
+                            NodeBundle {
+                                style: Style {
+                                    display: Display::Flex,
+                                    flex_direction: FlexDirection::Column,
+                                    justify_content: JustifyContent::SpaceEvenly,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(50.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                ..default()
+                            }
+                        ).with_children(|left_section| { 
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Up,
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Up:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Z",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    UpField, 
+                                ));
+                            }); 
+
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Down, 
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Down:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "S",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    DownField, 
+                                ));
+                            }); 
+
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Right,
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Right:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "D",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    RightField, 
+                                ));
+                            }); 
+            
+                        }); 
+
+                       
+                        node.spawn(
+                            NodeBundle {
+                                style: Style {
+                                    display: Display::Flex,
+                                    flex_direction: FlexDirection::Column,
+                                    justify_content: JustifyContent::SpaceEvenly,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(50.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                ..default()
+                            }
+                        ).with_children(|left_section| { 
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Left, 
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Left:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Q",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    LeftField, 
+                                ));
+                            }); 
+
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Run, 
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Run:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "LeftShift",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    RunField, 
+                                ));
+                            }); 
+
+                            left_section.spawn((
+                                //button
+                                ButtonBundle { 
+                                    style: Style {
+                                        display: Display::Flex,
+                                        border: UiRect::all(Val::Px(2.0)),
+                                        width: Val::Px(250.0), 
+                                        // horizontally center child text
+                                        justify_content: JustifyContent::SpaceAround,
+                                        // vertically center child text
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                    border_color: Color::WHITE.into(), 
+                                    ..default()
+                                },
+                                SettingKeyButton::Interact, 
+                            )).with_children(|button| {
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "Interact:",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                ));
+
+                                button.spawn((
+                                    TextBundle {
+                                        text: Text::from_section(
+                                            "E",
+                                            TextStyle {
+                                                font: asset_server.load("FiraMono-Medium.ttf"),
+                                                font_size: 25.0,
+                                                color: Color::WHITE,
+                                            }),
+                                            ..default()
+                                    },
+                                    InteractField, 
+                                ));
+                            }); 
+                        }); 
+                    });
+
+                    menu.spawn((
+                        NodeBundle {
+                            style: Style {
+                                display: Display::Flex,
+                                flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(20.0),        
+                                ..default()
+                            },
+                            ..default()
+                        }, 
+                    )).with_children(|values_section| {
+                        values_section.spawn((
+                            //button
+                            ButtonBundle { 
+                                style: Style {
+                                    display: Display::Flex,
+                                    flex_direction: FlexDirection::Column,
+                                    width: Val::Percent(30.0),
+                                    height: Val::Px(50.0),
+                                    border: UiRect::all(Val::Px(2.0)),
+                                    // horizontally center child text
+                                    justify_content: JustifyContent::Center,
+                                    // vertically center child text
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::rgba(0.18, 0.20, 0.25, 1.0).into(),
+                                border_color: Color::WHITE.into(), 
+                                ..default()
+                            },
+                            CloseButton,
+                        )).with_children(|button| {
+                            button.spawn((
+                                TextBundle::from_section(
+                                    "Close",
+                                TextStyle {
+                                    font: asset_server.load("FiraMono-Medium.ttf"),
+                                    font_size: 20.0,
+                                    color: Color::WHITE.into()
+                                    }),
+                            ));
+                        });
+                    });
+                });
+            });
+        });
+
 }
 
 pub fn despawn_level_menu(

@@ -5,7 +5,7 @@ use bevy::audio::{PlaybackMode, VolumeLevel, Volume};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
-use crate::game::components::Level;
+use crate::game::components::{Level, KeyBoard};
 use crate::game::bundle::security::get_security_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use super::interaction_allowed_for_security;
@@ -78,11 +78,12 @@ pub fn toggle_security (
     security_q: Query<(&WorldPosition, &ReachDistance), (With<Security>, Without<Player>)>, 
     mut active_q: Query<&mut Active, With<Security>>,
     keyboard_input: Res<Input<KeyCode>>, 
+    keyboard: Res<KeyBoard>, 
     mut commands: Commands, 
     asset_server: Res<AssetServer>, 
 ) {
     if interaction_allowed_for_security(&player_q, &security_q) {
-        if keyboard_input.just_pressed(KeyCode::E) {
+        if keyboard_input.just_pressed(keyboard.interact.unwrap()) {
             if let Ok(mut active) = active_q.get_single_mut() {
                 if active.0 {
                     commands.spawn(

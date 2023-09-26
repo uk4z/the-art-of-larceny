@@ -11,7 +11,7 @@ use std::time::Duration;
 use bevy::asset::ChangeWatcher;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::window::{Window, WindowMode, PresentMode}; 
+use bevy::window::{Window, WindowMode, PresentMode, WindowResolution}; 
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 
 use game::GamePlugin;
@@ -28,9 +28,10 @@ fn main() {
     let window_plugin = WindowPlugin {
         primary_window: Some(Window {
             title: "The Art of Larceny".to_string(),
-            mode: WindowMode::Fullscreen,
+            mode: WindowMode::Windowed,
             resizable: true,
             present_mode: PresentMode::AutoVsync,
+            resolution: WindowResolution::new(1920.0, 1080.0),
             ..default()
         }),
         ..default()

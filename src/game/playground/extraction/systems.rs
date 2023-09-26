@@ -6,7 +6,7 @@ use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
 
 use crate::get_scale_reference;
 use crate::components::Layer;
-use crate::game::components::Level;
+use crate::game::components::{Level, KeyBoard};
 use crate::game::bundle::extraction::get_extraction_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 use crate::game::playground::target::components::{UnlockTimer, Target};
@@ -71,6 +71,7 @@ pub fn signal_extraction (
 
 pub fn end_level(
     keyboard_input: Res<Input<KeyCode>>, 
+    keyboard: Res<KeyBoard>, 
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Extraction>)>,
     extraction_q: Query<(&WorldPosition, &ReachDistance), (With<Extraction>, Without<Player>)>,
     stealth_q: Query<&Stealth, With<Player>>,
@@ -82,7 +83,7 @@ pub fn end_level(
     if interaction_allowed_for_extraction(player_q, extraction_q) {
         if let Ok(timer) = target_q.get_single() {
             if is_target_unlock(timer) {
-                if keyboard_input.just_pressed(KeyCode::E) {
+                if keyboard_input.just_pressed(keyboard.interact.unwrap()) {
                     commands.spawn((
                         AudioBundle {
                             source: asset_server.load("sounds/win.ogg"),

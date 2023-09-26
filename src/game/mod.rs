@@ -23,6 +23,14 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<ScoreEvent>()
+            .insert_resource(KeyBoard {
+                up: Some(KeyCode::Z),
+                down: Some(KeyCode::S), 
+                right: Some(KeyCode::D), 
+                left: Some(KeyCode::Q), 
+                interact: Some(KeyCode::E), 
+                run: Some(KeyCode::ShiftLeft), 
+            })
             .insert_resource(ItemCount(0))
             .insert_resource(GameTime(Instant::now()))
             .add_plugins(
@@ -41,4 +49,3 @@ impl Plugin for GamePlugin {
             .add_systems(OnExit(AppState::Game), resume_simulation);
     }
 }
-

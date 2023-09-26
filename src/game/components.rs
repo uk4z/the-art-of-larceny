@@ -34,3 +34,13 @@ pub struct ItemCount(pub u8);
 
 #[derive(Resource, Debug)]
 pub struct GameTime(pub Instant);
+
+#[derive(Resource, Debug)]
+pub struct KeyBoard {
+    pub up: Option<KeyCode>,
+    pub down: Option<KeyCode>, 
+    pub right: Option<KeyCode>, 
+    pub left: Option<KeyCode>, 
+    pub run: Option<KeyCode>,
+    pub interact: Option<KeyCode>, 
+}

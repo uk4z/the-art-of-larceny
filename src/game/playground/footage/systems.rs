@@ -5,7 +5,7 @@ use bevy::audio::{Volume, PlaybackMode, VolumeLevel};
 
 
 use crate::get_scale_reference;
-use crate::game::components::Level;
+use crate::game::components::{Level, KeyBoard};
 use crate::game::bundle::footage::get_footage_bundle;
 use crate::game::playground::components::{WorldPosition, ReachDistance};
 
@@ -67,7 +67,7 @@ pub fn signal_footage (
         if interaction_allowed_for_footage(player_q, footage_q) {
             if let Ok(available) = available_q.get_single() {
                 if available.0 {
-                    text.sections[0].value = "Press E to suppress the footage".to_string();
+                    text.sections[0].value = "Interact to suppress the footage".to_string();
                 }
             }
         }
@@ -76,6 +76,7 @@ pub fn signal_footage (
 
 pub fn suppress_footage(
     keyboard_input: Res<Input<KeyCode>>, 
+    keyboard: Res<KeyBoard>, 
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Footage>)>,
     footage_q: Query<(&WorldPosition, &ReachDistance), (With<Footage>, Without<Player>)>,
     sink_q: Query<&AudioSink, With<Footage>>, 
@@ -83,7 +84,7 @@ pub fn suppress_footage(
     mut stealth_q: Query<&mut Stealth, With<Player>>,
 ) {
     if interaction_allowed_for_footage(player_q, footage_q) {
-        if keyboard_input.just_pressed(KeyCode::E) {
+        if keyboard_input.just_pressed(keyboard.interact.unwrap()) {
             if let Ok(mut available) = available_q.get_single_mut() {
                 if let Ok(mut stealth) = stealth_q.get_single_mut() {
                     available.0 = false;

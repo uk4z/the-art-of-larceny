@@ -4,7 +4,7 @@ pub mod systems;
 use bevy::prelude::*;
 
 use systems::*;
-use crate::{game::{playground::WORLD_SCALE, SimulationState}, AppState};
+use crate::{game::{playground::WORLD_SCALE, SimulationState, components::KeyBoard}, AppState};
 
 const METERS_PER_SECOND: f32 = 2.6;//In meters 
 pub const DISTANCE_PER_SECOND: f32 = METERS_PER_SECOND*WORLD_SCALE;
@@ -34,19 +34,20 @@ impl Plugin for PlayerPlugin {
 
 pub fn get_player_direction(
     keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
 ) -> Vec3 {
     let mut direction = Vec3::ZERO; 
 
-    if keyboard_input.pressed(KeyCode::Z) {
+    if keyboard_input.pressed(keyboard.up.unwrap()) {
         direction += Vec3::new(0.0, 1.0, 0.0);
     }
-    if keyboard_input.pressed(KeyCode::S) {
+    if keyboard_input.pressed(keyboard.down.unwrap()) {
         direction += Vec3::new(0.0, -1.0, 0.0);
     }
-    if keyboard_input.pressed(KeyCode::D) {
+    if keyboard_input.pressed(keyboard.right.unwrap()) {
         direction += Vec3::new(1.0, 0.0, 0.0); 
     }
-    if keyboard_input.pressed(KeyCode::Q) {
+    if keyboard_input.pressed(keyboard.left.unwrap()) {
         direction += Vec3::new(-1.0, 0.0, 0.0); 
     }
 
