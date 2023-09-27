@@ -3,6 +3,7 @@ use bevy::window::{Window, PrimaryWindow};
 use rand::prelude::*;
 
 use super::components::*;
+use crate::game::components::KeyBoard;
 use crate::get_scale_reference;
 use crate::components::Layer;
 use crate::game::playground::player::components::{Stealth, Player};
@@ -170,12 +171,13 @@ pub fn unlock_animation (
     timer_q: Query<&UnlockTimer, With<Target>>,
     player_q: Query<(&WorldPosition, &ReachDistance), (With<Player>, Without<Target>)>,
     target_q: Query<(&WorldPosition, &ReachDistance), (With<Target>, Without<Player>)>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<KeyBoard>, 
+    keyboard_input: Res<Input<KeyCode>>
 ) {
     if interaction_allowed_for_target(player_q, target_q) {
         if let Ok(mut text) = password_q.get_single_mut() {
             if let Ok(timer) = timer_q.get_single() {
-                if keyboard_input.pressed(KeyCode::E) && !timer.0.finished(){
+                if keyboard_input.pressed(keyboard.interact.unwrap()) && !timer.0.finished(){
                     let data = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".to_string();
                     let mut rng = thread_rng();
         
