@@ -37,6 +37,7 @@ impl Plugin for MainMenuPlugin {
                     interact_with_settings_button, 
                     interact_with_close_button, 
                     interact_with_settings_key_button, 
+                    select_level_on_return,
                     //update_level_image_on_resize, 
                     switch_level, 
                     display_level_title,

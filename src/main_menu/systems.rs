@@ -351,6 +351,51 @@ pub fn interact_with_close_button(
     }
 }
 
+pub fn select_level_on_return(
+    keyboard_input: Res<Input<KeyCode>>, 
+    level: Res<Level>, 
+    mut bounds_resource: ResMut<BoundsResource>,  
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
+    mut simulation_state_next_state: ResMut<NextState<SimulationState>>,
+    visibility_q: Query<&Visibility, With<LevelMenu>>, 
+) {
+    if let Ok(visibility) = visibility_q.get_single() {
+        match *visibility {
+            Visibility::Visible => {
+                if keyboard_input.just_pressed(KeyCode::Return) {
+                    let asset_path = match *level {
+                        Level::Factory => {"levels/bounds/factory_bounds.png"}, 
+                        Level::Tutorial => {"levels/bounds/tutorial_bounds.png"},
+                        Level::Warehouse => {"levels/bounds/warehouse_bounds.png"},
+                        Level::MillerHouse => {"levels/bounds/millerhouse_bounds.png"},
+                        Level::Maze => {"levels/bounds/maze_bounds.png"},
+                        Level::Office => {"levels/bounds/office_bounds.png"},
+                        Level::Canyon => {"levels/bounds/canyon_bounds.png"},
+                    };
+                    
+                    let asset: Handle<Image> = asset_server.load(asset_path);
+                    bounds_resource.handle = Some(asset); 
+                    
+                    simulation_state_next_state.set(SimulationState::Loading);
+            
+                    commands.spawn(
+                        AudioBundle {
+                            source: asset_server.load("sounds/confirmation.ogg"),
+                            settings: PlaybackSettings {
+                                mode: PlaybackMode::Despawn, 
+                                volume: Volume::Relative(VolumeLevel::new(0.2)), 
+                                speed: 1.0, paused: false}
+                        }
+                    );
+                }
+            }
+            _ => {}
+        }
+    }
+    
+}
+
 pub fn interact_with_select_button(
     asset_server: Res<AssetServer>,
     mut button_query: Query<
